@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% include "util/style.html" %}
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <!-- 水平导航 -->
+    {% include "util/navbar.html" %}
+    <!-- 侧边栏 -->
+    {% include "util/tree.html" %}
+    <!-- 内容主体区域 -->
+    <div class="layui-body">
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>接口列表</legend>
+        </fieldset>
+        <span class="layui-breadcrumb" style="margin-left: 20px">
+            <a><cite>接口列表</cite></a>
+        </span>
+        <fieldset class="layui-elem-field layui-field-title">
+        </fieldset>
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">接口名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="interface_name" placeholder="接口名称" autocomplete="off">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">创建时间</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="interface_date" placeholder=" - " autocomplete="off">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">是否删除</label>
+                    <div class="layui-input-inline">
+                        <select name="is_deleted" lay-verify="required">
+                            <option value="0">全部</option>
+                            <option value="1">正常</option>
+                            <option value="2">删除</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <div class="layui-input-inline">
+                        <button lay-submit class="layui-btn" lay-filter="interface-search" type="button">
+                            <i class="layui-icon layui-icon-search icon-size">搜索</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <!-- 任务列表 -->
+        <div id="interface-list" lay-filter="interface-list"></div>
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/interface/interface_list.js"></script>
+</body>
+</html>

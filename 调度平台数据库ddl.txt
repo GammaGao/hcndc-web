@@ -1,0 +1,918 @@
+﻿/*
+Navicat MySQL Data Transfer
+
+Source Server         : localhost
+Source Server Version : 50726
+Source Host           : localhost:3306
+Source Database       : hcndc
+
+Target Server Type    : MYSQL
+Target Server Version : 50726
+File Encoding         : 65001
+
+Date: 2019-07-01 17:24:08
+*/
+
+SET FOREIGN_KEY_CHECKS=0;
+
+-- ----------------------------
+-- Table structure for schedule_table_1
+-- ----------------------------
+DROP TABLE IF EXISTS `schedule_table_1`;
+CREATE TABLE `schedule_table_1` (
+  `id` varchar(191) NOT NULL,
+  `next_run_time` double DEFAULT NULL,
+  `job_state` blob NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ix_schedule_table_1_next_run_time` (`next_run_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of schedule_table_1
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for tb_dispatch
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_dispatch`;
+CREATE TABLE `tb_dispatch` (
+  `dispatch_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '调度id',
+  `interface_id` int(11) NOT NULL COMMENT '接口id',
+  `dispatch_name` varchar(255) NOT NULL COMMENT '调度名称',
+  `dispatch_desc` varchar(255) NOT NULL COMMENT '调度描述',
+  `minute` varchar(255) NOT NULL DEFAULT '*' COMMENT '分: 0-59',
+  `hour` varchar(255) NOT NULL DEFAULT '03' COMMENT '时: 0-23',
+  `day` varchar(255) NOT NULL DEFAULT '*' COMMENT '日: 1-31',
+  `month` varchar(255) NOT NULL DEFAULT '*' COMMENT '月: 1-12',
+  `week` varchar(255) NOT NULL DEFAULT '*' COMMENT '周: mon-sun',
+  `creator_id` int(11) NOT NULL COMMENT '创建用户id',
+  `updater_id` int(11) NOT NULL COMMENT '修改用户id',
+  `insert_time` int(11) NOT NULL COMMENT '创建时间',
+  `update_time` int(11) NOT NULL COMMENT '修改时间',
+  `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '调度状态:0.删除1.运行中,2.暂停',
+  PRIMARY KEY (`dispatch_id`),
+  UNIQUE KEY `Index_3` (`interface_id`),
+  KEY `Index_2` (`insert_time`),
+  KEY `Index_1` (`dispatch_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='调度配置表';
+
+-- ----------------------------
+-- Records of tb_dispatch
+-- ----------------------------
+INSERT INTO `tb_dispatch` VALUES ('1', '1', '测试调度1', '测试调度1描述', '0', '*', '*', '*', '*', '1', '1', '1561086471', '1561598946', '2');
+
+-- ----------------------------
+-- Table structure for tb_dispatch_alert
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_dispatch_alert`;
+CREATE TABLE `tb_dispatch_alert` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `dispatch_id` int(11) NOT NULL COMMENT '调度id',
+  `config_id` int(11) NOT NULL COMMENT '配置表id',
+  `alert_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '预警类型:1.成功,2.失败',
+  `send_mail` varchar(500) NOT NULL DEFAULT '' COMMENT '发送邮箱',
+  `creator_id` int(11) NOT NULL COMMENT '创建用户id',
+  `updater_id` int(11) NOT NULL COMMENT '修改用户id',
+  `insert_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否已删除:0.正常,1.删除',
+  PRIMARY KEY (`id`),
+  KEY `Index_1` (`dispatch_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='调度预警表';
+
+-- ----------------------------
+-- Records of tb_dispatch_alert
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for tb_dispatch_alert_conf
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_dispatch_alert_conf`;
+CREATE TABLE `tb_dispatch_alert_conf` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `alert_channel` tinyint(4) NOT NULL DEFAULT '0' COMMENT '预警渠道:1.邮件,2.钉钉',
+  `conf_name` varchar(255) NOT NULL COMMENT '配置名称',
+  `param_host` varchar(255) NOT NULL COMMENT '域名: 邮箱用',
+  `param_port` varchar(255) NOT NULL COMMENT '端口: 邮箱用',
+  `param_config` varchar(255) NOT NULL DEFAULT '' COMMENT '参数配置:邮箱或机器人api',
+  `param_pass` varchar(255) NOT NULL DEFAULT '' COMMENT '密码: 邮箱用',
+  `insert_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `creator_id` int(11) NOT NULL COMMENT '创建用户id',
+  `updater_id` int(11) NOT NULL COMMENT '修改用户id',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否已删除:0.正常,1.删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Records of tb_dispatch_alert_conf
+-- ----------------------------
+INSERT INTO `tb_dispatch_alert_conf` VALUES ('1', '1', '测试邮件', 'feidai.com', '0', 'asd', 'asd', '1561972649', '1561972661', '1', '1', '0');
+INSERT INTO `tb_dispatch_alert_conf` VALUES ('2', '2', 'qwda', '', '0', '阿斯顿请问的', '', '1561972671', '1561972683', '1', '1', '0');
+
+-- ----------------------------
+-- Table structure for tb_execute
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_execute`;
+CREATE TABLE `tb_execute` (
+  `exec_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '执行id',
+  `exec_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '执行类型: 1.调度, 2.手动',
+  `dispatch_id` int(11) NOT NULL DEFAULT '0' COMMENT '调度id',
+  `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '执行状态: 0.成功, 1.运行中, -1.失败',
+  `is_push` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否推送失败消息',
+  `insert_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  PRIMARY KEY (`exec_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8 COMMENT='调度执行表';
+
+-- ----------------------------
+-- Records of tb_execute
+-- ----------------------------
+INSERT INTO `tb_execute` VALUES ('1', '2', '0', '-1', '0', '1561085405', '1561085405');
+INSERT INTO `tb_execute` VALUES ('2', '2', '0', '-1', '0', '1561085539', '1561085539');
+INSERT INTO `tb_execute` VALUES ('3', '2', '0', '-1', '0', '1561085685', '1561085685');
+INSERT INTO `tb_execute` VALUES ('4', '2', '0', '0', '0', '1561086421', '1561086437');
+INSERT INTO `tb_execute` VALUES ('5', '1', '1', '0', '0', '1561088501', '1561088569');
+INSERT INTO `tb_execute` VALUES ('6', '1', '1', '0', '0', '1561089600', '1561089668');
+INSERT INTO `tb_execute` VALUES ('7', '1', '1', '0', '0', '1561093200', '1561093268');
+INSERT INTO `tb_execute` VALUES ('8', '1', '1', '0', '0', '1561096800', '1561096868');
+INSERT INTO `tb_execute` VALUES ('9', '1', '1', '0', '0', '1561097680', '1561097748');
+INSERT INTO `tb_execute` VALUES ('10', '1', '1', '0', '0', '1561366800', '1561366868');
+INSERT INTO `tb_execute` VALUES ('11', '1', '1', '0', '0', '1561370400', '1561370468');
+INSERT INTO `tb_execute` VALUES ('12', '1', '1', '0', '0', '1561374000', '1561374068');
+INSERT INTO `tb_execute` VALUES ('13', '1', '1', '0', '0', '1561377600', '1561377668');
+INSERT INTO `tb_execute` VALUES ('14', '1', '1', '0', '0', '1561381200', '1561381268');
+INSERT INTO `tb_execute` VALUES ('15', '1', '1', '0', '0', '1561384800', '1561384868');
+INSERT INTO `tb_execute` VALUES ('16', '1', '1', '0', '0', '1561388400', '1561388468');
+INSERT INTO `tb_execute` VALUES ('17', '1', '1', '0', '0', '1561392000', '1561392068');
+INSERT INTO `tb_execute` VALUES ('18', '1', '1', '0', '0', '1561395600', '1561395668');
+INSERT INTO `tb_execute` VALUES ('19', '1', '1', '0', '0', '1561399200', '1561399268');
+INSERT INTO `tb_execute` VALUES ('20', '1', '1', '0', '0', '1561402800', '1561402869');
+INSERT INTO `tb_execute` VALUES ('21', '1', '1', '0', '0', '1561406400', '1561406467');
+INSERT INTO `tb_execute` VALUES ('22', '1', '1', '0', '0', '1561410000', '1561410068');
+INSERT INTO `tb_execute` VALUES ('23', '1', '1', '0', '0', '1561413600', '1561413668');
+INSERT INTO `tb_execute` VALUES ('24', '1', '1', '0', '0', '1561417200', '1561417268');
+INSERT INTO `tb_execute` VALUES ('25', '1', '1', '0', '0', '1561420800', '1561420868');
+INSERT INTO `tb_execute` VALUES ('26', '1', '1', '0', '0', '1561424400', '1561424468');
+INSERT INTO `tb_execute` VALUES ('27', '1', '1', '0', '0', '1561428000', '1561428068');
+INSERT INTO `tb_execute` VALUES ('28', '1', '1', '0', '0', '1561431600', '1561431668');
+INSERT INTO `tb_execute` VALUES ('29', '1', '1', '0', '0', '1561435200', '1561435268');
+INSERT INTO `tb_execute` VALUES ('30', '1', '1', '0', '0', '1561438800', '1561438868');
+INSERT INTO `tb_execute` VALUES ('31', '1', '1', '0', '0', '1561442400', '1561442468');
+INSERT INTO `tb_execute` VALUES ('32', '1', '1', '0', '0', '1561446000', '1561446068');
+INSERT INTO `tb_execute` VALUES ('33', '1', '1', '0', '0', '1561449600', '1561449668');
+INSERT INTO `tb_execute` VALUES ('34', '1', '1', '0', '0', '1561453200', '1561453267');
+INSERT INTO `tb_execute` VALUES ('35', '1', '1', '0', '0', '1561456800', '1561456868');
+INSERT INTO `tb_execute` VALUES ('36', '1', '1', '0', '0', '1561460400', '1561460468');
+INSERT INTO `tb_execute` VALUES ('37', '1', '1', '0', '0', '1561464000', '1561464068');
+INSERT INTO `tb_execute` VALUES ('38', '1', '1', '0', '0', '1561467600', '1561467668');
+INSERT INTO `tb_execute` VALUES ('39', '1', '1', '0', '0', '1561471200', '1561471268');
+INSERT INTO `tb_execute` VALUES ('40', '1', '1', '0', '0', '1561474800', '1561474867');
+INSERT INTO `tb_execute` VALUES ('41', '1', '1', '0', '0', '1561478400', '1561478468');
+INSERT INTO `tb_execute` VALUES ('42', '1', '1', '0', '0', '1561482000', '1561482068');
+INSERT INTO `tb_execute` VALUES ('43', '1', '1', '0', '0', '1561485600', '1561485668');
+INSERT INTO `tb_execute` VALUES ('44', '1', '1', '0', '0', '1561489200', '1561489268');
+INSERT INTO `tb_execute` VALUES ('45', '1', '1', '0', '0', '1561492800', '1561492868');
+INSERT INTO `tb_execute` VALUES ('46', '1', '1', '0', '0', '1561496400', '1561496468');
+INSERT INTO `tb_execute` VALUES ('47', '1', '1', '0', '0', '1561500000', '1561500068');
+INSERT INTO `tb_execute` VALUES ('48', '1', '1', '0', '0', '1561503600', '1561503668');
+INSERT INTO `tb_execute` VALUES ('49', '1', '1', '0', '0', '1561507200', '1561507268');
+INSERT INTO `tb_execute` VALUES ('50', '1', '1', '0', '0', '1561510800', '1561510868');
+INSERT INTO `tb_execute` VALUES ('51', '1', '1', '0', '0', '1561514400', '1561514468');
+INSERT INTO `tb_execute` VALUES ('52', '1', '1', '0', '0', '1561518000', '1561518068');
+INSERT INTO `tb_execute` VALUES ('53', '1', '1', '0', '0', '1561521600', '1561521668');
+INSERT INTO `tb_execute` VALUES ('54', '1', '1', '0', '0', '1561525200', '1561525268');
+INSERT INTO `tb_execute` VALUES ('55', '1', '1', '0', '0', '1561528800', '1561528868');
+INSERT INTO `tb_execute` VALUES ('56', '1', '1', '0', '0', '1561532400', '1561532468');
+INSERT INTO `tb_execute` VALUES ('57', '1', '1', '0', '0', '1561536000', '1561536068');
+INSERT INTO `tb_execute` VALUES ('58', '1', '1', '0', '0', '1561539600', '1561539668');
+INSERT INTO `tb_execute` VALUES ('59', '1', '1', '0', '0', '1561543200', '1561543268');
+INSERT INTO `tb_execute` VALUES ('60', '1', '1', '0', '0', '1561546800', '1561546868');
+INSERT INTO `tb_execute` VALUES ('61', '1', '1', '0', '0', '1561550400', '1561550468');
+INSERT INTO `tb_execute` VALUES ('62', '1', '1', '0', '0', '1561554000', '1561554068');
+INSERT INTO `tb_execute` VALUES ('63', '1', '1', '0', '0', '1561557600', '1561557668');
+INSERT INTO `tb_execute` VALUES ('64', '1', '1', '0', '0', '1561561200', '1561561268');
+INSERT INTO `tb_execute` VALUES ('65', '1', '1', '0', '0', '1561564800', '1561564868');
+INSERT INTO `tb_execute` VALUES ('66', '1', '1', '0', '0', '1561568400', '1561568468');
+INSERT INTO `tb_execute` VALUES ('67', '1', '1', '0', '0', '1561572000', '1561572068');
+INSERT INTO `tb_execute` VALUES ('68', '1', '1', '0', '0', '1561575600', '1561575668');
+INSERT INTO `tb_execute` VALUES ('69', '1', '1', '0', '0', '1561579200', '1561579269');
+INSERT INTO `tb_execute` VALUES ('70', '1', '1', '0', '0', '1561582800', '1561582868');
+INSERT INTO `tb_execute` VALUES ('71', '1', '1', '0', '0', '1561586400', '1561586468');
+INSERT INTO `tb_execute` VALUES ('72', '1', '1', '0', '0', '1561590000', '1561590068');
+INSERT INTO `tb_execute` VALUES ('73', '1', '1', '0', '0', '1561593600', '1561593668');
+INSERT INTO `tb_execute` VALUES ('74', '1', '1', '0', '0', '1561597200', '1561597268');
+
+-- ----------------------------
+-- Table structure for tb_execute_detail
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_execute_detail`;
+CREATE TABLE `tb_execute_detail` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `exec_id` int(11) NOT NULL COMMENT '执行id',
+  `job_id` int(11) NOT NULL COMMENT '任务id',
+  `in_degree` text NOT NULL COMMENT '入度id',
+  `out_degree` text NOT NULL COMMENT '出度id',
+  `server_host` varchar(255) NOT NULL COMMENT '服务器ip',
+  `server_dir` varchar(255) NOT NULL COMMENT '脚本目录',
+  `server_script` varchar(500) NOT NULL COMMENT '脚本命令',
+  `position` tinyint(4) NOT NULL COMMENT '任务位置: 1.内部, 2.外部',
+  `level` smallint(6) NOT NULL COMMENT '任务层级',
+  `status` varchar(255) NOT NULL DEFAULT '' COMMENT '状态',
+  `insert_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  PRIMARY KEY (`id`),
+  KEY `Index_1` (`exec_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=425 DEFAULT CHARSET=utf8 COMMENT='调度执行详情表';
+
+-- ----------------------------
+-- Records of tb_execute_detail
+-- ----------------------------
+INSERT INTO `tb_execute_detail` VALUES ('1', '1', '1', '', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'running', '1561085410', '1561085410');
+INSERT INTO `tb_execute_detail` VALUES ('2', '2', '1', '', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561085544', '1561085554');
+INSERT INTO `tb_execute_detail` VALUES ('3', '3', '1', '', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561085690', '1561085700');
+INSERT INTO `tb_execute_detail` VALUES ('4', '4', '1', '', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561086426', '1561086436');
+INSERT INTO `tb_execute_detail` VALUES ('5', '5', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561088506', '1561088517');
+INSERT INTO `tb_execute_detail` VALUES ('6', '5', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561088523', '1561088533');
+INSERT INTO `tb_execute_detail` VALUES ('7', '5', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561088523', '1561088535');
+INSERT INTO `tb_execute_detail` VALUES ('8', '5', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561088539', '1561088549');
+INSERT INTO `tb_execute_detail` VALUES ('9', '5', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561088541', '1561088552');
+INSERT INTO `tb_execute_detail` VALUES ('10', '5', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561088558', '1561088568');
+INSERT INTO `tb_execute_detail` VALUES ('11', '6', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561089605', '1561089615');
+INSERT INTO `tb_execute_detail` VALUES ('12', '6', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561089621', '1561089632');
+INSERT INTO `tb_execute_detail` VALUES ('13', '6', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561089622', '1561089634');
+INSERT INTO `tb_execute_detail` VALUES ('14', '6', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561089638', '1561089648');
+INSERT INTO `tb_execute_detail` VALUES ('15', '6', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561089640', '1561089650');
+INSERT INTO `tb_execute_detail` VALUES ('16', '6', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561089656', '1561089667');
+INSERT INTO `tb_execute_detail` VALUES ('17', '7', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561093205', '1561093215');
+INSERT INTO `tb_execute_detail` VALUES ('18', '7', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561093221', '1561093232');
+INSERT INTO `tb_execute_detail` VALUES ('19', '7', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561093221', '1561093234');
+INSERT INTO `tb_execute_detail` VALUES ('20', '7', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561093238', '1561093248');
+INSERT INTO `tb_execute_detail` VALUES ('21', '7', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561093240', '1561093250');
+INSERT INTO `tb_execute_detail` VALUES ('22', '7', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561093256', '1561093267');
+INSERT INTO `tb_execute_detail` VALUES ('23', '8', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561096805', '1561096815');
+INSERT INTO `tb_execute_detail` VALUES ('24', '8', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561096821', '1561096832');
+INSERT INTO `tb_execute_detail` VALUES ('25', '8', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561096821', '1561096834');
+INSERT INTO `tb_execute_detail` VALUES ('26', '8', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561096838', '1561096848');
+INSERT INTO `tb_execute_detail` VALUES ('27', '8', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561096840', '1561096850');
+INSERT INTO `tb_execute_detail` VALUES ('28', '8', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561096856', '1561096867');
+INSERT INTO `tb_execute_detail` VALUES ('29', '9', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561097685', '1561097696');
+INSERT INTO `tb_execute_detail` VALUES ('30', '9', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561097702', '1561097712');
+INSERT INTO `tb_execute_detail` VALUES ('31', '9', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561097702', '1561097714');
+INSERT INTO `tb_execute_detail` VALUES ('32', '9', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561097718', '1561097729');
+INSERT INTO `tb_execute_detail` VALUES ('33', '9', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561097720', '1561097731');
+INSERT INTO `tb_execute_detail` VALUES ('34', '9', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561097737', '1561097747');
+INSERT INTO `tb_execute_detail` VALUES ('35', '10', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561366805', '1561366815');
+INSERT INTO `tb_execute_detail` VALUES ('36', '10', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561366822', '1561366832');
+INSERT INTO `tb_execute_detail` VALUES ('37', '10', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561366822', '1561366834');
+INSERT INTO `tb_execute_detail` VALUES ('38', '10', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561366838', '1561366849');
+INSERT INTO `tb_execute_detail` VALUES ('39', '10', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561366840', '1561366851');
+INSERT INTO `tb_execute_detail` VALUES ('40', '10', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561366857', '1561366867');
+INSERT INTO `tb_execute_detail` VALUES ('41', '11', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561370405', '1561370415');
+INSERT INTO `tb_execute_detail` VALUES ('42', '11', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561370422', '1561370432');
+INSERT INTO `tb_execute_detail` VALUES ('43', '11', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561370422', '1561370434');
+INSERT INTO `tb_execute_detail` VALUES ('44', '11', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561370438', '1561370448');
+INSERT INTO `tb_execute_detail` VALUES ('45', '11', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561370440', '1561370451');
+INSERT INTO `tb_execute_detail` VALUES ('46', '11', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561370457', '1561370467');
+INSERT INTO `tb_execute_detail` VALUES ('47', '12', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561374005', '1561374015');
+INSERT INTO `tb_execute_detail` VALUES ('48', '12', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561374022', '1561374032');
+INSERT INTO `tb_execute_detail` VALUES ('49', '12', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561374022', '1561374034');
+INSERT INTO `tb_execute_detail` VALUES ('50', '12', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561374038', '1561374048');
+INSERT INTO `tb_execute_detail` VALUES ('51', '12', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561374040', '1561374051');
+INSERT INTO `tb_execute_detail` VALUES ('52', '12', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561374057', '1561374067');
+INSERT INTO `tb_execute_detail` VALUES ('53', '13', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561377605', '1561377615');
+INSERT INTO `tb_execute_detail` VALUES ('54', '13', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561377621', '1561377632');
+INSERT INTO `tb_execute_detail` VALUES ('55', '13', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561377622', '1561377634');
+INSERT INTO `tb_execute_detail` VALUES ('56', '13', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561377638', '1561377648');
+INSERT INTO `tb_execute_detail` VALUES ('57', '13', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561377640', '1561377650');
+INSERT INTO `tb_execute_detail` VALUES ('58', '13', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561377657', '1561377667');
+INSERT INTO `tb_execute_detail` VALUES ('59', '14', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561381205', '1561381215');
+INSERT INTO `tb_execute_detail` VALUES ('60', '14', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561381221', '1561381232');
+INSERT INTO `tb_execute_detail` VALUES ('61', '14', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561381221', '1561381234');
+INSERT INTO `tb_execute_detail` VALUES ('62', '14', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561381238', '1561381248');
+INSERT INTO `tb_execute_detail` VALUES ('63', '14', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561381240', '1561381250');
+INSERT INTO `tb_execute_detail` VALUES ('64', '14', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561381257', '1561381267');
+INSERT INTO `tb_execute_detail` VALUES ('65', '15', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561384805', '1561384815');
+INSERT INTO `tb_execute_detail` VALUES ('66', '15', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561384821', '1561384832');
+INSERT INTO `tb_execute_detail` VALUES ('67', '15', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561384821', '1561384834');
+INSERT INTO `tb_execute_detail` VALUES ('68', '15', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561384838', '1561384848');
+INSERT INTO `tb_execute_detail` VALUES ('69', '15', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561384840', '1561384850');
+INSERT INTO `tb_execute_detail` VALUES ('70', '15', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561384856', '1561384867');
+INSERT INTO `tb_execute_detail` VALUES ('71', '16', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561388405', '1561388415');
+INSERT INTO `tb_execute_detail` VALUES ('72', '16', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561388421', '1561388432');
+INSERT INTO `tb_execute_detail` VALUES ('73', '16', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561388421', '1561388434');
+INSERT INTO `tb_execute_detail` VALUES ('74', '16', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561388438', '1561388448');
+INSERT INTO `tb_execute_detail` VALUES ('75', '16', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561388440', '1561388451');
+INSERT INTO `tb_execute_detail` VALUES ('76', '16', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561388457', '1561388467');
+INSERT INTO `tb_execute_detail` VALUES ('77', '17', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561392005', '1561392015');
+INSERT INTO `tb_execute_detail` VALUES ('78', '17', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561392021', '1561392032');
+INSERT INTO `tb_execute_detail` VALUES ('79', '17', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561392022', '1561392034');
+INSERT INTO `tb_execute_detail` VALUES ('80', '17', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561392038', '1561392048');
+INSERT INTO `tb_execute_detail` VALUES ('81', '17', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561392040', '1561392050');
+INSERT INTO `tb_execute_detail` VALUES ('82', '17', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561392057', '1561392067');
+INSERT INTO `tb_execute_detail` VALUES ('83', '18', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561395605', '1561395615');
+INSERT INTO `tb_execute_detail` VALUES ('84', '18', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561395621', '1561395632');
+INSERT INTO `tb_execute_detail` VALUES ('85', '18', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561395622', '1561395634');
+INSERT INTO `tb_execute_detail` VALUES ('86', '18', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561395638', '1561395648');
+INSERT INTO `tb_execute_detail` VALUES ('87', '18', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561395640', '1561395650');
+INSERT INTO `tb_execute_detail` VALUES ('88', '18', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561395657', '1561395667');
+INSERT INTO `tb_execute_detail` VALUES ('89', '19', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561399205', '1561399215');
+INSERT INTO `tb_execute_detail` VALUES ('90', '19', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561399221', '1561399232');
+INSERT INTO `tb_execute_detail` VALUES ('91', '19', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561399222', '1561399234');
+INSERT INTO `tb_execute_detail` VALUES ('92', '19', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561399238', '1561399248');
+INSERT INTO `tb_execute_detail` VALUES ('93', '19', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561399240', '1561399250');
+INSERT INTO `tb_execute_detail` VALUES ('94', '19', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561399257', '1561399267');
+INSERT INTO `tb_execute_detail` VALUES ('95', '20', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561402805', '1561402816');
+INSERT INTO `tb_execute_detail` VALUES ('96', '20', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561402822', '1561402833');
+INSERT INTO `tb_execute_detail` VALUES ('97', '20', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561402823', '1561402834');
+INSERT INTO `tb_execute_detail` VALUES ('98', '20', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561402839', '1561402849');
+INSERT INTO `tb_execute_detail` VALUES ('99', '20', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561402840', '1561402851');
+INSERT INTO `tb_execute_detail` VALUES ('100', '20', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561402857', '1561402867');
+INSERT INTO `tb_execute_detail` VALUES ('101', '21', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561406405', '1561406416');
+INSERT INTO `tb_execute_detail` VALUES ('102', '21', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561406422', '1561406432');
+INSERT INTO `tb_execute_detail` VALUES ('103', '21', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561406422', '1561406433');
+INSERT INTO `tb_execute_detail` VALUES ('104', '21', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561406438', '1561406449');
+INSERT INTO `tb_execute_detail` VALUES ('105', '21', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561406439', '1561406450');
+INSERT INTO `tb_execute_detail` VALUES ('106', '21', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561406456', '1561406466');
+INSERT INTO `tb_execute_detail` VALUES ('107', '22', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561410005', '1561410015');
+INSERT INTO `tb_execute_detail` VALUES ('108', '22', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561410022', '1561410032');
+INSERT INTO `tb_execute_detail` VALUES ('109', '22', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561410022', '1561410034');
+INSERT INTO `tb_execute_detail` VALUES ('110', '22', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561410038', '1561410048');
+INSERT INTO `tb_execute_detail` VALUES ('111', '22', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561410040', '1561410051');
+INSERT INTO `tb_execute_detail` VALUES ('112', '22', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561410057', '1561410067');
+INSERT INTO `tb_execute_detail` VALUES ('113', '23', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561413605', '1561413615');
+INSERT INTO `tb_execute_detail` VALUES ('114', '23', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561413621', '1561413632');
+INSERT INTO `tb_execute_detail` VALUES ('115', '23', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561413621', '1561413634');
+INSERT INTO `tb_execute_detail` VALUES ('116', '23', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561413638', '1561413648');
+INSERT INTO `tb_execute_detail` VALUES ('117', '23', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561413640', '1561413650');
+INSERT INTO `tb_execute_detail` VALUES ('118', '23', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561413656', '1561413667');
+INSERT INTO `tb_execute_detail` VALUES ('119', '24', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561417205', '1561417216');
+INSERT INTO `tb_execute_detail` VALUES ('120', '24', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561417222', '1561417232');
+INSERT INTO `tb_execute_detail` VALUES ('121', '24', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561417222', '1561417234');
+INSERT INTO `tb_execute_detail` VALUES ('122', '24', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561417238', '1561417249');
+INSERT INTO `tb_execute_detail` VALUES ('123', '24', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561417240', '1561417251');
+INSERT INTO `tb_execute_detail` VALUES ('124', '24', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561417257', '1561417267');
+INSERT INTO `tb_execute_detail` VALUES ('125', '25', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561420805', '1561420816');
+INSERT INTO `tb_execute_detail` VALUES ('126', '25', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561420822', '1561420832');
+INSERT INTO `tb_execute_detail` VALUES ('127', '25', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561420822', '1561420834');
+INSERT INTO `tb_execute_detail` VALUES ('128', '25', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561420838', '1561420848');
+INSERT INTO `tb_execute_detail` VALUES ('129', '25', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561420840', '1561420851');
+INSERT INTO `tb_execute_detail` VALUES ('130', '25', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561420857', '1561420867');
+INSERT INTO `tb_execute_detail` VALUES ('131', '26', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561424405', '1561424415');
+INSERT INTO `tb_execute_detail` VALUES ('132', '26', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561424421', '1561424432');
+INSERT INTO `tb_execute_detail` VALUES ('133', '26', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561424421', '1561424434');
+INSERT INTO `tb_execute_detail` VALUES ('134', '26', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561424438', '1561424448');
+INSERT INTO `tb_execute_detail` VALUES ('135', '26', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561424440', '1561424450');
+INSERT INTO `tb_execute_detail` VALUES ('136', '26', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561424456', '1561424467');
+INSERT INTO `tb_execute_detail` VALUES ('137', '27', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561428005', '1561428015');
+INSERT INTO `tb_execute_detail` VALUES ('138', '27', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561428022', '1561428032');
+INSERT INTO `tb_execute_detail` VALUES ('139', '27', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561428022', '1561428034');
+INSERT INTO `tb_execute_detail` VALUES ('140', '27', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561428038', '1561428048');
+INSERT INTO `tb_execute_detail` VALUES ('141', '27', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561428040', '1561428051');
+INSERT INTO `tb_execute_detail` VALUES ('142', '27', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561428057', '1561428067');
+INSERT INTO `tb_execute_detail` VALUES ('143', '28', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561431605', '1561431615');
+INSERT INTO `tb_execute_detail` VALUES ('144', '28', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561431621', '1561431632');
+INSERT INTO `tb_execute_detail` VALUES ('145', '28', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561431621', '1561431634');
+INSERT INTO `tb_execute_detail` VALUES ('146', '28', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561431638', '1561431648');
+INSERT INTO `tb_execute_detail` VALUES ('147', '28', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561431640', '1561431650');
+INSERT INTO `tb_execute_detail` VALUES ('148', '28', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561431657', '1561431667');
+INSERT INTO `tb_execute_detail` VALUES ('149', '29', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561435205', '1561435215');
+INSERT INTO `tb_execute_detail` VALUES ('150', '29', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561435221', '1561435232');
+INSERT INTO `tb_execute_detail` VALUES ('151', '29', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561435222', '1561435234');
+INSERT INTO `tb_execute_detail` VALUES ('152', '29', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561435238', '1561435248');
+INSERT INTO `tb_execute_detail` VALUES ('153', '29', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561435240', '1561435251');
+INSERT INTO `tb_execute_detail` VALUES ('154', '29', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561435257', '1561435267');
+INSERT INTO `tb_execute_detail` VALUES ('155', '30', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561438805', '1561438815');
+INSERT INTO `tb_execute_detail` VALUES ('156', '30', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561438821', '1561438832');
+INSERT INTO `tb_execute_detail` VALUES ('157', '30', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561438821', '1561438834');
+INSERT INTO `tb_execute_detail` VALUES ('158', '30', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561438838', '1561438848');
+INSERT INTO `tb_execute_detail` VALUES ('159', '30', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561438840', '1561438850');
+INSERT INTO `tb_execute_detail` VALUES ('160', '30', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561438856', '1561438867');
+INSERT INTO `tb_execute_detail` VALUES ('161', '31', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561442405', '1561442415');
+INSERT INTO `tb_execute_detail` VALUES ('162', '31', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561442421', '1561442432');
+INSERT INTO `tb_execute_detail` VALUES ('163', '31', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561442422', '1561442434');
+INSERT INTO `tb_execute_detail` VALUES ('164', '31', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561442438', '1561442448');
+INSERT INTO `tb_execute_detail` VALUES ('165', '31', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561442440', '1561442450');
+INSERT INTO `tb_execute_detail` VALUES ('166', '31', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561442457', '1561442467');
+INSERT INTO `tb_execute_detail` VALUES ('167', '32', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561446005', '1561446015');
+INSERT INTO `tb_execute_detail` VALUES ('168', '32', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561446021', '1561446032');
+INSERT INTO `tb_execute_detail` VALUES ('169', '32', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561446021', '1561446034');
+INSERT INTO `tb_execute_detail` VALUES ('170', '32', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561446038', '1561446048');
+INSERT INTO `tb_execute_detail` VALUES ('171', '32', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561446040', '1561446051');
+INSERT INTO `tb_execute_detail` VALUES ('172', '32', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561446057', '1561446067');
+INSERT INTO `tb_execute_detail` VALUES ('173', '33', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561449605', '1561449615');
+INSERT INTO `tb_execute_detail` VALUES ('174', '33', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561449621', '1561449632');
+INSERT INTO `tb_execute_detail` VALUES ('175', '33', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561449622', '1561449634');
+INSERT INTO `tb_execute_detail` VALUES ('176', '33', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561449638', '1561449648');
+INSERT INTO `tb_execute_detail` VALUES ('177', '33', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561449640', '1561449651');
+INSERT INTO `tb_execute_detail` VALUES ('178', '33', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561449657', '1561449667');
+INSERT INTO `tb_execute_detail` VALUES ('179', '34', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561453205', '1561453215');
+INSERT INTO `tb_execute_detail` VALUES ('180', '34', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561453222', '1561453232');
+INSERT INTO `tb_execute_detail` VALUES ('181', '34', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561453222', '1561453233');
+INSERT INTO `tb_execute_detail` VALUES ('182', '34', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561453238', '1561453248');
+INSERT INTO `tb_execute_detail` VALUES ('183', '34', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561453239', '1561453250');
+INSERT INTO `tb_execute_detail` VALUES ('184', '34', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561453256', '1561453266');
+INSERT INTO `tb_execute_detail` VALUES ('185', '35', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561456805', '1561456815');
+INSERT INTO `tb_execute_detail` VALUES ('186', '35', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561456821', '1561456832');
+INSERT INTO `tb_execute_detail` VALUES ('187', '35', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561456821', '1561456834');
+INSERT INTO `tb_execute_detail` VALUES ('188', '35', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561456838', '1561456848');
+INSERT INTO `tb_execute_detail` VALUES ('189', '35', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561456840', '1561456850');
+INSERT INTO `tb_execute_detail` VALUES ('190', '35', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561456857', '1561456867');
+INSERT INTO `tb_execute_detail` VALUES ('191', '36', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561460405', '1561460415');
+INSERT INTO `tb_execute_detail` VALUES ('192', '36', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561460421', '1561460432');
+INSERT INTO `tb_execute_detail` VALUES ('193', '36', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561460422', '1561460434');
+INSERT INTO `tb_execute_detail` VALUES ('194', '36', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561460438', '1561460448');
+INSERT INTO `tb_execute_detail` VALUES ('195', '36', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561460440', '1561460450');
+INSERT INTO `tb_execute_detail` VALUES ('196', '36', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561460457', '1561460467');
+INSERT INTO `tb_execute_detail` VALUES ('197', '37', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561464005', '1561464015');
+INSERT INTO `tb_execute_detail` VALUES ('198', '37', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561464021', '1561464032');
+INSERT INTO `tb_execute_detail` VALUES ('199', '37', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561464021', '1561464034');
+INSERT INTO `tb_execute_detail` VALUES ('200', '37', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561464038', '1561464048');
+INSERT INTO `tb_execute_detail` VALUES ('201', '37', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561464040', '1561464050');
+INSERT INTO `tb_execute_detail` VALUES ('202', '37', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561464057', '1561464067');
+INSERT INTO `tb_execute_detail` VALUES ('203', '38', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561467605', '1561467615');
+INSERT INTO `tb_execute_detail` VALUES ('204', '38', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561467622', '1561467632');
+INSERT INTO `tb_execute_detail` VALUES ('205', '38', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561467622', '1561467634');
+INSERT INTO `tb_execute_detail` VALUES ('206', '38', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561467638', '1561467648');
+INSERT INTO `tb_execute_detail` VALUES ('207', '38', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561467640', '1561467651');
+INSERT INTO `tb_execute_detail` VALUES ('208', '38', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561467657', '1561467667');
+INSERT INTO `tb_execute_detail` VALUES ('209', '39', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561471205', '1561471215');
+INSERT INTO `tb_execute_detail` VALUES ('210', '39', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561471222', '1561471232');
+INSERT INTO `tb_execute_detail` VALUES ('211', '39', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561471222', '1561471234');
+INSERT INTO `tb_execute_detail` VALUES ('212', '39', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561471238', '1561471248');
+INSERT INTO `tb_execute_detail` VALUES ('213', '39', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561471240', '1561471251');
+INSERT INTO `tb_execute_detail` VALUES ('214', '39', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561471257', '1561471267');
+INSERT INTO `tb_execute_detail` VALUES ('215', '40', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561474805', '1561474815');
+INSERT INTO `tb_execute_detail` VALUES ('216', '40', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561474821', '1561474832');
+INSERT INTO `tb_execute_detail` VALUES ('217', '40', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561474822', '1561474833');
+INSERT INTO `tb_execute_detail` VALUES ('218', '40', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561474838', '1561474848');
+INSERT INTO `tb_execute_detail` VALUES ('219', '40', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561474839', '1561474850');
+INSERT INTO `tb_execute_detail` VALUES ('220', '40', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561474856', '1561474866');
+INSERT INTO `tb_execute_detail` VALUES ('221', '41', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561478405', '1561478415');
+INSERT INTO `tb_execute_detail` VALUES ('222', '41', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561478421', '1561478432');
+INSERT INTO `tb_execute_detail` VALUES ('223', '41', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561478422', '1561478434');
+INSERT INTO `tb_execute_detail` VALUES ('224', '41', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561478438', '1561478448');
+INSERT INTO `tb_execute_detail` VALUES ('225', '41', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561478440', '1561478451');
+INSERT INTO `tb_execute_detail` VALUES ('226', '41', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561478457', '1561478467');
+INSERT INTO `tb_execute_detail` VALUES ('227', '42', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561482005', '1561482015');
+INSERT INTO `tb_execute_detail` VALUES ('228', '42', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561482021', '1561482032');
+INSERT INTO `tb_execute_detail` VALUES ('229', '42', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561482022', '1561482034');
+INSERT INTO `tb_execute_detail` VALUES ('230', '42', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561482038', '1561482048');
+INSERT INTO `tb_execute_detail` VALUES ('231', '42', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561482040', '1561482051');
+INSERT INTO `tb_execute_detail` VALUES ('232', '42', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561482057', '1561482067');
+INSERT INTO `tb_execute_detail` VALUES ('233', '43', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561485605', '1561485615');
+INSERT INTO `tb_execute_detail` VALUES ('234', '43', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561485621', '1561485632');
+INSERT INTO `tb_execute_detail` VALUES ('235', '43', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561485622', '1561485634');
+INSERT INTO `tb_execute_detail` VALUES ('236', '43', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561485638', '1561485648');
+INSERT INTO `tb_execute_detail` VALUES ('237', '43', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561485640', '1561485650');
+INSERT INTO `tb_execute_detail` VALUES ('238', '43', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561485657', '1561485667');
+INSERT INTO `tb_execute_detail` VALUES ('239', '44', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561489205', '1561489215');
+INSERT INTO `tb_execute_detail` VALUES ('240', '44', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561489222', '1561489232');
+INSERT INTO `tb_execute_detail` VALUES ('241', '44', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561489222', '1561489234');
+INSERT INTO `tb_execute_detail` VALUES ('242', '44', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561489238', '1561489248');
+INSERT INTO `tb_execute_detail` VALUES ('243', '44', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561489240', '1561489251');
+INSERT INTO `tb_execute_detail` VALUES ('244', '44', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561489257', '1561489267');
+INSERT INTO `tb_execute_detail` VALUES ('245', '45', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561492805', '1561492815');
+INSERT INTO `tb_execute_detail` VALUES ('246', '45', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561492822', '1561492832');
+INSERT INTO `tb_execute_detail` VALUES ('247', '45', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561492822', '1561492834');
+INSERT INTO `tb_execute_detail` VALUES ('248', '45', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561492838', '1561492848');
+INSERT INTO `tb_execute_detail` VALUES ('249', '45', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561492840', '1561492851');
+INSERT INTO `tb_execute_detail` VALUES ('250', '45', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561492857', '1561492867');
+INSERT INTO `tb_execute_detail` VALUES ('251', '46', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561496405', '1561496415');
+INSERT INTO `tb_execute_detail` VALUES ('252', '46', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561496421', '1561496432');
+INSERT INTO `tb_execute_detail` VALUES ('253', '46', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561496422', '1561496434');
+INSERT INTO `tb_execute_detail` VALUES ('254', '46', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561496438', '1561496448');
+INSERT INTO `tb_execute_detail` VALUES ('255', '46', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561496440', '1561496450');
+INSERT INTO `tb_execute_detail` VALUES ('256', '46', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561496457', '1561496467');
+INSERT INTO `tb_execute_detail` VALUES ('257', '47', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561500005', '1561500015');
+INSERT INTO `tb_execute_detail` VALUES ('258', '47', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561500021', '1561500032');
+INSERT INTO `tb_execute_detail` VALUES ('259', '47', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561500022', '1561500034');
+INSERT INTO `tb_execute_detail` VALUES ('260', '47', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561500038', '1561500048');
+INSERT INTO `tb_execute_detail` VALUES ('261', '47', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561500040', '1561500051');
+INSERT INTO `tb_execute_detail` VALUES ('262', '47', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561500057', '1561500067');
+INSERT INTO `tb_execute_detail` VALUES ('263', '48', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561503605', '1561503615');
+INSERT INTO `tb_execute_detail` VALUES ('264', '48', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561503621', '1561503632');
+INSERT INTO `tb_execute_detail` VALUES ('265', '48', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561503622', '1561503634');
+INSERT INTO `tb_execute_detail` VALUES ('266', '48', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561503638', '1561503648');
+INSERT INTO `tb_execute_detail` VALUES ('267', '48', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561503640', '1561503651');
+INSERT INTO `tb_execute_detail` VALUES ('268', '48', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561503657', '1561503667');
+INSERT INTO `tb_execute_detail` VALUES ('269', '49', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561507205', '1561507215');
+INSERT INTO `tb_execute_detail` VALUES ('270', '49', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561507222', '1561507232');
+INSERT INTO `tb_execute_detail` VALUES ('271', '49', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561507222', '1561507234');
+INSERT INTO `tb_execute_detail` VALUES ('272', '49', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561507238', '1561507248');
+INSERT INTO `tb_execute_detail` VALUES ('273', '49', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561507240', '1561507251');
+INSERT INTO `tb_execute_detail` VALUES ('274', '49', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561507257', '1561507267');
+INSERT INTO `tb_execute_detail` VALUES ('275', '50', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561510805', '1561510816');
+INSERT INTO `tb_execute_detail` VALUES ('276', '50', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561510822', '1561510832');
+INSERT INTO `tb_execute_detail` VALUES ('277', '50', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561510822', '1561510834');
+INSERT INTO `tb_execute_detail` VALUES ('278', '50', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561510838', '1561510849');
+INSERT INTO `tb_execute_detail` VALUES ('279', '50', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561510840', '1561510851');
+INSERT INTO `tb_execute_detail` VALUES ('280', '50', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561510857', '1561510867');
+INSERT INTO `tb_execute_detail` VALUES ('281', '51', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561514405', '1561514415');
+INSERT INTO `tb_execute_detail` VALUES ('282', '51', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561514421', '1561514432');
+INSERT INTO `tb_execute_detail` VALUES ('283', '51', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561514422', '1561514434');
+INSERT INTO `tb_execute_detail` VALUES ('284', '51', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561514438', '1561514448');
+INSERT INTO `tb_execute_detail` VALUES ('285', '51', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561514440', '1561514451');
+INSERT INTO `tb_execute_detail` VALUES ('286', '51', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561514457', '1561514467');
+INSERT INTO `tb_execute_detail` VALUES ('287', '52', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561518005', '1561518016');
+INSERT INTO `tb_execute_detail` VALUES ('288', '52', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561518022', '1561518032');
+INSERT INTO `tb_execute_detail` VALUES ('289', '52', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561518022', '1561518034');
+INSERT INTO `tb_execute_detail` VALUES ('290', '52', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561518038', '1561518049');
+INSERT INTO `tb_execute_detail` VALUES ('291', '52', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561518040', '1561518051');
+INSERT INTO `tb_execute_detail` VALUES ('292', '52', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561518057', '1561518067');
+INSERT INTO `tb_execute_detail` VALUES ('293', '53', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561521605', '1561521616');
+INSERT INTO `tb_execute_detail` VALUES ('294', '53', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561521622', '1561521632');
+INSERT INTO `tb_execute_detail` VALUES ('295', '53', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561521622', '1561521634');
+INSERT INTO `tb_execute_detail` VALUES ('296', '53', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561521638', '1561521649');
+INSERT INTO `tb_execute_detail` VALUES ('297', '53', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561521640', '1561521651');
+INSERT INTO `tb_execute_detail` VALUES ('298', '53', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561521657', '1561521667');
+INSERT INTO `tb_execute_detail` VALUES ('299', '54', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561525205', '1561525215');
+INSERT INTO `tb_execute_detail` VALUES ('300', '54', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561525221', '1561525232');
+INSERT INTO `tb_execute_detail` VALUES ('301', '54', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561525222', '1561525234');
+INSERT INTO `tb_execute_detail` VALUES ('302', '54', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561525238', '1561525248');
+INSERT INTO `tb_execute_detail` VALUES ('303', '54', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561525240', '1561525251');
+INSERT INTO `tb_execute_detail` VALUES ('304', '54', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561525257', '1561525267');
+INSERT INTO `tb_execute_detail` VALUES ('305', '55', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561528805', '1561528815');
+INSERT INTO `tb_execute_detail` VALUES ('306', '55', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561528821', '1561528832');
+INSERT INTO `tb_execute_detail` VALUES ('307', '55', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561528822', '1561528834');
+INSERT INTO `tb_execute_detail` VALUES ('308', '55', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561528838', '1561528848');
+INSERT INTO `tb_execute_detail` VALUES ('309', '55', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561528840', '1561528851');
+INSERT INTO `tb_execute_detail` VALUES ('310', '55', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561528857', '1561528867');
+INSERT INTO `tb_execute_detail` VALUES ('311', '56', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561532405', '1561532415');
+INSERT INTO `tb_execute_detail` VALUES ('312', '56', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561532422', '1561532432');
+INSERT INTO `tb_execute_detail` VALUES ('313', '56', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561532422', '1561532434');
+INSERT INTO `tb_execute_detail` VALUES ('314', '56', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561532438', '1561532449');
+INSERT INTO `tb_execute_detail` VALUES ('315', '56', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561532440', '1561532451');
+INSERT INTO `tb_execute_detail` VALUES ('316', '56', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561532457', '1561532467');
+INSERT INTO `tb_execute_detail` VALUES ('317', '57', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561536005', '1561536015');
+INSERT INTO `tb_execute_detail` VALUES ('318', '57', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561536021', '1561536032');
+INSERT INTO `tb_execute_detail` VALUES ('319', '57', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561536022', '1561536034');
+INSERT INTO `tb_execute_detail` VALUES ('320', '57', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561536038', '1561536048');
+INSERT INTO `tb_execute_detail` VALUES ('321', '57', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561536040', '1561536051');
+INSERT INTO `tb_execute_detail` VALUES ('322', '57', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561536057', '1561536067');
+INSERT INTO `tb_execute_detail` VALUES ('323', '58', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561539605', '1561539615');
+INSERT INTO `tb_execute_detail` VALUES ('324', '58', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561539622', '1561539632');
+INSERT INTO `tb_execute_detail` VALUES ('325', '58', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561539622', '1561539634');
+INSERT INTO `tb_execute_detail` VALUES ('326', '58', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561539638', '1561539648');
+INSERT INTO `tb_execute_detail` VALUES ('327', '58', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561539640', '1561539651');
+INSERT INTO `tb_execute_detail` VALUES ('328', '58', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561539657', '1561539667');
+INSERT INTO `tb_execute_detail` VALUES ('329', '59', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561543205', '1561543215');
+INSERT INTO `tb_execute_detail` VALUES ('330', '59', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561543222', '1561543232');
+INSERT INTO `tb_execute_detail` VALUES ('331', '59', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561543222', '1561543234');
+INSERT INTO `tb_execute_detail` VALUES ('332', '59', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561543238', '1561543248');
+INSERT INTO `tb_execute_detail` VALUES ('333', '59', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561543240', '1561543251');
+INSERT INTO `tb_execute_detail` VALUES ('334', '59', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561543257', '1561543267');
+INSERT INTO `tb_execute_detail` VALUES ('335', '60', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561546805', '1561546815');
+INSERT INTO `tb_execute_detail` VALUES ('336', '60', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561546821', '1561546832');
+INSERT INTO `tb_execute_detail` VALUES ('337', '60', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561546822', '1561546834');
+INSERT INTO `tb_execute_detail` VALUES ('338', '60', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561546838', '1561546848');
+INSERT INTO `tb_execute_detail` VALUES ('339', '60', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561546840', '1561546851');
+INSERT INTO `tb_execute_detail` VALUES ('340', '60', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561546857', '1561546867');
+INSERT INTO `tb_execute_detail` VALUES ('341', '61', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561550405', '1561550415');
+INSERT INTO `tb_execute_detail` VALUES ('342', '61', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561550421', '1561550432');
+INSERT INTO `tb_execute_detail` VALUES ('343', '61', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561550422', '1561550434');
+INSERT INTO `tb_execute_detail` VALUES ('344', '61', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561550438', '1561550448');
+INSERT INTO `tb_execute_detail` VALUES ('345', '61', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561550440', '1561550451');
+INSERT INTO `tb_execute_detail` VALUES ('346', '61', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561550457', '1561550467');
+INSERT INTO `tb_execute_detail` VALUES ('347', '62', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561554005', '1561554015');
+INSERT INTO `tb_execute_detail` VALUES ('348', '62', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561554021', '1561554032');
+INSERT INTO `tb_execute_detail` VALUES ('349', '62', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561554022', '1561554034');
+INSERT INTO `tb_execute_detail` VALUES ('350', '62', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561554038', '1561554048');
+INSERT INTO `tb_execute_detail` VALUES ('351', '62', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561554040', '1561554050');
+INSERT INTO `tb_execute_detail` VALUES ('352', '62', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561554057', '1561554067');
+INSERT INTO `tb_execute_detail` VALUES ('353', '63', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561557605', '1561557615');
+INSERT INTO `tb_execute_detail` VALUES ('354', '63', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561557621', '1561557632');
+INSERT INTO `tb_execute_detail` VALUES ('355', '63', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561557621', '1561557634');
+INSERT INTO `tb_execute_detail` VALUES ('356', '63', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561557638', '1561557648');
+INSERT INTO `tb_execute_detail` VALUES ('357', '63', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561557640', '1561557650');
+INSERT INTO `tb_execute_detail` VALUES ('358', '63', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561557656', '1561557667');
+INSERT INTO `tb_execute_detail` VALUES ('359', '64', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561561205', '1561561215');
+INSERT INTO `tb_execute_detail` VALUES ('360', '64', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561561221', '1561561232');
+INSERT INTO `tb_execute_detail` VALUES ('361', '64', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561561222', '1561561234');
+INSERT INTO `tb_execute_detail` VALUES ('362', '64', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561561238', '1561561248');
+INSERT INTO `tb_execute_detail` VALUES ('363', '64', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561561240', '1561561251');
+INSERT INTO `tb_execute_detail` VALUES ('364', '64', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561561257', '1561561267');
+INSERT INTO `tb_execute_detail` VALUES ('365', '65', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561564805', '1561564815');
+INSERT INTO `tb_execute_detail` VALUES ('366', '65', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561564822', '1561564832');
+INSERT INTO `tb_execute_detail` VALUES ('367', '65', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561564822', '1561564834');
+INSERT INTO `tb_execute_detail` VALUES ('368', '65', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561564838', '1561564849');
+INSERT INTO `tb_execute_detail` VALUES ('369', '65', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561564840', '1561564851');
+INSERT INTO `tb_execute_detail` VALUES ('370', '65', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561564857', '1561564867');
+INSERT INTO `tb_execute_detail` VALUES ('371', '66', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561568405', '1561568415');
+INSERT INTO `tb_execute_detail` VALUES ('372', '66', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561568421', '1561568432');
+INSERT INTO `tb_execute_detail` VALUES ('373', '66', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561568422', '1561568434');
+INSERT INTO `tb_execute_detail` VALUES ('374', '66', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561568438', '1561568448');
+INSERT INTO `tb_execute_detail` VALUES ('375', '66', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561568440', '1561568450');
+INSERT INTO `tb_execute_detail` VALUES ('376', '66', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561568457', '1561568467');
+INSERT INTO `tb_execute_detail` VALUES ('377', '67', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561572005', '1561572015');
+INSERT INTO `tb_execute_detail` VALUES ('378', '67', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561572022', '1561572032');
+INSERT INTO `tb_execute_detail` VALUES ('379', '67', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561572022', '1561572034');
+INSERT INTO `tb_execute_detail` VALUES ('380', '67', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561572038', '1561572048');
+INSERT INTO `tb_execute_detail` VALUES ('381', '67', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561572040', '1561572051');
+INSERT INTO `tb_execute_detail` VALUES ('382', '67', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561572057', '1561572067');
+INSERT INTO `tb_execute_detail` VALUES ('383', '68', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561575605', '1561575615');
+INSERT INTO `tb_execute_detail` VALUES ('384', '68', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561575621', '1561575632');
+INSERT INTO `tb_execute_detail` VALUES ('385', '68', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561575622', '1561575634');
+INSERT INTO `tb_execute_detail` VALUES ('386', '68', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561575638', '1561575648');
+INSERT INTO `tb_execute_detail` VALUES ('387', '68', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561575640', '1561575651');
+INSERT INTO `tb_execute_detail` VALUES ('388', '68', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561575657', '1561575667');
+INSERT INTO `tb_execute_detail` VALUES ('389', '69', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561579206', '1561579216');
+INSERT INTO `tb_execute_detail` VALUES ('390', '69', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561579222', '1561579233');
+INSERT INTO `tb_execute_detail` VALUES ('391', '69', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561579222', '1561579235');
+INSERT INTO `tb_execute_detail` VALUES ('392', '69', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561579239', '1561579249');
+INSERT INTO `tb_execute_detail` VALUES ('393', '69', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561579241', '1561579252');
+INSERT INTO `tb_execute_detail` VALUES ('394', '69', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561579258', '1561579268');
+INSERT INTO `tb_execute_detail` VALUES ('395', '70', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561582805', '1561582816');
+INSERT INTO `tb_execute_detail` VALUES ('396', '70', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561582822', '1561582832');
+INSERT INTO `tb_execute_detail` VALUES ('397', '70', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561582822', '1561582834');
+INSERT INTO `tb_execute_detail` VALUES ('398', '70', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561582838', '1561582849');
+INSERT INTO `tb_execute_detail` VALUES ('399', '70', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561582840', '1561582851');
+INSERT INTO `tb_execute_detail` VALUES ('400', '70', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561582857', '1561582867');
+INSERT INTO `tb_execute_detail` VALUES ('401', '71', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561586405', '1561586415');
+INSERT INTO `tb_execute_detail` VALUES ('402', '71', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561586421', '1561586432');
+INSERT INTO `tb_execute_detail` VALUES ('403', '71', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561586422', '1561586434');
+INSERT INTO `tb_execute_detail` VALUES ('404', '71', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561586438', '1561586448');
+INSERT INTO `tb_execute_detail` VALUES ('405', '71', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561586440', '1561586451');
+INSERT INTO `tb_execute_detail` VALUES ('406', '71', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561586457', '1561586467');
+INSERT INTO `tb_execute_detail` VALUES ('407', '72', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561590005', '1561590015');
+INSERT INTO `tb_execute_detail` VALUES ('408', '72', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561590022', '1561590032');
+INSERT INTO `tb_execute_detail` VALUES ('409', '72', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561590022', '1561590034');
+INSERT INTO `tb_execute_detail` VALUES ('410', '72', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561590038', '1561590048');
+INSERT INTO `tb_execute_detail` VALUES ('411', '72', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561590040', '1561590050');
+INSERT INTO `tb_execute_detail` VALUES ('412', '72', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561590057', '1561590067');
+INSERT INTO `tb_execute_detail` VALUES ('413', '73', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561593605', '1561593615');
+INSERT INTO `tb_execute_detail` VALUES ('414', '73', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561593621', '1561593632');
+INSERT INTO `tb_execute_detail` VALUES ('415', '73', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561593622', '1561593634');
+INSERT INTO `tb_execute_detail` VALUES ('416', '73', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561593638', '1561593648');
+INSERT INTO `tb_execute_detail` VALUES ('417', '73', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561593640', '1561593651');
+INSERT INTO `tb_execute_detail` VALUES ('418', '73', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561593657', '1561593667');
+INSERT INTO `tb_execute_detail` VALUES ('419', '74', '1', '', '2,3', 'localhost', 'E:\\python_test', 'python test.py', '1', '0', 'succeeded', '1561597205', '1561597215');
+INSERT INTO `tb_execute_detail` VALUES ('420', '74', '2', '1', '4,5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561597222', '1561597232');
+INSERT INTO `tb_execute_detail` VALUES ('421', '74', '3', '1', '5', 'localhost', 'E:\\python_test', 'python test.py', '1', '1', 'succeeded', '1561597222', '1561597234');
+INSERT INTO `tb_execute_detail` VALUES ('422', '74', '4', '2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561597238', '1561597248');
+INSERT INTO `tb_execute_detail` VALUES ('423', '74', '5', '3,2', '6', 'localhost', 'E:\\python_test', 'python test.py', '1', '2', 'succeeded', '1561597240', '1561597251');
+INSERT INTO `tb_execute_detail` VALUES ('424', '74', '6', '4,5', '', 'localhost', 'E:\\python_test', 'python test.py', '1', '3', 'succeeded', '1561597257', '1561597267');
+
+-- ----------------------------
+-- Table structure for tb_exec_host
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_exec_host`;
+CREATE TABLE `tb_exec_host` (
+  `server_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '服务器id',
+  `server_host` varchar(255) NOT NULL COMMENT '服务器ip',
+  `server_name` varchar(255) NOT NULL COMMENT '服务器名称',
+  `insert_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `creator_id` int(11) NOT NULL COMMENT '创建用户id',
+  `updater_id` int(11) NOT NULL COMMENT '修改用户id',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否已删除',
+  PRIMARY KEY (`server_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='执行服务器';
+
+-- ----------------------------
+-- Records of tb_exec_host
+-- ----------------------------
+INSERT INTO `tb_exec_host` VALUES ('1', 'localhost', '本地环境', '1561035530', '1561035530', '1', '1', '0');
+INSERT INTO `tb_exec_host` VALUES ('2', '172.16.213.22', '测试环境', '1561035555', '1561035555', '1', '1', '0');
+
+-- ----------------------------
+-- Table structure for tb_interface
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_interface`;
+CREATE TABLE `tb_interface` (
+  `interface_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '接口id',
+  `interface_name` varchar(255) NOT NULL DEFAULT '' COMMENT '接口名称',
+  `interface_desc` varchar(255) NOT NULL DEFAULT '' COMMENT '接口说明',
+  `retry` tinyint(4) NOT NULL DEFAULT '0' COMMENT '重试次数',
+  `insert_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `creator_id` int(11) NOT NULL COMMENT '创建用户id',
+  `updater_id` int(11) NOT NULL COMMENT '修改用户id',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否已删除',
+  PRIMARY KEY (`interface_id`),
+  KEY `Index_1` (`interface_name`),
+  KEY `Index_2` (`insert_time`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='接口表';
+
+-- ----------------------------
+-- Records of tb_interface
+-- ----------------------------
+INSERT INTO `tb_interface` VALUES ('1', '测试接口1', '测试接口1描述信息', '3', '1561035494', '1561035494', '1', '1', '0');
+
+-- ----------------------------
+-- Table structure for tb_jobs
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_jobs`;
+CREATE TABLE `tb_jobs` (
+  `job_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '任务id',
+  `interface_id` int(11) NOT NULL COMMENT '接口id',
+  `job_name` varchar(255) NOT NULL COMMENT '任务名称',
+  `job_desc` varchar(255) NOT NULL DEFAULT '' COMMENT '任务描述',
+  `server_id` int(11) NOT NULL COMMENT '服务器id',
+  `server_dir` varchar(255) NOT NULL COMMENT '脚本目录',
+  `server_script` varchar(500) NOT NULL COMMENT '脚本命令',
+  `run_period` varchar(14) NOT NULL DEFAULT '' COMMENT '秒账期',
+  `insert_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `creator_id` int(11) NOT NULL COMMENT '创建用户id',
+  `updater_id` int(11) NOT NULL COMMENT '修改用户id',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否已删除',
+  PRIMARY KEY (`job_id`),
+  KEY `Index_1` (`job_name`),
+  KEY `Index_2` (`insert_time`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='任务表';
+
+-- ----------------------------
+-- Records of tb_jobs
+-- ----------------------------
+INSERT INTO `tb_jobs` VALUES ('1', '1', '测试任务1', '测试任务1描述', '1', 'E:\\python_test', 'python test.py', '', '1561035687', '1561035687', '1', '1', '0');
+INSERT INTO `tb_jobs` VALUES ('2', '1', '测试任务2', '测试任务2描述', '1', 'E:\\python_test', 'python test.py', '', '1561035726', '1561085333', '1', '1', '0');
+INSERT INTO `tb_jobs` VALUES ('3', '1', '测试任务3', '测试任务3描述', '1', 'E:\\python_test', 'python test.py', '', '1561035745', '1561035745', '1', '1', '0');
+INSERT INTO `tb_jobs` VALUES ('4', '1', '测试任务4', '测试任务4描述', '1', 'E:\\python_test', 'python test.py', '', '1561035804', '1561035804', '1', '1', '0');
+INSERT INTO `tb_jobs` VALUES ('5', '1', '测试任务5', '测试任务5描述', '1', 'E:\\python_test', 'python test.py', '', '1561035823', '1561035823', '1', '1', '0');
+INSERT INTO `tb_jobs` VALUES ('6', '1', '测试任务6', '测试任务6', '1', 'E:\\python_test', 'python test.py', '', '1561035875', '1561035875', '1', '1', '0');
+
+-- ----------------------------
+-- Table structure for tb_job_prep
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_job_prep`;
+CREATE TABLE `tb_job_prep` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `job_id` int(11) NOT NULL COMMENT '任务id',
+  `prep_id` int(11) DEFAULT NULL COMMENT '依赖id',
+  `insert_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `creator_id` int(11) NOT NULL COMMENT '创建用户id',
+  `updater_id` int(11) NOT NULL COMMENT '修改用户id',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否已删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COMMENT='任务依赖表';
+
+-- ----------------------------
+-- Records of tb_job_prep
+-- ----------------------------
+INSERT INTO `tb_job_prep` VALUES ('1', '2', '1', '1561035726', '1561035726', '1', '1', '0');
+INSERT INTO `tb_job_prep` VALUES ('2', '3', '1', '1561035745', '1561035745', '1', '1', '0');
+INSERT INTO `tb_job_prep` VALUES ('3', '4', '2', '1561035804', '1561035804', '1', '1', '0');
+INSERT INTO `tb_job_prep` VALUES ('4', '5', '3', '1561035823', '1561035823', '1', '1', '0');
+INSERT INTO `tb_job_prep` VALUES ('5', '5', '2', '1561035823', '1561035823', '1', '1', '0');
+INSERT INTO `tb_job_prep` VALUES ('6', '6', '3', '1561035876', '1561035876', '1', '1', '1');
+INSERT INTO `tb_job_prep` VALUES ('7', '6', '4', '1561035876', '1561035876', '1', '1', '0');
+INSERT INTO `tb_job_prep` VALUES ('8', '6', '5', '1561035876', '1561035876', '1', '1', '0');
+
+-- ----------------------------
+-- Table structure for tb_scheduler
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_scheduler`;
+CREATE TABLE `tb_scheduler` (
+  `id` varchar(191) NOT NULL COMMENT '执行流id',
+  `next_run_time` double DEFAULT NULL COMMENT '下次运行时间',
+  `job_state` blob NOT NULL COMMENT '任务持久化对象: pickle.loads(blob)'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='apscheduler持久化表-防止系统重启';
+
+-- ----------------------------
+-- Records of tb_scheduler
+-- ----------------------------
+INSERT INTO `tb_scheduler` VALUES ('scheduler_1', null, 0x800495BE030000000000007D94288C0776657273696F6E944B018C026964948C0B7363686564756C65725F31948C0466756E63948C2F7363686564756C65722E646973747269627574655F7363686564756C65723A6765745F64697370617463685F6A6F62948C0774726967676572948C1961707363686564756C65722E74726967676572732E63726F6E948C0B43726F6E547269676765729493942981947D942868014B028C0874696D657A6F6E65948C047079747A948C025F70949394288C0D417369612F5368616E67686169944DE8714B008C034C4D5494749452948C0A73746172745F64617465944E8C08656E645F64617465944E8C066669656C6473945D94288C2061707363686564756C65722E74726967676572732E63726F6E2E6669656C6473948C09426173654669656C649493942981947D94288C046E616D65948C0479656172948C0A69735F64656661756C7494888C0B65787072657373696F6E73945D948C2561707363686564756C65722E74726967676572732E63726F6E2E65787072657373696F6E73948C0D416C6C45787072657373696F6E9493942981947D948C0473746570944E736261756268188C0A4D6F6E74684669656C649493942981947D9428681D8C056D6F6E746894681F8968205D9468242981947D9468274E736261756268188C0F4461794F664D6F6E74684669656C649493942981947D9428681D8C0364617994681F8968205D9468242981947D9468274E736261756268188C095765656B4669656C649493942981947D9428681D8C047765656B94681F8968205D9468242981947D9468274E736261756268188C0E4461794F665765656B4669656C649493942981947D9428681D8C0B6461795F6F665F7765656B94681F8868205D9468242981947D9468274E7362617562681A2981947D9428681D8C04686F757294681F8968205D9468242981947D9468274E7362617562681A2981947D9428681D8C066D696E75746594681F8968205D9468228C0F52616E676545787072657373696F6E9493942981947D942868274E8C056669727374944B008C046C617374944B007562617562681A2981947D9428681D8C067365636F6E6494681F8868205D9468532981947D942868274E68564B0068574B007562617562658C066A6974746572944E75628C086578656375746F72948C0764656661756C74948C0461726773944B0185948C066B7761726773947D94681D68038C126D6973666972655F67726163655F74696D65944B018C08636F616C6573636594888C0D6D61785F696E7374616E636573944B018C0D6E6578745F72756E5F74696D65944E752E);
+
+-- ----------------------------
+-- Table structure for tb_schedule_alert_conf
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_schedule_alert_conf`;
+CREATE TABLE `tb_schedule_alert_conf` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '配置id',
+  `alert_channel` tinyint(4) NOT NULL DEFAULT '0' COMMENT '预警渠道:1.邮件,2.钉钉',
+  `conf_name` varchar(255) NOT NULL COMMENT '配置名称',
+  `param_host` varchar(255) NOT NULL DEFAULT '' COMMENT '域名: 邮箱用',
+  `param_port` int(11) NOT NULL COMMENT '端口: 邮箱用',
+  `param_config` varchar(255) NOT NULL DEFAULT '' COMMENT '参数配置:邮箱或机器人api',
+  `param_pass` varchar(255) NOT NULL DEFAULT '' COMMENT '密码: 邮箱用',
+  `insert_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `creator_id` int(11) NOT NULL COMMENT '创建用户id',
+  `updater_id` int(11) NOT NULL COMMENT '修改用户id',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否已删除:0.正常,1.删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='执行流预警配置表';
+
+-- ----------------------------
+-- Records of tb_schedule_alert_conf
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for tb_schedule_executed
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_schedule_executed`;
+CREATE TABLE `tb_schedule_executed` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '日志id',
+  `job_id` int(11) NOT NULL COMMENT '调度id',
+  `run_date` varchar(10) NOT NULL COMMENT '运行日期',
+  `start_time` int(11) NOT NULL COMMENT '开始时间',
+  `end_time` int(11) NOT NULL COMMENT '结束时间',
+  `status` tinyint(4) NOT NULL COMMENT '状态',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='调度日志表';
+
+-- ----------------------------
+-- Records of tb_schedule_executed
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for tb_user
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_user`;
+CREATE TABLE `tb_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '用户id',
+  `user_name` varchar(20) NOT NULL DEFAULT '' COMMENT '用户名',
+  `password` varchar(40) NOT NULL DEFAULT '' COMMENT '密码',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否已删除:0.正常,1.删除',
+  PRIMARY KEY (`id`),
+  KEY `Index_1` (`user_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='用户表';
+
+-- ----------------------------
+-- Records of tb_user
+-- ----------------------------
+INSERT INTO `tb_user` VALUES ('1', 'admin', 'c3284d0f94606de1fd2af172aba15bf3', '0', '0', '0');
+
+-- ----------------------------
+-- Table structure for tb_user_privilege
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_user_privilege`;
+CREATE TABLE `tb_user_privilege` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '权限id',
+  `permission` varchar(40) NOT NULL DEFAULT '' COMMENT '权限名称',
+  `description` varchar(100) NOT NULL DEFAULT '' COMMENT '描述',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否已删除:0.正常,1.删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='权限表';
+
+-- ----------------------------
+-- Records of tb_user_privilege
+-- ----------------------------
+INSERT INTO `tb_user_privilege` VALUES ('1', 'write', '新增、更改、删除权限', '0', '0', '0');
+INSERT INTO `tb_user_privilege` VALUES ('2', 'execute', '执行权限', '0', '0', '0');
+INSERT INTO `tb_user_privilege` VALUES ('3', 'schedule', '调度权限', '0', '0', '0');
+
+-- ----------------------------
+-- Table structure for tb_user_privilege_link
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_user_privilege_link`;
+CREATE TABLE `tb_user_privilege_link` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `role_id` int(11) NOT NULL DEFAULT '0' COMMENT '角色id',
+  `privilege_id` int(11) NOT NULL DEFAULT '0' COMMENT '权限id',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否已删除:0.正常,1.删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='角色权限关联表';
+
+-- ----------------------------
+-- Records of tb_user_privilege_link
+-- ----------------------------
+INSERT INTO `tb_user_privilege_link` VALUES ('1', '1', '1', '0', '0', '0');
+INSERT INTO `tb_user_privilege_link` VALUES ('2', '1', '2', '0', '0', '0');
+INSERT INTO `tb_user_privilege_link` VALUES ('3', '1', '3', '0', '0', '0');
+
+-- ----------------------------
+-- Table structure for tb_user_roles
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_user_roles`;
+CREATE TABLE `tb_user_roles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '角色id',
+  `name` varchar(40) NOT NULL DEFAULT '' COMMENT '角色名',
+  `description` varchar(100) NOT NULL DEFAULT '' COMMENT '描述',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否已删除:0.正常,1.删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='角色表';
+
+-- ----------------------------
+-- Records of tb_user_roles
+-- ----------------------------
+INSERT INTO `tb_user_roles` VALUES ('1', '管理员', '全部权限', '0', '0', '0');
+
+-- ----------------------------
+-- Table structure for tb_user_roles_link
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_user_roles_link`;
+CREATE TABLE `tb_user_roles_link` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL DEFAULT '0' COMMENT '用户id',
+  `role_id` int(11) NOT NULL DEFAULT '0' COMMENT '角色id',
+  `create_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
+  `is_deleted` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否已删除:0.正常,1.删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='用户角色关联表';
+
+-- ----------------------------
+-- Records of tb_user_roles_link
+-- ----------------------------
+INSERT INTO `tb_user_roles_link` VALUES ('1', '1', '1', '0', '0', '0');

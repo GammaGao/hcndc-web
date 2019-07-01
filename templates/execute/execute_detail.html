@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% include "util/style.html" %}
+    <script type="text/javascript" src="/static/echarts/echarts.min.js"></script>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <!-- 水平导航 -->
+    {% include "util/navbar.html" %}
+    <!-- 侧边栏 -->
+    {% include "util/tree.html" %}
+    <!-- 内容主体区域 -->
+    <div class="layui-body" style="margin: 0 20px 0 20px">
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>执行详情</legend>
+        </fieldset>
+        <span class="layui-breadcrumb">
+            <a href="/execute/list/">执行列表</a>
+            <a><cite>执行详情</cite></a>
+        </span>
+        <fieldset class="layui-elem-field layui-field-title">
+        </fieldset>
+        <div class="layui-tab layui-tab-brief">
+            <ul class="layui-tab-title">
+                <li class="layui-this">网络拓扑</li>
+                <li>任务列表</li>
+                <li>运行日志</li>
+            </ul>
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <!-- 矢量图 -->
+                    <div class="svg-div" id="svg-div"></div>
+                </div>
+                <div class="layui-tab-item">
+                    <!-- 执行详情表 -->
+                    <div id="exec-detail" lay-filter="exec-detail"></div>
+                </div>
+                <div class="layui-tab-item exec-log-div">
+                    <!-- 执行日志 -->
+                    <ul class="layui-timeline svg-exec-div" id="exec-log"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    window.exec_id = {{ exec_id }};
+</script>
+<script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/execute/execute_detail.js"></script>
+</body>
+</html>

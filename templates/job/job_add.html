@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% include "util/style.html" %}
+    <link rel="stylesheet" href="/static/css/layui-formSelects.css">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <!-- 水平导航 -->
+    {% include "util/navbar.html" %}
+    <!-- 侧边栏 -->
+    {% include "util/tree.html" %}
+    <!-- 内容主体区域 -->
+    <div class="layui-body">
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>新增任务</legend>
+        </fieldset>
+        <span class="layui-breadcrumb" style="margin-left: 20px">
+            <a href="/job/">任务列表</a>
+            <a><cite>新增任务</cite></a>
+        </span>
+        <fieldset class="layui-elem-field layui-field-title">
+        </fieldset>
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">接口名称</label>
+                <div class="layui-input-inline">
+                    <select name="interface_id" lay-filter="interface_id"></select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">任务名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="job_name" lay-verify="required" placeholder="任务名称" autocomplete="off">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">任务描述</label>
+                <div class="layui-input-block">
+                    <textarea class="layui-textarea" name="job_desc" placeholder="任务描述"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">服务器名称</label>
+                <div class="layui-input-inline">
+                    <select name="server_id" lay-filter="server_id"></select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">脚本目录</label>
+                <div class="layui-input-block">
+                    <input type="text" class="layui-input" name="server_dir" placeholder="服务器目录" autocomplete="off">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">脚本命令</label>
+                <div class="layui-input-block">
+                    <textarea class="layui-textarea" name="server_script" lay-verify="required" placeholder="脚本命令"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">依赖任务</label>
+                <div class="layui-input-block" style="width: 600px;">
+                    <select name="job_prep" xm-select="job_prep"></select>
+                </div>
+        </div>
+            <div class="layui-input-block">
+                <div class="layui-input-inline">
+                    <button lay-submit class="layui-btn" lay-filter="job-save" type="button">保存</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">清空</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/layui-formSelects.js"></script>
+<script type="text/javascript" src="/static/js/job/job_add.js"></script>
+</body>
+</html>

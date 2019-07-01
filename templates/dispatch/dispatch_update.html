@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% include "util/style.html" %}
+    <link rel="stylesheet" href="/static/css/layui-formSelects.css">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <!-- 水平导航 -->
+    {% include "util/navbar.html" %}
+    <!-- 侧边栏 -->
+    {% include "util/tree.html" %}
+    <!-- 内容主体区域 -->
+    <div class="layui-body">
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>修改调度</legend>
+        </fieldset>
+        <span class="layui-breadcrumb" style="margin-left: 20px">
+            <a href="/dispatch/">调度列表</a>
+            <a><cite>修改调度</cite></a>
+        </span>
+        <fieldset class="layui-elem-field layui-field-title">
+        </fieldset>
+        <!-- 调度 -->
+        <form class="layui-form" lay-filter="dispatch_detail">
+            <div class="layui-form-item">
+                <label class="layui-form-label">接口ID</label>
+                <div class="layui-input-inline">
+                    <label>
+                        <select name="interface_id" lay-verify="required"></select>
+                    </label>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">调度名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="dispatch_name" placeholder="调度名称" autocomplete="off">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">调度描述</label>
+                <div class="layui-input-block">
+                    <textarea class="layui-textarea" placeholder="调度描述" name="dispatch_desc"></textarea>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">调度状态</label>
+                <div class="layui-input-inline">
+                    <select name="status" lay-verify="required">
+                        <option value="0">删除</option>
+                        <option value="1">运行</option>
+                        <option value="2">暂停</option>
+                    </select>
+                </div>
+            </div>
+        </form>
+        <!-- cron表达式 -->
+        <div class="layui-input-block">
+            <div class="layui-input-inline">
+                <div class="layui-tab layui-tab-card">
+                    <ul class="layui-tab-title">
+                        <li class="layui-this">分</li>
+                        <li>时</li>
+                        <li>日</li>
+                        <li>月</li>
+                        <li>周</li>
+                    </ul>
+                    <div class="layui-tab-content">
+                        <div class="layui-tab-item layui-show">
+                            <form class="layui-form" lay-filter="minute">
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block cron-margin-left">
+                                        <input type="radio" lay-filter="minute" name="minute" value="0"
+                                               title="每分: *" checked="">
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="minute" name="minute" value="1"
+                                                   title="周期: ">
+                                        </div>
+                                        从
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="1" max="58"
+                                                   id="minute-cycle-1"
+                                                   value="1" disabled>
+                                        </div>
+                                        分开始, 到
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="2" max="59"
+                                                   id="minute-cycle-2"
+                                                   value="2" disabled>
+                                        </div>
+                                        分, 每分执行一次
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="minute" name="minute" value="2"
+                                                   title="循环: ">
+                                        </div>
+                                        从
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="0" max="59"
+                                                   id="minute-loop-1"
+                                                   value="0" disabled>
+                                        </div>
+                                        分开始, 每
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="1" max="59"
+                                                   id="minute-loop-2"
+                                                   value="1" disabled>
+                                        </div>
+                                        分执行一次
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="minute" name="minute" value="3"
+                                                   title="指定: ">
+                                        </div>
+                                    </div>
+                                    <div class="layui-input-block minuteList">
+                                        <input type="checkbox" value="0" title="00" name="0" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="1" title="01" name="1" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="2" title="02" name="2" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="3" title="03" name="3" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="4" title="04" name="4" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="5" title="05" name="5" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="6" title="06" name="6" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="7" title="07" name="7" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="8" title="08" name="8" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="9" title="09" name="9" lay-filter="minute"
+                                               disabled>
+                                    </div>
+                                    <div class="layui-input-block minuteList">
+                                        <input type="checkbox" value="10" title="10" name="10" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="11" title="11" name="11" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="12" title="12" name="12" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="13" title="13" name="13" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="14" title="14" name="14" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="15" title="15" name="15" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="16" title="16" name="16" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="17" title="17" name="17" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="18" title="18" name="18" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="19" title="19" name="19" lay-filter="minute"
+                                               disabled>
+                                    </div>
+                                    <div class="layui-input-block minuteList">
+                                        <input type="checkbox" value="20" title="20" name="20" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="21" title="21" name="21" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="22" title="22" name="22" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="23" title="23" name="23" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="24" title="24" name="24" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="25" title="25" name="25" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="26" title="26" name="26" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="27" title="27" name="27" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="28" title="28" name="28" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="29" title="29" name="29" lay-filter="minute"
+                                               disabled>
+                                    </div>
+                                    <div class="layui-input-block minuteList">
+                                        <input type="checkbox" value="30" title="30" name="30" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="31" title="31" name="31" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="32" title="32" name="32" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="33" title="33" name="33" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="34" title="34" name="34" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="35" title="35" name="35" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="36" title="36" name="36" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="37" title="37" name="37" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="38" title="38" name="38" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="39" title="39" name="39" lay-filter="minute"
+                                               disabled>
+                                    </div>
+                                    <div class="layui-input-block minuteList">
+                                        <input type="checkbox" value="40" title="40" name="40" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="41" title="41" name="41" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="42" title="42" name="42" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="43" title="43" name="43" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="44" title="44" name="44" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="45" title="45" name="45" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="46" title="46" name="46" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="47" title="47" name="47" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="48" title="48" name="48" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="49" title="49" name="49" lay-filter="minute"
+                                               disabled>
+                                    </div>
+                                    <div class="layui-input-block minuteList">
+                                        <input type="checkbox" value="50" title="50" name="50" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="51" title="51" name="51" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="52" title="52" name="52" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="53" title="53" name="53" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="54" title="54" name="54" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="55" title="55" name="55" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="56" title="56" name="56" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="57" title="57" name="57" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="58" title="58" name="58" lay-filter="minute"
+                                               disabled>
+                                        <input type="checkbox" value="59" title="59" name="59" lay-filter="minute"
+                                               disabled>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="layui-tab-item">
+                            <form class="layui-form" lay-filter="hour">
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block cron-margin-left">
+                                        <input type="radio" lay-filter="hour" name="hour" value="0" title="每时: *"
+                                               checked="">
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="hour" name="hour" value="1"
+                                                   title="周期: ">
+                                        </div>
+                                        从
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="0" max="23"
+                                                   id="hour-cycle-1"
+                                                   value="0" disabled>
+                                        </div>
+                                        时开始, 到
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="1" max="23"
+                                                   id="hour-cycle-2"
+                                                   value="1" disabled>
+                                        </div>
+                                        时, 每时执行一次
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="hour" name="hour" value="2"
+                                                   title="循环: ">
+                                        </div>
+                                        从
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="0" max="23"
+                                                   id="hour-loop-1"
+                                                   value="0" disabled>
+                                        </div>
+                                        时开始, 每
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="1" max="23"
+                                                   id="hour-loop-2"
+                                                   value="1" disabled>
+                                        </div>
+                                        时执行一次
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="hour" name="hour" value="3"
+                                                   title="指定: ">
+                                        </div>
+                                    </div>
+                                    <div class="layui-input-block hourList">
+                                        <input type="checkbox" value="0" title="00" name="0" lay-filter="hour" disabled>
+                                        <input type="checkbox" value="1" title="01" name="1" lay-filter="hour" disabled>
+                                        <input type="checkbox" value="2" title="02" name="2" lay-filter="hour" disabled>
+                                        <input type="checkbox" value="3" title="03" name="3" lay-filter="hour" disabled>
+                                        <input type="checkbox" value="4" title="04" name="4" lay-filter="hour" disabled>
+                                        <input type="checkbox" value="5" title="05" name="5" lay-filter="hour" disabled>
+                                        <input type="checkbox" value="6" title="06" name="6" lay-filter="hour" disabled>
+                                        <input type="checkbox" value="7" title="07" name="7" lay-filter="hour" disabled>
+                                        <input type="checkbox" value="8" title="08" name="8" lay-filter="hour" disabled>
+                                        <input type="checkbox" value="9" title="09" name="9" lay-filter="hour" disabled>
+                                        <input type="checkbox" value="10" title="10" name="10" lay-filter="hour"
+                                               disabled>
+                                        <input type="checkbox" value="11" title="11" name="11" lay-filter="hour"
+                                               disabled>
+                                    </div>
+                                    <div class="layui-input-block hourList">
+                                        <input type="checkbox" value="12" title="12" name="12" lay-filter="hour"
+                                               disabled>
+                                        <input type="checkbox" value="13" title="13" name="13" lay-filter="hour"
+                                               disabled>
+                                        <input type="checkbox" value="14" title="14" name="14" lay-filter="hour"
+                                               disabled>
+                                        <input type="checkbox" value="15" title="15" name="15" lay-filter="hour"
+                                               disabled>
+                                        <input type="checkbox" value="16" title="16" name="16" lay-filter="hour"
+                                               disabled>
+                                        <input type="checkbox" value="17" title="17" name="17" lay-filter="hour"
+                                               disabled>
+                                        <input type="checkbox" value="18" title="18" name="18" lay-filter="hour"
+                                               disabled>
+                                        <input type="checkbox" value="19" title="19" name="19" lay-filter="hour"
+                                               disabled>
+                                        <input type="checkbox" value="20" title="20" name="20" lay-filter="hour"
+                                               disabled>
+                                        <input type="checkbox" value="21" title="21" name="21" lay-filter="hour"
+                                               disabled>
+                                        <input type="checkbox" value="22" title="22" name="22" lay-filter="hour"
+                                               disabled>
+                                        <input type="checkbox" value="23" title="23" name="23" lay-filter="hour"
+                                               disabled>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="layui-tab-item">
+                            <form class="layui-form" lay-filter="day">
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block cron-margin-left">
+                                        <input type="radio" lay-filter="day" name="day" value="0" title="每日: *"
+                                               checked="">
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="day" name="day" value="1" title="周期: ">
+                                        </div>
+                                        从
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="1" max="31"
+                                                   id="day-cycle-1"
+                                                   value="1" disabled>
+                                        </div>
+                                        日开始, 到
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="2" max="31"
+                                                   id="day-cycle-2"
+                                                   value="2" disabled>
+                                        </div>
+                                        日, 每日执行一次
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="day" name="day" value="2" title="循环: ">
+                                        </div>
+                                        从
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="1" max="31"
+                                                   id="day-loop-1"
+                                                   value="1" disabled>
+                                        </div>
+                                        日开始, 每
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="1" max="31"
+                                                   id="day-loop-2"
+                                                   value="1" disabled>
+                                        </div>
+                                        日执行一次
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="day" name="day" value="3" title="指定: ">
+                                        </div>
+                                    </div>
+                                    <div class="layui-input-block dayList">
+                                        <input type="checkbox" value="1" title="01" name="1" lay-filter="day" disabled>
+                                        <input type="checkbox" value="2" title="02" name="2" lay-filter="day" disabled>
+                                        <input type="checkbox" value="3" title="03" name="3" lay-filter="day" disabled>
+                                        <input type="checkbox" value="4" title="04" name="4" lay-filter="day" disabled>
+                                        <input type="checkbox" value="5" title="05" name="5" lay-filter="day" disabled>
+                                        <input type="checkbox" value="6" title="06" name="6" lay-filter="day" disabled>
+                                        <input type="checkbox" value="7" title="07" name="7" lay-filter="day" disabled>
+                                        <input type="checkbox" value="8" title="08" name="8" lay-filter="day" disabled>
+                                        <input type="checkbox" value="9" title="09" name="9" lay-filter="day" disabled>
+                                        <input type="checkbox" value="10" title="10" name="10" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="11" title="11" name="11" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="12" title="12" name="12" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="13" title="13" name="13" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="14" title="14" name="14" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="15" title="15" name="15" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="16" title="16" name="16" lay-filter="day"
+                                               disabled>
+                                    </div>
+                                    <div class="layui-input-block dayList">
+                                        <input type="checkbox" value="17" title="17" name="17" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="18" title="18" name="18" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="19" title="19" name="19" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="20" title="20" name="20" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="21" title="21" name="21" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="22" title="22" name="22" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="23" title="23" name="23" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="24" title="24" name="24" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="25" title="25" name="25" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="26" title="26" name="26" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="27" title="27" name="27" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="28" title="28" name="28" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="29" title="29" name="29" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="30" title="30" name="30" lay-filter="day"
+                                               disabled>
+                                        <input type="checkbox" value="31" title="31" name="31" lay-filter="day"
+                                               disabled>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="layui-tab-item">
+                            <form class="layui-form" lay-filter="month">
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block cron-margin-left">
+                                        <input type="radio" lay-filter="month" name="month" value="0" title="每月: *"
+                                               checked="">
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="month" name="month" value="1"
+                                                   title="周期: ">
+                                        </div>
+                                        从
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="1" max="12"
+                                                   id="month-cycle-1"
+                                                   value="1" disabled>
+                                        </div>
+                                        月开始, 到
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="2" max="12"
+                                                   id="month-cycle-2"
+                                                   value="2" disabled>
+                                        </div>
+                                        月, 每月执行一次
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="month" name="month" value="2"
+                                                   title="循环: ">
+                                        </div>
+                                        从
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="1" max="12"
+                                                   id="month-loop-1"
+                                                   value="1" disabled>
+                                        </div>
+                                        月开始, 每
+                                        <div class="layui-inline">
+                                            <input type="number" class="layui-input" min="1" max="12"
+                                                   id="month-loop-2"
+                                                   value="1" disabled>
+                                        </div>
+                                        月执行一次
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="month" name="month" value="3"
+                                                   title="指定: ">
+                                        </div>
+                                    </div>
+                                    <div class="layui-input-block monthList">
+                                        <input type="checkbox" value="0" title="00" name="0" lay-filter="month"
+                                               disabled>
+                                        <input type="checkbox" value="1" title="01" name="1" lay-filter="month"
+                                               disabled>
+                                        <input type="checkbox" value="2" title="02" name="2" lay-filter="month"
+                                               disabled>
+                                        <input type="checkbox" value="3" title="03" name="3" lay-filter="month"
+                                               disabled>
+                                        <input type="checkbox" value="4" title="04" name="4" lay-filter="month"
+                                               disabled>
+                                        <input type="checkbox" value="5" title="05" name="5" lay-filter="month"
+                                               disabled>
+                                        <input type="checkbox" value="6" title="06" name="6" lay-filter="month"
+                                               disabled>
+                                        <input type="checkbox" value="7" title="07" name="7" lay-filter="month"
+                                               disabled>
+                                        <input type="checkbox" value="8" title="08" name="8" lay-filter="month"
+                                               disabled>
+                                        <input type="checkbox" value="9" title="09" name="9" lay-filter="month"
+                                               disabled>
+                                        <input type="checkbox" value="10" title="10" name="10" lay-filter="month"
+                                               disabled>
+                                        <input type="checkbox" value="11" title="11" name="11" lay-filter="month"
+                                               disabled>
+                                        <input type="checkbox" value="12" title="12" name="12" lay-filter="month"
+                                               disabled>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="layui-tab-item">
+                            <form class="layui-form" lay-filter="week">
+                                <div class="layui-form-item">
+                                    <div class="layui-input-block cron-margin-left">
+                                        <input type="radio" lay-filter="week" name="week" value="0" title="每周: *"
+                                               checked="">
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="week" name="week" value="1"
+                                                   title="周期: ">
+                                        </div>
+                                        从
+                                        <div class="layui-inline">
+                                            <select name="week-list-1" lay-filter="week-list-1" id="week-list-1"
+                                                    disabled>
+                                                <option value="mon">星期一</option>
+                                                <option value="tue">星期二</option>
+                                                <option value="wed">星期三</option>
+                                                <option value="thu">星期四</option>
+                                                <option value="fri">星期五</option>
+                                                <option value="sat">星期六</option>
+                                                <option value="sun">星期天</option>
+                                            </select>
+                                        </div>
+                                        开始, 到
+                                        <div class="layui-inline">
+                                            <select name="week-cycle-2" lay-filter="week-list-2" id="week-list-2"
+                                                    disabled>
+                                                <option value="mon">星期一</option>
+                                                <option value="tue" selected>星期二</option>
+                                                <option value="wed">星期三</option>
+                                                <option value="thu">星期四</option>
+                                                <option value="fri">星期五</option>
+                                                <option value="sat">星期六</option>
+                                                <option value="sun">星期天</option>
+                                            </select>
+                                        </div>
+                                        , 每天执行一次
+                                    </div>
+                                    <div class="layui-input-block cron-margin-left">
+                                        <div class="layui-inline">
+                                            <input type="radio" lay-filter="week" name="week" value="2"
+                                                   title="指定: ">
+                                        </div>
+                                    </div>
+                                    <div class="layui-input-block weekList">
+                                        <input type="checkbox" value="mon" name="mon" title="星期一" lay-filter="week"
+                                               disabled>
+                                        <input type="checkbox" value="tue" name="tue" title="星期二" lay-filter="week"
+                                               disabled>
+                                        <input type="checkbox" value="wed" name="wed" title="星期三" lay-filter="week"
+                                               disabled>
+                                        <input type="checkbox" value="thu" name="thu" title="星期四" lay-filter="week"
+                                               disabled>
+                                        <input type="checkbox" value="fri" name="fri" title="星期五" lay-filter="week"
+                                               disabled>
+                                        <input type="checkbox" value="sat" name="sat" title="星期六" lay-filter="week"
+                                               disabled>
+                                        <input type="checkbox" value="sun" name="sun" title="星期天" lay-filter="week"
+                                               disabled>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <fieldset class="layui-elem-field">
+                    <legend>表达式</legend>
+                    <div class="layui-field-box">
+                        <form class="layui-form">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">Cron 表达式</label>
+                                <div class="layui-input-block">
+                                    <div class="layui-inline">
+                                        <input type="text" class="layui-input" name="cron-minute" value="*"
+                                               placeholder="分" disabled>
+                                    </div>
+                                    <div class="layui-inline">
+                                        <input type="text" class="layui-input" name="cron-hour" value="*"
+                                               placeholder="时" disabled>
+                                    </div>
+                                    <div class="layui-inline">
+                                        <input type="text" class="layui-input" name="cron-day" value="*"
+                                               placeholder="日"
+                                               disabled>
+                                    </div>
+                                    <div class="layui-inline">
+                                        <input type="text" class="layui-input" name="cron-month" value="*"
+                                               placeholder="月" disabled>
+                                    </div>
+                                    <div class="layui-inline">
+                                        <input type="text" class="layui-input" name="cron-week" value="*"
+                                               placeholder="周" disabled>
+                                    </div>
+                                    <div class="layui-inline">
+                                        <div class="layui-input-inline">
+                                            <button class="layui-btn" type="button" id="cron-search">
+                                                <i class="layui-icon layui-icon-search icon-size"> 查询</i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">运行时间</label>
+                                <div class="layui-input-block">
+                                    <ul id="cron-search-result"></ul>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+        <div class="layui-input-block">
+            <div class="layui-input-inline">
+                <button lay-submit class="layui-btn" lay-filter="dispatch-save" type="button">保存</button>
+            </div>
+        </div>
+        <!-- 预警 -->
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>修改调度预警</legend>
+        </fieldset>
+        <form class="layui-form" lay-filter="dispatch-alert">
+            <div class="layui-form-item">
+                <label class="layui-form-label">成功时发送</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" lay-skin="switch" lay-text="开启|关闭" lay-filter="alert_s_button"
+                           name="alert_s_button" value="1">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">预警渠道</label>
+                <div class="layui-input-inline">
+                    <select name="channel_s" disabled lay-filter="channel_s">
+                        <option value="">请选择</option>
+                        <option value="1">邮件</option>
+                        <option value="2">钉钉</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">配置名称</label>
+                <div class="layui-input-inline">
+                    <select name="conf_name_s" disabled lay-filter="conf_name_s"></select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">配置参数</label>
+                <div class="layui-input-block">
+                    <input type="text" class="layui-input" name="conf_value_s" disabled>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">发送邮箱</label>
+                <div class="layui-input-block">
+                    <input type="text" class="layui-input" name="send_mail_s">
+                </div>
+            </div>
+            <!-- 分割线 -->
+            <fieldset class="layui-elem-field layui-field-title"></fieldset>
+            <div class="layui-form-item">
+                <label class="layui-form-label">失败时发送</label>
+                <div class="layui-input-block">
+                    <input type="checkbox" lay-skin="switch" lay-text="开启|关闭" lay-filter="alert_f_button"
+                           name="alert_f_button" value="1">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">预警渠道</label>
+                <div class="layui-input-inline">
+                    <select name="channel_f" disabled lay-filter="channel_f">
+                        <option value="">请选择</option>
+                        <option value="1">邮件</option>
+                        <option value="2">钉钉</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">配置名称</label>
+                <div class="layui-input-inline">
+                    <select name="conf_name_f" disabled lay-filter="conf_name_f"></select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">配置参数</label>
+                <div class="layui-input-block">
+                    <input type="text" class="layui-input" name="conf_value_f" disabled>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">发送邮箱</label>
+                <div class="layui-input-block">
+                    <input type="text" class="layui-input" name="send_mail_f">
+                </div>
+            </div>
+            <div class="layui-input-block">
+                <div class="layui-input-inline">
+                    <button lay-submit class="layui-btn" lay-filter="alert-save" type="button">保存</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    window.dispatch_id = {{ dispatch_id }};
+</script>
+<script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/layui-formSelects.js"></script>
+<script type="text/javascript" src="/static/js/dispatch/dispatch_update.js"></script>
+</body>
+</html>

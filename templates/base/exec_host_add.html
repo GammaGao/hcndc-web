@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% include "util/style.html" %}
+    <link rel="stylesheet" href="/static/css/layui-formSelects.css">
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <!-- 水平导航 -->
+    {% include "util/navbar.html" %}
+    <!-- 侧边栏 -->
+    {% include "util/tree.html" %}
+    <!-- 内容主体区域 -->
+    <div class="layui-body">
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>新增执行服务器</legend>
+        </fieldset>
+        <span class="layui-breadcrumb" style="margin-left: 20px">
+            <a href="/base/">执行服务器列表</a>
+            <a><cite>新增执行服务器</cite></a>
+        </span>
+        <fieldset class="layui-elem-field layui-field-title">
+        </fieldset>
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <label class="layui-form-label">服务器IP</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="server_host" lay-verify="required" placeholder="服务器IP" autocomplete="off">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">服务器名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="server_name" placeholder="服务器名称" autocomplete="off">
+                </div>
+            </div>
+            <div class="layui-input-block">
+                <div class="layui-input-inline">
+                    <button lay-submit class="layui-btn" lay-filter="exec-host-save" type="button">保存</button>
+                    <button type="reset" class="layui-btn layui-btn-primary">清空</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/layui-formSelects.js"></script>
+<script type="text/javascript" src="/static/js/base/exec_host_add.js"></script>
+</body>
+</html>

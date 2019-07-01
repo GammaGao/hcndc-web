@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% include "util/style.html" %}
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <!-- 水平导航 -->
+    {% include "util/navbar.html" %}
+    <!-- 侧边栏 -->
+    {% include "util/tree.html" %}
+    <!-- 内容主体区域 -->
+    <div class="layui-body">
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>新增预警配置</legend>
+        </fieldset>
+        <span class="layui-breadcrumb" style="margin-left: 20px">
+            <a href="/base/alert/">预警配置列表</a>
+            <a><cite>新增预警配置</cite></a>
+        </span>
+        <fieldset class="layui-elem-field layui-field-title">
+        </fieldset>
+        <form class="layui-form" lay-filter="alert_conf_detail">
+            <div class="layui-form-item">
+                <label class="layui-form-label">预警渠道</label>
+                <div class="layui-input-inline">
+                    <select name="alert_channel" lay-filter="alert_channel">
+                        <option value="1">邮件</option>
+                        <option value="2">钉钉</option>
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">配置名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="conf_name" lay-verify="required" placeholder="配置名称" autocomplete="off">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">邮箱域名</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="param_host" placeholder="邮箱域名" autocomplete="off">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">参数配置</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="param_config" lay-verify="required" placeholder="参数配置" autocomplete="off">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">邮箱密码</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="param_pass" placeholder="参数配置" autocomplete="off">
+                </div>
+            </div>
+            <div class="layui-input-block">
+                <div class="layui-input-inline">
+                    <button lay-submit class="layui-btn" lay-filter="alert-save" type="button">保存</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/base/alert_add.js"></script>
+</body>
+</html>
