@@ -50,6 +50,7 @@ db = DictModel({
 # session超时时间
 app.permanent_session_lifetime = datetime.timedelta(days=3)
 
+
 # 跨域设置
 @app.after_request
 def cors(resp):
@@ -93,6 +94,7 @@ def resource_internal_server_error(e):
 def value_error(e):
     log.warn('服务发生异常: [error: %s]' % (e,), exc_info=True)
     return {'status': 500, 'msg': '失败'}, 500
+
 
 # 非测试环境不开启API界面
 if config.env.deploy != "dev":
