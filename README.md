@@ -26,7 +26,7 @@
     *   [6.2 执行端](#6.2执行端)
 
 # 网状分布式调度平台——执行端
-[HCNDC-exec](https://github.com/laixin86714802/HCNDC-exec.git)
+[HCNDC-exec](/xuexiang/HCNDC-exec)
 
 # 操作文档链接
 [操作文档链接](./操作文档.md)
