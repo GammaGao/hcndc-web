@@ -111,6 +111,7 @@ class InterfaceAdd(Resource):
         log.info('新增接口[params: %s]' % str(params))
         return params
 
+
 class InterfaceIDList(Resource):
     @staticmethod
     @InterfaceFilter.filter_get_interface_id_list(result=list)
@@ -120,6 +121,7 @@ class InterfaceIDList(Resource):
         params = Response()
         log.info('获取接口id列表')
         return params
+
 
 ns = api.namespace('interface', description='接口')
 ns.add_resource(InterfaceList, '/list/api/')

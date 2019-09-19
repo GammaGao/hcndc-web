@@ -46,13 +46,5 @@ class Login(Resource):
             abort(400, **make_result(status=400, msg='无用户登陆信息'))
 
 
-class User(Resource):
-    @staticmethod
-    def get():
-        """获取用户信息"""
-        result = session.get_info()
-        return make_result(200, msg='成功', data=result), 200
-
-
 ns = api.namespace('login', description='登陆')
 ns.add_resource(Login, '/api/')

@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 class LoginModel(object):
     @staticmethod
     def get_user(cursor, username, password):
