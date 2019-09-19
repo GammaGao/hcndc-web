@@ -48,6 +48,7 @@ let BASE = {
         login: '/login/',
         login_api: '/login/api/',
         user_api: '/user/api/',
+        user_menu_api: '/user/menu/api/',
         index: '/index/',
         interface: {
             'list': '/interface/',
@@ -190,4 +191,91 @@ let remakes = {
     'running': '运行中',
     'succeeded': '成功',
     'failed': '失败'
+};
+
+// 初始化菜单栏
+let menu_init = function (navbar_name, sidebar_name) {
+    $.ajax({
+        url: BASE.uri.user_menu_api,
+        type: 'get',
+        success: function (result) {
+            // 初始化导航栏
+            navbar_init(navbar_name, result);
+            // 初始化侧边栏
+            sidebar_init(navbar_name, sidebar_name, result);
+        }
+    });
+};
+
+// 初始化导航栏
+let navbar_init = function (navbar_name, result) {
+    if (result.status !== 200) {
+        layer.alert('请重新登陆');
+    } else {
+        result.data.menu.forEach(function (element) {
+            let item = sprintf('<li class="layui-nav-item"><a href="%s">%s</a></li>', element.url, element.menu_name);
+            $('.layui-nav.layui-layout-left').append(item);
+        })
+    }
+    // 更改当前样式
+    if (navbar_name) {
+        $('.layui-nav.layui-layout-left').children().each(function () {
+            if ($(this).text().replace(/\s+/g, "") === navbar_name) {
+                $(this).addClass('layui-this')
+            }
+        })
+    }
+};
+
+// 初始化侧边栏
+let sidebar_init = function (navbar_name, sidebar_name, result) {
+    for (let k = 0; k < result.data.menu.length; k++) {
+        // 获取该导航栏下菜单
+        let menu = result.data.menu[k];
+        if (navbar_name !== '' && menu.menu_name === navbar_name) {
+            let html = [];
+            for (let i = 0; i < menu.children.length; i++) {
+                let items = menu.children[i];
+                // 二级菜单
+                if (items['url']) {
+                    // 当前选中样式
+                    if (sidebar_name === items['menu_name'].replace(/\s+/g, "")) {
+                        html.push('<li class="layui-nav-item layui-this">');
+                    } else {
+                        html.push('<li class="layui-nav-item">');
+                    }
+                    html.push('<a href="', items['url'], '">');
+                    html.push('<i class="', items['icon'], ' icon-size-medium"></i>');
+                    html.push('<span > ', items['menu_name'], '</span>');
+                    html.push('</a></li>');
+                }
+                // 一级菜单
+                else {
+                    html.push('<li class="layui-nav-item layui-nav-itemed">');
+                    html.push('<a href="#">');
+                    html.push('<i class="', items['icon'], ' icon-size-medium"></i>');
+                    html.push('<span > ', items['menu_name'], '</span>');
+                    html.push('</a>');
+                    html.push('<dl class="layui-nav-child">');
+                    // 二级菜单
+                    for (let j = 0; j < items['children'].length; j++) {
+                        let child_item = items['children'][j];
+                        // 当前选中样式
+                        if (sidebar_name === child_item['menu_name'].replace(/\s+/g, "")) {
+                            html.push('<dd class="layui-this"><a href="', child_item['url'], '">');
+                        } else {
+                            html.push('<dd><a href="', child_item['url'], '">');
+                        }
+                        if (!!child_item['icon']) {
+                            html.push('<i class="', child_item['icon'], '"></i>');
+                        }
+                        html.push('<span > ', child_item['menu_name'], '</span></a></dd>');
+                    }
+                    html.push('</dl></li>');
+                }
+            }
+            $('ul[lay-filter=tree]').html(html.join(''));
+            break
+        }
+    }
 };

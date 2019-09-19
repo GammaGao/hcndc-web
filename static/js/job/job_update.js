@@ -8,10 +8,8 @@
 
     Controller.prototype = {
         init: function () {
-            // 导航栏样式加载
-            this.navigate_load('任务总览');
-            // 侧边栏数据渲染
-            this.menu_load(BASE.item, '');
+            // 菜单样式加载
+            menu_init('任务总览', '');
             // 侧边栏样式切换
             this.tree_toggle();
             // 用户数据渲染
@@ -39,13 +37,6 @@
                 }
             }
         },
-        navigate_load: function (name) {
-            $('.layui-nav.layui-layout-left').children().each(function () {
-                if ($(this).text().replace(/\s+/g, "") == name) {
-                    $(this).addClass('layui-this')
-                }
-            })
-        },
         user_info: function () {
             // 元素渲染
             let element_restart = this.element_init;
@@ -64,45 +55,6 @@
                     element_restart();
                 }
             });
-        },
-        menu_load: function (items, name) {
-            let html = [];
-            for (let i in items) {
-                if (items[i]['uri']) {
-                    if (name == items[i]['name'].replace(/\s+/g, "")) {
-                        html.push('<li class="layui-nav-item layui-this">');
-                    } else {
-                        html.push('<li class="layui-nav-item">');
-                    }
-                    html.push('<a href="', items[i]['uri'], '">');
-                    html.push('<i class="', items[i]['icon'], ' icon-size-medium"></i>');
-                    html.push('<span >', items[i]['name'], '</span>');
-                    html.push('</a></li>');
-                } else {
-                    html.push('<li class="layui-nav-item layui-nav-itemed">');
-                    html.push('<a href="#">');
-                    html.push('<i class="', items[i]['icon'], ' icon-size-medium"></i>');
-                    html.push('<span >', items[i]['name'], '</span>');
-                    html.push('</a>');
-                    html.push('<dl class="layui-nav-child">');
-                    for (let j in items[i]['children']) {
-                        if (name == items[i]['children'][j]['name'].replace(/\s+/g, "")) {
-                            html.push('<dd class="layui-this"><a href="', items[i]['children'][j]['uri'], '">');
-                        } else {
-                            html.push('<dd><a href="', items[i]['children'][j]['uri'], '">');
-                        }
-
-                        if (!!items[i]['children'][j]['icon']) {
-                            html.push('<i class="', items[i]['children'][j]['icon'], '"></i>');
-                        }
-                        html.push('<span >', items[i]['children'][j]['name'], '</span></a></dd>');
-                    }
-                    html.push('</dl></li>');
-                }
-            }
-            $('ul[lay-filter=tree]').html(html.join(''));
-            // 元素渲染
-            this.element_init();
         },
         tree_toggle: function () {
             let isShow = true;
