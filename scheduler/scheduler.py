@@ -23,7 +23,8 @@ class SchedulerConfig(object):
     # 数据库持久化
     SCHEDULER_JOBSTORES = {
         'default': SQLAlchemyJobStore(
-            url='mysql+pymysql://%(user)s:%(password)s@%(host)s:%(port)s/%(database)s?charset=utf8' % {
+            # 使用mysql+pymysql会有WARNING警告
+            url='mysql+mysqlconnector://%(user)s:%(password)s@%(host)s:%(port)s/%(database)s?charset=utf8' % {
                 'user': config.mysql.etl['user'],
                 'password': config.mysql.etl['password'],
                 'host': config.mysql.etl['host'],

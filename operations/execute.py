@@ -1,8 +1,6 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
-
 from server.decorators import make_decorator, Response
 from scheduler.generate_dag import generate_dag_by_exec_id
 from rpc.rpc_client import Connection

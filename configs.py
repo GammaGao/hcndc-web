@@ -22,7 +22,7 @@ config = SuperConf(path='superconf.json')
 # 日志对象
 log = create_logger(config.log, 'util')
 
-# Flask API 对象
+# Flask 对象
 app = Flask(__name__)
 app.jinja_env.filters['json'] = lambda v: Markup(json.dumps(v))
 app.secret_key = '\x1a\x8dfb#\xb9\xc8\xc3\x05\x86|\xda\x96\xff\xceo3\xf0\xa3\xb8\x8beoW'
@@ -33,7 +33,7 @@ scheduler = Scheduler()
 scheduler.init_app(app)
 scheduler.start()
 
-# 接口API
+# Flask API 对象
 api = Api(
     app,
     version='1.0.0',
