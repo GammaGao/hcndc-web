@@ -9,6 +9,7 @@ from server.super_config import SuperConf
 
 config = SuperConf(path='superconf.json')
 
+
 class Scheduler(APScheduler):
     """单例模式"""
 
@@ -24,7 +25,7 @@ class SchedulerConfig(object):
     SCHEDULER_JOBSTORES = {
         'default': SQLAlchemyJobStore(
             # 使用mysql+pymysql会有WARNING警告
-            url='mysql+mysqlconnector://%(user)s:%(password)s@%(host)s:%(port)s/%(database)s?charset=utf8' % {
+            url='mysql+pymysql://%(user)s:%(password)s@%(host)s:%(port)s/%(database)s?charset=utf8' % {
                 'user': config.mysql.etl['user'],
                 'password': config.mysql.etl['password'],
                 'host': config.mysql.etl['host'],
@@ -55,4 +56,3 @@ class SchedulerConfig(object):
     }
     # 时区
     # SCHEDULER_TIMEZONE = utc
-
