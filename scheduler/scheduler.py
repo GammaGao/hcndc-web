@@ -3,7 +3,6 @@
 
 from flask_apscheduler import APScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
-from pytz import utc
 
 from server.super_config import SuperConf
 
