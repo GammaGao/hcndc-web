@@ -20,7 +20,7 @@ from scheduler.scheduler import SchedulerConfig
 config = SuperConf(path='superconf.json')
 
 # 日志对象
-log = create_logger(config.log, 'util')
+log = create_logger(config, 'server')
 
 # Flask 对象
 app = Flask(__name__)
