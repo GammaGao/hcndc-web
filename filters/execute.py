@@ -42,8 +42,7 @@ class ExecuteFilter(object):
     def filter_get_execute_log(result):
         """获取执行日志"""
         for item in result:
-            item.pop('_id')
-            item['time'] = item['time'].strftime('%Y-%m-%d %H:%M:%S')
+            item['time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time']))
         return {'stauts': 200, 'msg': '成功', 'data': result}, 200
 
     @staticmethod

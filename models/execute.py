@@ -123,20 +123,29 @@ class ExecuteModel(object):
     @staticmethod
     def get_execute_log_by_job(cursor, exec_id, job_id):
         """获取任务执行日志"""
-        result = [i for i in cursor.find(
-            {'exec_id': exec_id, 'job_id': job_id},
-            {'level', 'message', 'time'}
-        ).sort([('_id', 1)])]
-        return result
+        command = '''
+        SELECT `level`, message, insert_time
+        FROM tb_schedule_detail_logs
+        WHERE exec_id = :exec_id AND job_id = :job_id
+        '''
+        result = cursor.query(command, {
+            'exec_id': exec_id,
+            'job_id': job_id
+        })
+        return result if result else []
 
     @staticmethod
     def get_execute_log(cursor, exec_id):
         """获取执行日志"""
-        result = [i for i in cursor.find(
-            {'exec_id': exec_id},
-            {'level', 'message', 'time'}
-        ).sort([('_id', 1)])]
-        return result
+        command = '''
+        SELECT `level`, message, insert_time
+        FROM tb_schedule_detail_logs
+        WHERE exec_id = :exec_id
+        '''
+        result = cursor.query(command, {
+            'exec_id': exec_id
+        })
+        return result if result else []
 
     @staticmethod
     def get_execute_graph(cursor, exec_id):

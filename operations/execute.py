@@ -111,11 +111,10 @@ class ExecuteOperation(object):
     @make_decorator
     def get_execute_log(exec_id, job_id):
         """获取执行日志"""
-        conn = MongoLinks(config.mongo, 'job_logs')
         if job_id:
-            result = ExecuteModel.get_execute_log_by_job(conn.collection, exec_id, job_id)
+            result = ExecuteModel.get_execute_log_by_job(db.etl_db, exec_id, job_id)
         else:
-            result = ExecuteModel.get_execute_log(conn.collection, exec_id)
+            result = ExecuteModel.get_execute_log(db.etl_db, exec_id)
         return Response(result=result)
 
     @staticmethod

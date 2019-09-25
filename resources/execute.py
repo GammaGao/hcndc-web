@@ -10,6 +10,7 @@ from operations.execute import ExecuteOperation
 from verify.execute import ExecuteVerify
 from document.execute import *
 
+
 class ExecuteCallBack(Resource):
     @staticmethod
     @callback_request
@@ -30,9 +31,10 @@ class ExecuteList(Resource):
     @staticmethod
     @execute_list_request
     @ExecuteFilter.filter_get_execute_list(result=list, total=int)
-    @ExecuteOperation.get_execute_list(interface_id=int, start_time=int, end_time=int, exec_type=int, page=int, limit=int)
+    @ExecuteOperation.get_execute_list(interface_id=int, start_time=int, end_time=int, exec_type=int, page=int,
+                                       limit=int)
     @ExecuteVerify.verify_get_execute_list(interface_id=int, start_time=int, end_time=int, exec_type=int, page=int,
-                                         limit=int)
+                                           limit=int)
     def get():
         """获取执行列表"""
         params = Response(
@@ -58,6 +60,7 @@ class ExecuteDetail(Resource):
         log.info('获取执行详情[params: %s]' % str(params))
         return params
 
+
 class ExecuteLog(Resource):
     @staticmethod
     @execute_log_request
@@ -72,6 +75,7 @@ class ExecuteLog(Resource):
         )
         log.info('获取执行日志[params: %s]' % str(params))
         return params
+
 
 class ExecuteGraph(Resource):
     @staticmethod
