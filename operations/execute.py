@@ -6,7 +6,6 @@ from scheduler.generate_dag import generate_dag_by_exec_id
 from rpc.rpc_client import Connection
 from configs import config, log, db
 from models.execute import ExecuteModel
-from conn.mongo import MongoLinks
 from util.msg_push import send_mail, send_dingtalk
 
 

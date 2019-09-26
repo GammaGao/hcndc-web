@@ -22,6 +22,8 @@
             this.form_search();
             // 表格数据初始化
             this.table_data_load({});
+            // 文件上传组件
+            this.file_upload();
             // UI组件渲染
             this.restart('job_date');
         },
@@ -238,7 +240,7 @@
                         templet: function (data) {
                             let html = [];
                             html.push('<div class="layui-btn-group">');
-                            if (data.is_deleted === 0){
+                            if (data.is_deleted === 0) {
                                 html.push('<button class="layui-btn layui-btn-sm" lay-event="detail">详情</button>');
                                 html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
                                 html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
@@ -262,7 +264,24 @@
                 // 事件监听
                 that.table_data_event();
             });
-
+        },
+        // 文件上传组件
+        file_upload: function () {
+            layui.use('upload', function () {
+                let upload = layui.upload;
+                // 允许上传的文件后缀
+                upload.render({
+                    elem: '#test4',
+                    url: '/job/upload/',
+                    // 普通文件
+                    accept: 'file',
+                    // 只允许上传压缩文件
+                    exts: 'xlsx|xls|csv',
+                    done: function (res) {
+                        console.log(res)
+                    }
+                });
+            })
         },
         // 表格事件监听
         table_data_event: function () {

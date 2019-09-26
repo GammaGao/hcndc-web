@@ -5,6 +5,7 @@ from models.schedule import ScheduleModel
 from models.execute import ExecuteModel
 from configs import db
 
+
 def generate_dag_by_dispatch_id(dispatch_id):
     """根据调度id生成dag模型"""
     # 接口属性
