@@ -41,8 +41,8 @@ class ExecuteFilter(object):
     @make_decorator
     def filter_get_execute_log(result):
         """获取执行日志"""
-        for item in result:
-            item['time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time']))
+        # for item in result:
+        #     item['time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time']))
         return {'stauts': 200, 'msg': '成功', 'data': result}, 200
 
     @staticmethod

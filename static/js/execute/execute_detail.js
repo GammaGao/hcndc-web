@@ -341,7 +341,7 @@
                 success: function (res) {
                     let data = res.data;
                     let $exec_log = $('#exec-log');
-                    for (let i in data) {
+                    for (let i = 0; i < data.length; i++) {
                         let html = [];
                         html.push('<li class="layui-timeline-item">');
                         if (data[i].level === 'INFO') {
@@ -353,7 +353,8 @@
                         }
                         html.push('<div class="layui-timeline-content layui-text">');
                         html.push('<div class="layui-timeline-title">');
-                        html.push(data[i].time + ' - ' + data[i].message);
+                        // html.push(data[i].time + ' - ' + data[i].message);
+                        html.push(data[i].message);
                         html.push('</div></div></li>');
                         $exec_log.append(html.join(''));
                     }
