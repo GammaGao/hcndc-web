@@ -1,10 +1,15 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from configs import app
+from configs import app, db
+from models.interface import InterfaceModel
+from models.base import ExecHostModel
+from models.job import JobModel
+from util import session as curr_session
 
 from flask import render_template, session, redirect, request, jsonify
 import os
+import csv
 import xlrd
 
 
@@ -43,12 +48,28 @@ def JobAdd():
 @app.route('/job/upload/', methods=['POST'])
 def JobUpload():
     """上传配置文件"""
+    # 文件路径
     file_dir = './uploads'
-    file = request.files['file']  # 从表单的file字段获取文件，file为该表单的name值
-    # 判断是否是允许上传的文件类型
+    # 文件类型
+    file_type = {'xlsx', 'xls', 'csv'}
+    # 异常类型
+    err_type = {
+        0: '第%s行[序号]参数不为整型',
+        1: '第%s行[所属接口id]参数不为整型',
+        2: '第%s行[任务名称]参数不为字符串类型',
+        3: '第%s行[任务名称]参数不为字符串类型',
+        4: '第%s行[服务器id]参数不为整型',
+        5: '第%s行[任务名称]参数不为字符串类型',
+        6: '第%s行[任务名称]参数不为字符串类型',
+        7: '第%s行[依赖任务序号(本次新建任务)]参数不为整型或没按逗号分隔',
+        8: '第%s行[依赖任务id(已有任务)]参数不为空或整型或没按逗号分隔'
+    }
+    file = request.files['file']
+    # 获取文件名
     file_name = file.filename
+    # 获取文件后缀
     file_suffix = '.' in file_name and file_name.rsplit('.', 1)[1]
-    if file and file_suffix in {'xlsx', 'xls', 'csv'}:
+    if file and file_suffix in file_type:
         # 校验文件名安全, 但不识别中文, 需要修改源码, 增加部署细节, 放弃
         # fname = secure_filename(f.filename)
         # 保存文件到upload目录
@@ -57,11 +78,120 @@ def JobUpload():
         # excel文件
         if file_suffix in {'xlsx', 'xls'}:
             data = xlrd.open_workbook(file_path)
-            sheet1 = data.sheet_by_name(data.sheet_names()[0])
-            for i in range(1, sheet1.nrows):
-                print(sheet1.row_values(i))
+            # 只取第一个sheet
+            sheet = data.sheet_by_name(data.sheet_names()[0])
+            # 从第2行开始读取
+            data = []
+            for i in range(1, sheet.nrows):
+                # 取前9列
+                data.append(sheet.row_values(i)[:9])
+        # csv文件
         else:
-            pass
-        return jsonify({'status': 200, 'msg': '成功', 'data': {}}), 200
+            data = []
+            with open(file_path, "r") as csv_file:
+                reader = csv.reader(csv_file)
+                for index, line in enumerate(reader):
+                    if index > 0:
+                        data.append(line[:9])
+        # 异常原因
+        err_msg = []
+        # 接口id列表
+        interface_result = InterfaceModel.get_interface_id_list(db.etl_db)
+        interface_ids = [i['interface_id'] for i in interface_result]
+        # 服务器id列表
+        exec_host_result = ExecHostModel.get_exec_host_all(db.etl_db)
+        exec_host_ids = [i['server_id'] for i in exec_host_result]
+        # 依赖任务序号(本次新建任务)列表
+        curr_job_num = []
+        # 依赖任务id(已有任务)列表
+        job_result = JobModel.get_job_list_all(db.etl_db)
+        job_ids = [i['job_id'] for i in job_result]
+        for index, row in enumerate(data):
+            # Excel行号
+            row_num = index + 2
+            # 校验列数
+            if len(row) < 9:
+                err_msg.append('第%s行参数个数小于9个')
+            else:
+                # 校验并处理每列参数
+                for i, param in enumerate(row):
+                    try:
+                        # int类型参数
+                        if i in [0, 1, 4]:
+                            row[i] = int(param)
+                        # 字符串类型参数
+                        elif i in [2, 3, 5, 6]:
+                            row[i] = str(param)
+                        # 依赖任务
+                        else:
+                            if isinstance(param, str):
+                                if param != '':
+                                    row[i] = [int(i) for i in str(param).split(',')]
+                                else:
+                                    row[i] = []
+                            else:
+                                row[i] = [int(param)]
+                        # 非空参数
+                        if i == 2 and row[i] == '':
+                            err_msg.append('第%s行[任务名称]参数不得为空' % row_num)
+                        if i == 6 and row[i] == '':
+                            err_msg.append('第%s行[脚本命令]参数不得为空' % row_num)
+                        # 添加依赖任务序号
+                        if i == 0 and isinstance(row[i], int):
+                            curr_job_num.append(row[i])
+                    except:
+                        err_msg.append(err_type[i] % row_num)
+                for i, param in enumerate(row):
+                    # 校验接口id是否存在
+                    if i == 1 and isinstance(param, int):
+                        if row[i] not in interface_ids:
+                            err_msg.append('第%s行[所属接口id]不存在' % row_num)
+                    # 校验服务器id是否存在
+                    if i == 4 and isinstance(param, int):
+                        if param not in exec_host_ids:
+                            err_msg.append('第%s行[服务器id]不存在' % row_num)
+                    # 校验依赖任务序号(本次新建任务)是否存在
+                    if i == 7 and isinstance(param, list):
+                        for job_num in param:
+                            if job_num not in curr_job_num:
+                                err_msg.append('第%s行[依赖任务序号(本次新建任务)][%s]不存在' % (row_num, job_num))
+                    # 校验依赖任务id(已有任务)是否存在
+                    if i == 8 and isinstance(param, list):
+                        for job_id in param:
+                            if job_id not in job_ids:
+                                err_msg.append('第%s行[依赖任务id(已有任务)][%s]不存在' % (row_num, job_id))
+        # 返回异常信息
+        if err_msg:
+            return jsonify({'status': 401, 'msg': '文件类型错误', 'data': {'err_msg': err_msg}})
+        # 写入数据库
+        else:
+            # 用户id
+            user_info = curr_session.get_info()
+            user_id = user_info['id']
+            # 依赖任务序号 -> job_id映射
+            job_map = {}
+            # 新增任务详情
+            for line in data:
+                job_id = JobModel.add_job_detail(db.etl_db, line[2], line[1], line[3], line[4], line[5], line[6],
+                                                 user_id)
+                job_map[line[0]] = job_id
+                line.append(job_id)
+            # 新增任务依赖
+            for line in data:
+                perp_job = []
+                if line[7]:
+                    perp_job = [job_map[i] for i in line[7]]
+                if line[8]:
+                    perp_job += line[8]
+                data = []
+                for prep_id in perp_job:
+                    data.append({
+                        'job_id': line[9],
+                        'prep_id': prep_id,
+                        'user_id': user_id
+                    })
+                if data:
+                    JobModel.add_job_prep(db.etl_db, data)
+            return jsonify({'status': 200, 'msg': '成功', 'data': {}})
     else:
-        return jsonify({'status': 400, 'msg': '文件类型错误', 'data': {}}), 400
+        return jsonify({'status': 400, 'msg': '文件类型错误', 'data': {}})

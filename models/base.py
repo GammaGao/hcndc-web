@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 class ExecHostModel(object):
     @staticmethod
     def get_exec_host_list(cursor, condition, page, limit):
@@ -109,6 +110,16 @@ class ExecHostModel(object):
         })
         return result
 
+    @staticmethod
+    def get_exec_host_all(cursor):
+        """获取所有执行服务器"""
+        command = '''
+        SELECT server_id, server_host
+        FROM tb_exec_host
+        WHERE is_deleted = 0
+        '''
+        result = cursor.query(command)
+        return result if result else []
 
 
 class AlertModel(object):

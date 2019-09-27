@@ -275,10 +275,41 @@
                     url: '/job/upload/',
                     // 普通文件
                     accept: 'file',
+                    auto: false,
                     // 只允许上传压缩文件
                     exts: 'xlsx|xls|csv',
+                    // 限制文件大小，单位 KB
+                    size: 5000,
+                    choose: function (obj) {
+                        //确认框
+                        layer.confirm('确定上传文件吗？', {icon: 3, title: '提示'}, function (index) {
+                            // 读取本地文件
+                            obj.preview(function (index, file) {
+                                // 单个重传
+                                obj.upload(index, file);
+                            });
+                            layer.close(index);
+                        });
+                    },
                     done: function (res) {
-                        console.log(res)
+                        // 成功上传
+                        if (res.status && res.status === 200) {
+                            layer.msg("成功", {icon: 6});
+                        }
+                        // 上传参数错误
+                        else if (res.status && res.status === 401) {
+                            let err_msg = res.data.err_msg;
+                            let msg = err_msg.join('</br>');
+                            layer.alert(msg, {icon: 5});
+                        }
+                        // 文件类型错误
+                        else {
+                            layer.alert(res.msg);
+                        }
+                    },
+                    error: function (error) {
+                        let result = error.responseJSON;
+                        layer.alert(result.msg)
                     }
                 });
             })
