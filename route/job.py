@@ -106,6 +106,7 @@ def JobUpload():
         # 依赖任务id(已有任务)列表
         job_result = JobModel.get_job_list_all(db.etl_db)
         job_ids = [i['job_id'] for i in job_result]
+
         for index, row in enumerate(data):
             # Excel行号
             row_num = index + 2
@@ -160,6 +161,11 @@ def JobUpload():
                         for job_id in param:
                             if job_id not in job_ids:
                                 err_msg.append('第%s行[依赖任务id(已有任务)][%s]不存在' % (row_num, job_id))
+        # 序号是否重复
+        serial_num = [row[0] for row in data]
+        if len(serial_num) != len(set(serial_num)):
+            err_msg.append('该文件中序号存在重复')
+
         # 返回异常信息
         if err_msg:
             return jsonify({'status': 401, 'msg': '文件类型错误', 'data': {'err_msg': err_msg}})
