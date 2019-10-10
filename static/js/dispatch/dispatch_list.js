@@ -160,6 +160,13 @@
         table_data_load: function (data) {
             // 事件监听
             let that = this;
+            // 自定义左侧工具栏
+            let toolbar_div = [
+                '<div class="layui-table-tool-temp">',
+                '<div class="layui-inline" lay-event="add" title="添加调度"><i class="layui-icon layui-icon-add-1"></i></div>',
+                '<div class="layui-inline" lay-event="update" title="修改调度"><i class="layui-icon layui-icon-edit"></i></div>',
+                '</div>'
+            ].join('');
             // 表格渲染
             layui.use('table', function () {
                 let table = layui.table;
@@ -167,12 +174,15 @@
                     elem: "#dispatch-list",
                     // height: 40,
                     page: true,
-                    toolbar: true,
+                    toolbar: toolbar_div,
                     limits: [10, 20, 30, 40, 50],
                     title: '调度列表',
                     url: BASE.uri.dispatch.list_api,
                     where: data,
                     cols: [[{
+                        type: 'radio',
+                        fixed: 'left'
+                    }, {
                         field: "dispatch_id",
                         title: "调度id",
                         width: '5%',
@@ -242,10 +252,46 @@
                         countName: 'total'
                     }
                 });
-                // 事件监听
+                // 工具栏事件监听
+                that.toolbar_data_event();
+                // 自定义事件监听
                 that.table_data_event();
             });
-
+        },
+        // 工具栏事件监听
+        toolbar_data_event: function () {
+            // 工具栏事件注册
+            layui.use('table', function () {
+                let table = layui.table;
+                table.on('toolbar(dispatch-list)', function (obj) {
+                    // 工具栏事件监听
+                    let check_status = table.checkStatus(obj.config.id);
+                    let check_data = check_status.data;
+                    switch (obj.event) {
+                        case 'add':
+                            layer.open({
+                                id: 'dispatch_add',
+                                btn: ['跳转', '取消'],
+                                title: '跳转新增调度页面',
+                                content: '确定新增调度?',
+                                yes: function (index, layero) {
+                                    layer.close(index);
+                                    window.location.href = BASE.uri.dispatch.add;
+                                }
+                            });
+                            break;
+                        case 'update':
+                            if (check_data.length === 0) {
+                                layer.msg('请选择一行');
+                            } else if (check_data.length > 1) {
+                                layer.msg('只能同时编辑一个')
+                            } else {
+                                window.location.href = BASE.uri.dispatch.update + check_data[0].dispatch_id + '/';
+                            }
+                            break;
+                    }
+                })
+            })
         },
         // 表格事件监听
         table_data_event: function () {

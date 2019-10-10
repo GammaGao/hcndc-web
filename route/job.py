@@ -106,7 +106,9 @@ def JobUpload():
         # 依赖任务id(已有任务)列表
         job_result = JobModel.get_job_list_all(db.etl_db)
         job_ids = [i['job_id'] for i in job_result]
-
+        # 文件为空
+        if not data:
+            err_msg.append('文件为空')
         for index, row in enumerate(data):
             # Excel行号
             row_num = index + 2
@@ -168,6 +170,8 @@ def JobUpload():
 
         # 返回异常信息
         if err_msg:
+            # 删除文件
+            os.remove(file_path)
             return jsonify({'status': 401, 'msg': '文件类型错误', 'data': {'err_msg': err_msg}})
         # 写入数据库
         else:

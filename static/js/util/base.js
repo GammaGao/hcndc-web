@@ -56,6 +56,7 @@ let BASE = {
             'detail': '/interface/detail/',
             'detail_api': '/interface/detail/api/',
             'update': '/interface/update/',
+            'add': '/interface/add/',
             'add_api': '/interface/add/api/',
             'id_list_api': '/interface/id/list/api/',
             'graph_api': '/interface/graph/api/'
@@ -66,6 +67,7 @@ let BASE = {
             'detail': '/job/detail/',
             'detail_api': '/job/detail/api/',
             'update': '/job/update/',
+            'add': '/job/add/',
             'add_api': '/job/add/api/',
             'id_list_api': '/job/list/all/api/',
             'run_api': '/job/run/api/'
@@ -77,6 +79,7 @@ let BASE = {
             'detail': '/dispatch/detail/',
             'detail_api': '/dispatch/detail/api/',
             'update': '/dispatch/update/',
+            'add': '/dispatch/add/',
             'add_api': '/dispatch/add/api/',
             'alert_add_api': '/dispatch/alert/add/api/',
             'alert_detail_api': '/dispatch/alert/detail/api/',

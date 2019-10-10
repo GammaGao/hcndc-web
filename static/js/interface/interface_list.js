@@ -149,18 +149,28 @@
         table_data_load: function (data) {
             // 事件监听
             let that = this;
+            // 自定义左侧工具栏
+            let toolbar_div = [
+                '<div class="layui-table-tool-temp">',
+                '<div class="layui-inline" lay-event="add" title="添加接口"><i class="layui-icon layui-icon-add-1"></i></div>',
+                '<div class="layui-inline" lay-event="update" title="修改接口"><i class="layui-icon layui-icon-edit"></i></div>',
+                '</div>'
+            ].join('');
             // 表格渲染
             layui.use('table', function () {
                 let table = layui.table;
                 table.render({
                     elem: "#interface-list",
                     page: true,
-                    toolbar: true,
+                    toolbar: toolbar_div,
                     limits: [10, 20, 30, 40, 50],
                     title: '任务列表',
                     url: BASE.uri.interface.list_api,
                     where: data,
                     cols: [[{
+                        type: 'radio',
+                        fixed: 'left'
+                    }, {
                         field: "interface_id",
                         title: "接口id",
                         sort: true
@@ -192,7 +202,7 @@
                             html.push('<div class="layui-btn-group">');
                             html.push('<a class="layui-btn layui-btn-sm" lay-event="detail">任务依赖</a>');
                             html.push('<a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</a>');
-                            if (data.is_deleted === 0){
+                            if (data.is_deleted === 0) {
                                 html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
                             } else {
                                 html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" lay-event="delete" disabled="disabled">删除</button>');
@@ -207,16 +217,52 @@
                         countName: 'total'
                     }
                 });
-                // 事件监听
+                // 工具栏事件监听
+                that.toolbar_data_event();
+                // 自定义事件监听
                 that.table_data_event();
             });
-
         },
-        // 表格事件监听
+        // 工具栏事件监听
+        toolbar_data_event: function () {
+            layui.use('table', function () {
+                let table = layui.table;
+                table.on('toolbar(interface-list)', function (obj) {
+                    // 工具栏事件监听
+                    let check_status = table.checkStatus(obj.config.id);
+                    let check_data = check_status.data;
+                    switch (obj.event) {
+                        case 'add':
+                            layer.open({
+                                id: 'interface_add',
+                                btn: ['跳转', '取消'],
+                                title: '跳转新增接口页面',
+                                content: '确定新增接口?',
+                                yes: function (index, layero) {
+                                    layer.close(index);
+                                    window.location.href = BASE.uri.interface.add;
+                                }
+                            });
+                            break;
+                        case 'update':
+                            if (check_data.length === 0) {
+                                layer.msg('请选择一行')
+                            } else if (check_data.length > 1) {
+                                layer.msg('只能同时编辑一个')
+                            } else {
+                                window.location.href = BASE.uri.interface.update + check_data[0].interface_id + '/';
+                            }
+                            break;
+                    }
+                })
+            })
+        },
+        // 自定义事件监听
         table_data_event: function () {
             layui.use('table', function () {
                 let table = layui.table;
                 table.on('tool(interface-list)', function (obj) {
+                    // 自定义事件监控
                     let data = obj.data;
                     let event = obj.event;
                     let tr = obj.tr;
@@ -237,6 +283,7 @@
                                 type: 'delete',
                                 success: function () {
                                     layer.alert('删除成功');
+                                    $(tr.find('td[data-field="operation"] div button')).addClass('layui-btn-disabled');
                                     tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
                                 },
                                 error: function (error) {
@@ -244,7 +291,6 @@
                                     layer.alert(sprintf('删除接口%s失败: %s', data.interface_id, result.msg))
                                 }
                             });
-
                         })
                     }
                 })
