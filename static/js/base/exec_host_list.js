@@ -139,18 +139,28 @@
         table_data_load: function (data) {
             // 事件监听
             let that = this;
+            // 自定义左侧工具栏
+            let toolbar_div = [
+                '<div class="layui-table-tool-temp">',
+                '<div class="layui-inline" lay-event="add" title="添加执行服务器"><i class="layui-icon layui-icon-add-1"></i></div>',
+                '<div class="layui-inline" lay-event="update" title="修改执行服务器"><i class="layui-icon layui-icon-edit"></i></div>',
+                '</div>'
+            ].join('');
             // 表格渲染
             layui.use('table', function () {
                 let table = layui.table;
                 table.render({
                     elem: "#host-list",
                     page: true,
-                    toolbar: true,
+                    toolbar: toolbar_div,
                     limits: [10, 20, 30, 40, 50],
                     title: '任务列表',
                     url: BASE.uri.base.exec_host_api,
                     where: data,
                     cols: [[{
+                        type: 'radio',
+                        fixed: 'left'
+                    }, {
                         field: "server_id",
                         title: "服务器id",
                         sort: true
@@ -187,10 +197,47 @@
                         countName: 'total'
                     }
                 });
-                // 事件监听
+                // 工具栏事件监听
+                that.toolbar_data_event();
+                // 自定义事件监听
                 that.table_data_event();
             });
 
+        },
+        // 工具栏事件监听
+        toolbar_data_event: function () {
+            // 工具栏事件注册
+            layui.use('table', function () {
+                let table = layui.table;
+                table.on('toolbar(host-list)', function (obj) {
+                    // 工具栏事件监听
+                    let check_status = table.checkStatus(obj.config.id);
+                    let check_data = check_status.data;
+                    switch (obj.event) {
+                        case 'add':
+                            layer.open({
+                                id: 'job_add',
+                                btn: ['跳转', '取消'],
+                                title: '跳转新增执行服务器页面',
+                                content: '确定新增执行服务器?',
+                                yes: function (index, layero) {
+                                    layer.close(index);
+                                    window.location.href = BASE.uri.base.exec_host_add;
+                                }
+                            });
+                            break;
+                        case 'update':
+                            if (check_data.length === 0) {
+                                layer.msg('请选择一行');
+                            } else if (check_data.length > 1) {
+                                layer.msg('只能同时编辑一个')
+                            } else {
+                                window.location.href = BASE.uri.base.exec_host_update + check_data[0].server_id + '/';
+                            }
+                            break;
+                    }
+                })
+            })
         },
         // 表格事件监听
         table_data_event: function () {

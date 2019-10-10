@@ -96,15 +96,17 @@ let BASE = {
         },
         base: {
             'exec_list': '/base/',
-            'alert_list': '/base/alert/',
             'exec_host_api': '/base/exec/host/list/api/',
             'exec_host_update': '/base/exec/host/update/',
             'exec_host_detail_api': '/base/exec/host/detail/api/',
+            'exec_host_add': '/base/exec/host/add/',
             'exec_host_add_api': '/base/exec/host/add/api/',
+            'alert_list': '/base/alert/',
             'alert_list_api': '/base/alert/list/api/',
             'alert_list_all_api': '/base/alert/list/all/api/',
             'alert_update_api': '/base/alert/update/',
             'alert_detail_api': '/base/alert/detail/api/',
+            'alert_add': '/base/alert/add/',
             'alert_add_api': '/base/alert/add/api/'
         },
         flow_alert_detail_api: '/flow/alert/api/',
