@@ -37,7 +37,8 @@ class ExecHostVerify(object):
             abort(400, **make_result(status=400, msg='执行服务器名称不存在'))
         if is_deleted < 0 or is_deleted > 1:
             abort(400, **make_result(status=400, msg='是否删除参数错误'))
-        return Response(server_id=server_id, server_host=server_host, server_name=server_name, is_deleted=is_deleted, user_id=user_id)
+        return Response(server_id=server_id, server_host=server_host, server_name=server_name, is_deleted=is_deleted,
+                        user_id=user_id)
 
     @staticmethod
     @make_decorator
@@ -88,7 +89,8 @@ class AlertVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_update_alert_conf_detail(conf_id, alert_channel, conf_name, param_config, param_host, param_port, param_pass, is_deleted, user_id):
+    def verify_update_alert_conf_detail(conf_id, alert_channel, conf_name, param_config, param_host, param_port,
+                                        param_pass, is_deleted, user_id):
         """修改预警配置"""
         if not conf_id:
             abort(400, **make_result(status=400, msg='预警配置id不存在'))
@@ -99,11 +101,12 @@ class AlertVerify(object):
         if not param_config:
             abort(400, **make_result(status=400, msg='参数配置不得为空'))
         return Response(conf_id=conf_id, alert_channel=alert_channel, conf_name=conf_name, param_config=param_config,
-                        param_host=param_host, param_port=param_port, param_pass=param_pass, is_deleted=is_deleted, user_id=user_id)
+                        param_host=param_host, param_port=param_port, param_pass=param_pass, is_deleted=is_deleted,
+                        user_id=user_id)
 
     @staticmethod
     @make_decorator
-    def verify_add_alert_conf(alert_channel, conf_name, param_config, param_host, param_pass, user_id):
+    def verify_add_alert_conf(alert_channel, conf_name, param_config, param_host, param_port, param_pass, user_id):
         """新增预警配置"""
         if alert_channel < 1 or alert_channel > 2:
             abort(400, **make_result(status=400, msg='预警渠道参数错误'))
@@ -112,4 +115,4 @@ class AlertVerify(object):
         if not param_config:
             abort(400, **make_result(status=400, msg='参数配置不得为空'))
         return Response(alert_channel=alert_channel, conf_name=conf_name, param_config=param_config,
-                        param_host=param_host, param_pass=param_pass, user_id=user_id)
+                        param_host=param_host, param_port=param_port, param_pass=param_pass, user_id=user_id)

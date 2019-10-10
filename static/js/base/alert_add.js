@@ -130,9 +130,11 @@
                 form.on('select(alert_channel)', function (data) {
                     if (data.value === '2'){
                         $('input[name=param_host]').parent().parent().css('display', 'none');
+                        $('input[name=param_port]').parent().parent().css('display', 'none');
                         $('input[name=param_pass]').parent().parent().css('display', 'none');
                     } else {
                         $('input[name=param_host]').parent().parent().removeAttr('style');
+                        $('input[name=param_port]').parent().parent().removeAttr('style');
                         $('input[name=param_pass]').parent().parent().removeAttr('style');
                     }
                     form.render();
@@ -146,6 +148,7 @@
                 let form = layui.form;
                 form.on('submit(alert-save)', function (data) {
                     data = data.field;
+                    data.param_port = data.param_port || 0;
                     $.ajax({
                         url: BASE.uri.base.alert_add_api,
                         contentType: "application/json; charset=utf-8",

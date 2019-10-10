@@ -125,8 +125,8 @@ class AlertOperation(object):
 
     @staticmethod
     @make_decorator
-    def add_alert_detail(alert_channel, conf_name, param_config, param_host, param_pass, user_id):
+    def add_alert_detail(alert_channel, conf_name, param_config, param_host, param_port, param_pass, user_id):
         """新增预警配置"""
         conf_id = AlertModel.add_alert_config_detail(db.etl_db, alert_channel, conf_name, param_config, param_host,
-                                                     param_pass, user_id)
+                                                     param_port, param_pass, user_id)
         return Response(conf_id=conf_id)

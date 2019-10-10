@@ -233,12 +233,13 @@ class AlertModel(object):
         return result
 
     @staticmethod
-    def add_alert_config_detail(cursor, alert_channel, conf_name, param_config, param_host, param_pass, user_id):
+    def add_alert_config_detail(cursor, alert_channel, conf_name, param_config, param_host, param_port, param_pass,
+                                user_id):
         """新增预警配置"""
         command = '''
-        INSERT INTO tb_dispatch_alert_conf(alert_channel, conf_name, param_config, param_host, param_pass,
+        INSERT INTO tb_dispatch_alert_conf(alert_channel, conf_name, param_config, param_host, param_port, param_pass,
         insert_time, update_time, creator_id, updater_id)
-        VALUES(:alert_channel, :conf_name, :param_config, :param_host, :param_pass,
+        VALUES(:alert_channel, :conf_name, :param_config, :param_host, :param_port, :param_pass,
         UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), :user_id, :user_id)
         '''
         result = cursor.insert(command, {
@@ -246,6 +247,7 @@ class AlertModel(object):
             'conf_name': conf_name,
             'param_config': param_config,
             'param_host': param_host,
+            'param_port': param_port,
             'param_pass': param_pass,
             'user_id': user_id
         })

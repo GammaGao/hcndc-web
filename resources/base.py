@@ -110,6 +110,7 @@ class AlertList(Resource):
         log.info('获取预警配置列表[params: %s]' % str(params))
         return params
 
+
 class AlertListAll(Resource):
     @staticmethod
     @AlertFilter.filter_list_all_data(result=list)
@@ -150,7 +151,8 @@ class AlertDetail(Resource):
     @AlertOperation.update_alert_detail(conf_id=int, alert_channel=int, conf_name=str, param_config=str,
                                         param_host=str, param_port=int, param_pass=str, is_deleted=int, user_id=int)
     @AlertVerify.verify_update_alert_conf_detail(conf_id=int, alert_channel=int, conf_name=str, param_config=str,
-                                                 param_host=str, param_port=int, param_pass=str, is_deleted=int, user_id=int)
+                                                 param_host=str, param_port=int, param_pass=str, is_deleted=int,
+                                                 user_id=int)
     @PermissionVerify.verify_write_permission(conf_id=int, alert_channel=int, conf_name=str, param_config=str,
                                               param_host=str, param_port=int, param_pass=str, is_deleted=int)
     def put(conf_id):
@@ -175,11 +177,11 @@ class AlertAdd(Resource):
     @alert_conf_detail_add_request
     @AlertFilter.filter_add_detail_data(conf_id=int)
     @AlertOperation.add_alert_detail(alert_channel=int, conf_name=str, param_config=str, param_host=str,
-                                       param_pass=str, user_id=int)
+                                     param_pass=str, param_port=int, user_id=int)
     @AlertVerify.verify_add_alert_conf(alert_channel=int, conf_name=str, param_config=str, param_host=str,
-                                       param_pass=str, user_id=int)
+                                       param_pass=str, param_port=int, user_id=int)
     @PermissionVerify.verify_write_permission(alert_channel=int, conf_name=str, param_config=str, param_host=str,
-                                              param_pass=str)
+                                              param_port=int, param_pass=str)
     def post():
         """新增预警配置"""
         payload = get_payload()
@@ -188,6 +190,7 @@ class AlertAdd(Resource):
             conf_name=payload.get('conf_name', ''),
             param_config=payload.get('param_config', ''),
             param_host=payload.get('param_host', ''),
+            param_port=int(payload.get('param_port', 0)),
             param_pass=payload.get('param_pass', '')
         )
         log.info('修改预警配置详情[params: %s]' % str(params))
