@@ -50,6 +50,14 @@ class ExecHostVerify(object):
 
     @staticmethod
     @make_decorator
+    def verify_test_exec_host(server_host, user_id):
+        """测试执行服务器"""
+        if not server_host:
+            abort(400, **make_result(status=400, msg='执行服务器ip不存在'))
+        return Response(server_host=server_host)
+
+    @staticmethod
+    @make_decorator
     def verify_add_exec_host(server_host, server_name, user_id):
         """新增执行服务器"""
         if not server_host:

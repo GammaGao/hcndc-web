@@ -3,8 +3,11 @@
 
 from server.decorators import make_decorator, Response
 from models.base import ExecHostModel, AlertModel
-from configs import db
+from configs import db, config
 from server.status import make_result
+from rpc.rpc_client import Connection
+
+import json
 from flask_restful import abort
 
 
@@ -56,6 +59,15 @@ class ExecHostOperation(object):
             abort(400, **make_result(status=400, msg='调度任务中有%s个任务使用该执行服务器, 请停止调度后删除' % run_job_count))
         ExecHostModel.delete_exec_host_detail(db.etl_db, server_id, user_id)
         return Response(server_id=server_id)
+
+    @staticmethod
+    @make_decorator
+    def test_exec_host(server_host):
+        """测试执行服务器"""
+        # rpc调用
+        client = Connection(server_host, config.exec.port)
+        result = client.rpc.test()
+        return Response(result=json.loads(result))
 
     @staticmethod
     @make_decorator

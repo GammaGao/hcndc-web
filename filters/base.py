@@ -31,6 +31,12 @@ class ExecFilter(object):
 
     @staticmethod
     @make_decorator
+    def filter_exec_host_test(result):
+        """测试执行服务器"""
+        return {'status': 200, 'msg': '成功', 'data': {'result': result}}, 200
+
+    @staticmethod
+    @make_decorator
     def filter_exec_host_add(host_id):
         """新增执行服务器"""
         return {'status': 200, 'msg': '成功', 'data': {'id': host_id}}, 200

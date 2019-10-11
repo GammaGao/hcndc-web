@@ -125,6 +125,24 @@
         form_event: function () {
             layui.use('form', function () {
                 let form = layui.form;
+                // 测试服务器
+                form.on('submit(exec-host-test)', function (data) {
+                    data = data.field;
+                    $.ajax({
+                        url: BASE.uri.base.exec_host_test_api,
+                        contentType: "application/json; charset=utf-8",
+                        type: 'post',
+                        data: JSON.stringify(data),
+                        success: function (result) {
+                            layer.alert('连接服务器成功');
+                        },
+                        error: function (error) {
+                            let result = error.responseJSON;
+                            layer.msg(sprintf('连接服务器失败: [%s]', result.msg));
+                        }
+                    })
+                });
+                // 保存服务器
                 form.on('submit(exec-host-save)', function (data) {
                     data = data.field;
                     $.ajax({

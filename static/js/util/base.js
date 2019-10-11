@@ -100,6 +100,7 @@ let BASE = {
             'exec_host_update': '/base/exec/host/update/',
             'exec_host_detail_api': '/base/exec/host/detail/api/',
             'exec_host_add': '/base/exec/host/add/',
+            'exec_host_test_api': '/base/exec/host/test/api/',
             'exec_host_add_api': '/base/exec/host/add/api/',
             'alert_list': '/base/alert/',
             'alert_list_api': '/base/alert/list/api/',

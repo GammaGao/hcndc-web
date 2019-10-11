@@ -74,6 +74,22 @@ class ExecHostDetail(Resource):
         return params
 
 
+class ExecHostTest(Resource):
+    @staticmethod
+    @ExecFilter.filter_exec_host_test(result=dict)
+    @ExecHostOperation.test_exec_host(server_host=str)
+    @ExecHostVerify.verify_test_exec_host(server_host=str, user_id=int)
+    @PermissionVerify.verify_write_permission(server_host=str)
+    def post():
+        """测试执行服务器"""
+        payload = get_payload()
+        params = Response(
+            server_host=payload.get('server_host', '')
+        )
+        log.info('测试执行服务器[params: %s]' % str(params))
+        return params
+
+
 class ExecHostAdd(Resource):
     @staticmethod
     @ExecFilter.filter_exec_host_add(host_id=int)
@@ -200,6 +216,7 @@ class AlertAdd(Resource):
 ns = api.namespace('base', description='配置')
 ns.add_resource(ExecHostList, '/exec/host/list/api/')
 ns.add_resource(ExecHostDetail, '/exec/host/detail/api/<int:server_id>/')
+ns.add_resource(ExecHostTest, '/exec/host/test/api/')
 ns.add_resource(ExecHostAdd, '/exec/host/add/api/')
 ns.add_resource(AlertList, '/alert/list/api/')
 ns.add_resource(AlertListAll, '/alert/list/all/api/')
