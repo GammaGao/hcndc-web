@@ -16,8 +16,8 @@ class ExecuteModel(object):
         return result
 
     @staticmethod
-    def update_execute_datetime(cursor, exec_id, status):
-        """修改调度执行表时间"""
+    def update_execute_status(cursor, exec_id, status):
+        """修改调度执行表状态"""
         command = '''
         UPDATE tb_execute
         SET status = :status, update_time = UNIX_TIMESTAMP()
@@ -26,6 +26,21 @@ class ExecuteModel(object):
         result = cursor.update(command, {
             'exec_id': exec_id,
             'status': status
+        })
+        return result
+
+    @staticmethod
+    def update_execute_success(cursor, exec_id, status, run_time):
+        """修改调度执行表账期"""
+        command = '''
+        UPDATE tb_execute
+        SET status = :status, update_time = UNIX_TIMESTAMP(), run_time = :run_time
+        WHERE exec_id = :exec_id
+        '''
+        result = cursor.update(command, {
+            'exec_id': exec_id,
+            'status': status,
+            'run_time': run_time
         })
         return result
 
@@ -71,10 +86,11 @@ class ExecuteModel(object):
     def get_execute_list(cursor, condition, page=1, limit=10):
         """获取执行列表"""
         command = '''
-        SELECT exec_id, interface_id, dispatch_name, dispatch_desc, exec_type, a.`status`,
-        a.insert_time, a.update_time, a.update_time - a.insert_time AS timedelta
+        SELECT a.exec_id, interface_id, dispatch_name, dispatch_desc, exec_type, a.`status`,
+        a.insert_time, a.update_time, a.update_time - a.insert_time AS timedelta, c.job_id
         FROM tb_execute AS a
-        LEFT JOIN tb_dispatch AS b USING(dispatch_id)
+        LEFT JOIN tb_dispatch AS b ON a.dispatch_id = b.dispatch_id AND a.exec_type = 1
+        LEFT JOIN tb_execute_detail AS c ON a.exec_id = c.exec_id AND a.exec_type = 2
         %s
         ORDER BY exec_id DESC
         LIMIT :limit OFFSET :offset

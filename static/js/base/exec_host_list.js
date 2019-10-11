@@ -158,8 +158,7 @@
                     url: BASE.uri.base.exec_host_api,
                     where: data,
                     cols: [[{
-                        type: 'radio',
-                        fixed: 'left'
+                        type: 'radio'
                     }, {
                         field: "server_id",
                         title: "服务器id",

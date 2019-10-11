@@ -180,8 +180,7 @@
                     url: BASE.uri.dispatch.list_api,
                     where: data,
                     cols: [[{
-                        type: 'radio',
-                        fixed: 'left'
+                        type: 'radio'
                     }, {
                         field: "dispatch_id",
                         title: "调度id",

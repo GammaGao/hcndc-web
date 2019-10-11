@@ -31,16 +31,17 @@ class ExecuteList(Resource):
     @staticmethod
     @execute_list_request
     @ExecuteFilter.filter_get_execute_list(result=list, total=int)
-    @ExecuteOperation.get_execute_list(interface_id=int, start_time=int, end_time=int, exec_type=int, page=int,
-                                       limit=int)
-    @ExecuteVerify.verify_get_execute_list(interface_id=int, start_time=int, end_time=int, exec_type=int, page=int,
-                                           limit=int)
+    @ExecuteOperation.get_execute_list(interface_id=int, start_time=int, end_time=int, run_status=int, exec_type=int,
+                                       page=int, limit=int)
+    @ExecuteVerify.verify_get_execute_list(interface_id=int, start_time=int, end_time=int, run_status=int,
+                                           exec_type=int, page=int, limit=int)
     def get():
         """获取执行列表"""
         params = Response(
             interface_id=int(get_arg('interface_id', 0)),
             start_time=int(get_arg('start_time', 0)),
             end_time=int(get_arg('end_time', 0)),
+            run_status=int(get_arg('run_status', 0)),
             exec_type=int(get_arg('exec_type', 0)),
             page=int(get_arg('page', 1)),
             limit=int(get_arg('limit', 10))

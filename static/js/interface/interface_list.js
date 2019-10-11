@@ -168,8 +168,7 @@
                     url: BASE.uri.interface.list_api,
                     where: data,
                     cols: [[{
-                        type: 'radio',
-                        fixed: 'left'
+                        type: 'radio'
                     }, {
                         field: "interface_id",
                         title: "接口id",

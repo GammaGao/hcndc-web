@@ -187,11 +187,11 @@
                         sort: true
                     }, {
                         field: "interface_id",
-                        title: "接口id",
-                        width: '5%'
+                        title: "接口/任务id"
                     }, {
                         field: "exec_type",
                         title: "执行类型",
+                        width: '8%',
                         templet: function (data) {
                             if (data.exec_type === 1) {
                                 return '<span class="layui-badge layui-bg-green">调度</span>';

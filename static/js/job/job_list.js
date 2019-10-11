@@ -193,8 +193,7 @@
                     url: BASE.uri.job.list_api,
                     where: data,
                     cols: [[{
-                        type: 'radio',
-                        fixed: 'left'
+                        type: 'radio'
                     }, {
                         field: "job_id",
                         title: "任务id",

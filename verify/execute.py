@@ -20,14 +20,16 @@ class ExecuteVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_get_execute_list(interface_id, start_time, end_time, exec_type, page, limit):
+    def verify_get_execute_list(interface_id, start_time, end_time, run_status, exec_type, page, limit):
         """获取执行列表"""
         if start_time and end_time and start_time >= end_time:
             abort(400, **make_result(status=400, msg='创建开始时间大于创建结束时间'))
+        if run_status < 0 or run_status > 3:
+            abort(400, **make_result(status=400, msg='运行状态错误'))
         if exec_type < 0 or exec_type > 2:
             abort(400, **make_result(status=400, msg='执行类型错误'))
 
-        return Response(interface_id=interface_id, start_time=start_time, end_time=end_time,
+        return Response(interface_id=interface_id, start_time=start_time, end_time=end_time, run_status=run_status,
                         exec_type=exec_type, page=page, limit=limit)
 
     @staticmethod

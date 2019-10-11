@@ -8,6 +8,8 @@ from configs import config, log, db
 from models.execute import ExecuteModel
 from util.msg_push import send_mail, send_dingtalk
 
+import time
+
 
 class ExecuteOperation(object):
     @staticmethod
@@ -74,14 +76,21 @@ class ExecuteOperation(object):
         # 运行中
         else:
             exec_status = 1
-        # 修改调度执行表状态
-        ExecuteModel.update_execute_datetime(db.etl_db, exec_id, exec_status)
+
+        # 修改调度表
+        if exec_status == 0:
+            # 修改调度执行表账期
+            run_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+            ExecuteModel.update_execute_success(db.etl_db, exec_id, exec_status, run_time)
+        else:
+            # 修改调度执行表状态
+            ExecuteModel.update_execute_status(db.etl_db, exec_id, exec_status)
 
         return Response(distribute_job=distribute_job)
 
     @staticmethod
     @make_decorator
-    def get_execute_list(interface_id, start_time, end_time, exec_type, page, limit):
+    def get_execute_list(interface_id, start_time, end_time, run_status, exec_type, page, limit):
         """获取执行列表"""
         condition = []
         if interface_id:
@@ -90,6 +99,13 @@ class ExecuteOperation(object):
             condition.append('a.insert_time >= %s' % start_time)
         if end_time:
             condition.append('a.insert_time <= %s' % end_time)
+        if run_status:
+            if run_status == 1:
+                condition.append('a.`status` = 0')
+            elif run_status == 2:
+                condition.append('a.`status` = 1')
+            else:
+                condition.append('a.`status` = -1')
         if exec_type:
             condition.append('exec_type = %s' % exec_type)
 

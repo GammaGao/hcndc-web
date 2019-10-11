@@ -158,8 +158,7 @@
                     url: BASE.uri.base.alert_list_api,
                     where: data,
                     cols: [[{
-                        type: 'radio',
-                        fixed: 'left'
+                        type: 'radio'
                     }, {
                         field: "id",
                         title: "配置id",

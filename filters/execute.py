@@ -20,6 +20,10 @@ class ExecuteFilter(object):
     def filter_get_execute_list(result, total):
         """任务列表"""
         for item in result:
+            if item['exec_type'] == 2:
+                item['interface_id'] = '任务id: %s' % item.pop('job_id')
+            else:
+                item['interface_id'] = '接口id: %s' % item['interface_id']
             item['insert_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time']))
             item['update_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['update_time']))
             item['timedelta'] = seconds_format(item['timedelta'])
