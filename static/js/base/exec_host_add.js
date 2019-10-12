@@ -134,13 +134,18 @@
                         type: 'post',
                         data: JSON.stringify(data),
                         success: function (result) {
-                            layer.alert('连接服务器成功');
-                            let msg = err_msg.join('</br>');
-                            layer.alert(msg, {icon: 5});
+                            let msg = [
+                                '连接成功</br>',
+                                '系统: ', result.data.system, '</br>',
+                                'CPU内核数: ', result.data.cpu, '</br>',
+                                '硬盘总量: ', result.data.disk.total, ', 使用量: ', result.data.disk.used, '</br>',
+                                '内存总量', result.data.memory.total, ', 使用量: ', result.data.memory.used, '</br>',
+                            ];
+                            layer.alert(msg.join(''), {icon: 6});
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.msg(sprintf('连接服务器失败: [%s]', result.msg));
+                            layer.msg(sprintf('连接服务器失败: [%s]', result.msg), {icon: 2});
                         }
                     })
                 });

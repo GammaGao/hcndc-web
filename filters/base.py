@@ -33,7 +33,7 @@ class ExecFilter(object):
     @make_decorator
     def filter_exec_host_test(result):
         """测试执行服务器"""
-        return {'status': 200, 'msg': '成功', 'data': {'result': result}}, 200
+        return {'status': 200, 'msg': '成功', 'data': result}, 200
 
     @staticmethod
     @make_decorator

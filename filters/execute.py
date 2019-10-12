@@ -34,11 +34,16 @@ class ExecuteFilter(object):
     def filter_get_execute_detail(result):
         """获取执行详情"""
         for item in result:
-            item['margin_left'] = '%s%%' % (item['margin_left'] * 100) if item['margin_left'] else '0'
-            item['width'] = '%s%%' % (item['width'] * 100) if item['width'] else '0'
+            if item['margin_left'] and item['margin_left'] < 1:
+                item['margin_left'] = '%s%%' % (item['margin_left'] * 100)
+                item['width'] = '%s%%' % (item['width'] * 100) if item['width'] else '0'
+            else:
+                item['margin_left'] = '0'
+                item['width'] = '0'
             item['insert_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time']))
             item['update_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['update_time']))
             item['timedelta'] = seconds_format(item['timedelta'])
+
         return {'status': 200, 'msg': '成功', 'data': result}, 200
 
     @staticmethod

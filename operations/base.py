@@ -64,10 +64,13 @@ class ExecHostOperation(object):
     @make_decorator
     def test_exec_host(server_host):
         """测试执行服务器"""
-        # rpc调用
-        client = Connection(server_host, config.exec.port)
-        result = client.rpc.test()
-        return Response(result=json.loads(result))
+        try:
+            # rpc调用
+            client = Connection(server_host, config.exec.port)
+            result = client.rpc.test()
+            return Response(result=json.loads(result))
+        except:
+            abort(403, **make_result(status=403, msg='服务器连通失败'))
 
     @staticmethod
     @make_decorator
