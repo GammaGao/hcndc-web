@@ -30,16 +30,17 @@ class ExecuteModel(object):
         return result
 
     @staticmethod
-    def update_execute_success(cursor, exec_id, status, run_time):
+    def update_interface_account(cursor, exec_id, run_time):
         """修改调度执行表账期"""
         command = '''
-        UPDATE tb_execute
-        SET status = :status, update_time = UNIX_TIMESTAMP(), run_time = :run_time
-        WHERE exec_id = :exec_id
+        UPDATE tb_interface a
+        LEFT JOIN tb_dispatch b USING(interface_id)
+        LEFT JOIN tb_execute c USING(dispatch_id)
+        SET a.run_time = :run_time
+        WHERE c.exec_id = :exec_id
         '''
         result = cursor.update(command, {
             'exec_id': exec_id,
-            'status': status,
             'run_time': run_time
         })
         return result

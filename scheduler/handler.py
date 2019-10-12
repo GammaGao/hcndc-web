@@ -38,7 +38,7 @@ class scheduler_handler(object):
         """修改任务"""
         scheduler.modify_job(
             id=run_id,
-            jobstore = 'default',
+            jobstore='default',
             func=get_dispatch_job,
             args=(dispatch_id,),
             trigger='cron',

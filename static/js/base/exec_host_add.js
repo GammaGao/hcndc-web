@@ -135,6 +135,8 @@
                         data: JSON.stringify(data),
                         success: function (result) {
                             layer.alert('连接服务器成功');
+                            let msg = err_msg.join('</br>');
+                            layer.alert(msg, {icon: 5});
                         },
                         error: function (error) {
                             let result = error.responseJSON;

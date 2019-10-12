@@ -77,14 +77,14 @@ class ExecuteOperation(object):
         else:
             exec_status = 1
 
-        # 修改调度表
+        # 成功时修改账期
         if exec_status == 0:
             # 修改调度执行表账期
             run_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-            ExecuteModel.update_execute_success(db.etl_db, exec_id, exec_status, run_time)
-        else:
-            # 修改调度执行表状态
-            ExecuteModel.update_execute_status(db.etl_db, exec_id, exec_status)
+            ExecuteModel.update_interface_account(db.etl_db, exec_id, run_time)
+
+        # 修改调度执行表状态
+        ExecuteModel.update_execute_status(db.etl_db, exec_id, exec_status)
 
         return Response(distribute_job=distribute_job)
 
