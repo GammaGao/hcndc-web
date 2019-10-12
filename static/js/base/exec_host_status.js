@@ -143,16 +143,17 @@
             layui.use('table', function () {
                 let table = layui.table;
                 table.render({
-                    elem: "#host-list",
+                    elem: "#host-status",
                     page: true,
                     toolbar: true,
                     limits: [10, 20, 30, 40, 50],
-                    title: '任务列表',
-                    url: BASE.uri.base.exec_host_api,
+                    title: '执行服务器状态列表',
+                    url: BASE.uri.base.exec_host_status_api,
                     where: data,
                     cols: [[{
                         field: "server_id",
                         title: "服务器id",
+                        width: '6%',
                         sort: true
                     }, {
                         field: "server_host",
@@ -161,24 +162,95 @@
                         field: "server_name",
                         title: "服务器名称"
                     }, {
-                        field: "is_deleted",
-                        title: "是否失效",
-                        sort: true,
+                        field: "core_num",
+                        title: "内核数",
+                        width: '5%',
                         templet: function (data) {
-                            if (data.is_deleted === 0) {
+                            if (data.core_num === null) {
+                                return '-'
+                            } else {
+                                return data.core_num
+                            }
+                        }
+                    }, {
+                        field: "system_version",
+                        title: "系统版本",
+                        templet: function (data) {
+                            if (data.system_version === null) {
+                                return '-'
+                            } else {
+                                return data.system_version
+                            }
+                        }
+                    }, {
+                        field: "disk_all",
+                        title: "磁盘总量",
+                        templet: function (data) {
+                            if (data.disk_all === null) {
+                                return '-'
+                            } else {
+                                return data.disk_all
+                            }
+                        }
+                    }, {
+                        field: "disk_used",
+                        title: "已使用磁盘",
+                        templet: function (data) {
+                            if (data.disk_used === null) {
+                                return '-'
+                            } else {
+                                return data.disk_used
+                            }
+                        }
+                    }, {
+                        field: "memory_all",
+                        title: "内存总量",
+                        templet: function (data) {
+                            if (data.memory_all === null) {
+                                return '-'
+                            } else {
+                                return data.memory_all
+                            }
+                        }
+                    }, {
+                        field: "memory_used",
+                        title: "已使用内存",
+                        templet: function (data) {
+                            if (data.memory_used === null) {
+                                return '-'
+                            } else {
+                                return data.memory_used
+                            }
+                        }
+                    }, {
+                        field: "last_ping_time",
+                        title: "上一次检测时间",
+                        templet: function (data) {
+                            if (data.last_ping_time === null) {
+                                return '-'
+                            } else {
+                                return data.last_ping_time
+                            }
+                        }
+                    }, {
+                        field: "process_status",
+                        title: "进程状态",
+                        width: '6%',
+                        templet: function (data) {
+                            if (data.process_status === null) {
+                                return '-'
+                            } else if (data.process_status === 0) {
                                 return '<span class="layui-badge layui-bg-green">正常</span>'
                             } else {
-                                return '<span class="layui-badge layui-bg-gray">删除</span>';
+                                return '<span class="layui-badge layui-bg-red">异常</span>';
                             }
                         }
                     }, {
                         field: "operation",
                         title: "操作",
+                        width: '5%',
                         templet: function () {
-                            let html = [];
-                            html.push('<a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</a>');
-                            html.push('<a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</a>');
-                            return html.join('');
+                            return '<a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="test">检测</a>';
                         }
                     }]],
                     response: {
@@ -188,38 +260,43 @@
                     }
                 });
                 // 事件监听
-                that.table_data_event();
+                that.table_data_event(data);
             });
 
         },
         // 表格事件监听
-        table_data_event: function () {
+        table_data_event: function (form_data) {
+            let that = this;
             layui.use('table', function () {
                 let table = layui.table;
-                table.on('tool(host-list)', function (obj) {
+                table.on('tool(host-status)', function (obj) {
                     let data = obj.data;
                     let event = obj.event;
                     let tr = obj.tr;
-                    if (event === 'update') {
-                        window.location.href = BASE.uri.base.exec_host_update + data.server_id + '/';
-                    } else if (event === 'delete') {
-                        if (data.is_deleted !== 0) {
-                            layer.alert('项目已失效');
-                            return
-                        }
-                        layer.confirm('确定删除?', function (index) {
+                    if (event === 'test') {
+                        layer.confirm('确定检测执行服务器状态?', function (index) {
                             // 关闭弹窗
                             layer.close(index);
                             $.ajax({
-                                url: BASE.uri.base.exec_host_detail_api + data.server_id + '/',
-                                type: 'delete',
-                                success: function () {
-                                    layer.alert('删除成功');
-                                    tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
+                                url: BASE.uri.base.exec_host_test_api,
+                                contentType: "application/json; charset=utf-8",
+                                type: 'post',
+                                data: JSON.stringify({'server_host': data.server_host}),
+                                success: function (result) {
+                                    let msg = [
+                                        '连接成功</br>',
+                                        '系统: ', result.data.system, '</br>',
+                                        'CPU内核数: ', result.data.cpu, '</br>',
+                                        '硬盘总量: ', result.data.disk.total, ', 使用量: ', result.data.disk.used, '</br>',
+                                        '内存总量', result.data.memory.total, ', 使用量: ', result.data.memory.used, '</br>',
+                                    ];
+                                    layer.alert(msg.join(''), {icon: 6});
+                                    // 刷新页面
+                                    that.table_data_load(form_data);
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;
-                                    layer.alert(sprintf('删除项目失败: %s', result.msg))
+                                    layer.msg(sprintf('连接服务器失败: [%s]', result.msg), {icon: 2});
                                 }
                             });
 

@@ -19,8 +19,31 @@
         </span>
         <fieldset class="layui-elem-field layui-field-title">
         </fieldset>
+        <form class="layui-form">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">服务器IP</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="server_host" placeholder="服务器IP" autocomplete="off">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">服务器名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" class="layui-input" name="server_name" placeholder="服务器名称" autocomplete="off">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <div class="layui-input-inline">
+                        <button lay-submit class="layui-btn" lay-filter="host-search" type="button">
+                            <i class="layui-icon layui-icon-search icon-size">搜索</i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
         <!-- 执行服务器列表 -->
-        <div id="host-list" lay-filter="host-list"></div>
+        <div id="host-status" lay-filter="host-status"></div>
     </div>
 </div>
 

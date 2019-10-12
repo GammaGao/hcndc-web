@@ -119,7 +119,7 @@ class ExecHostOperation(object):
             condition.append('server_name LIKE "%%%%%s%%%%"' % server_name)
         if server_host:
             condition.append('server_host LIKE "%%%%%s%%%%"' % server_host)
-        condition = ' AND '.join(condition) if condition else ''
+        condition = ' AND ' + ' AND '.join(condition) if condition else ''
         result = ExecHostModel.get_exec_host_status(db.etl_db, condition, page, limit)
         return Response(result=result)
 

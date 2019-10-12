@@ -129,13 +129,13 @@ class ExecHostModel(object):
         disk_all, memory_used, memory_all, last_ping_time, process_status
         FROM tb_exec_host AS a
         LEFT JOIN tb_exec_host_status AS b USING(server_id)
-        WHERE is_deleted = 0 %
+        WHERE is_deleted = 0 %s
         LIMIT :limit OFFSET :offset
         '''
         command = command % condition
         result = cursor.query(command, {
-            'page': page,
-            'limit': limit
+            'limit': limit,
+            'offset': (page - 1) * limit
         })
         return result if result else []
 
