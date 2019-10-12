@@ -66,6 +66,16 @@ class ExecHostVerify(object):
             abort(400, **make_result(status=400, msg='执行服务器名称不存在'))
         return Response(server_host=server_host, server_name=server_name, user_id=user_id)
 
+    @staticmethod
+    @make_decorator
+    def verify_get_exec_host_status(server_host, server_name, page, limit):
+        """获取执行服务器状态"""
+        if not server_host:
+            abort(400, **make_result(status=400, msg='执行服务器ip不存在'))
+        if not server_name:
+            abort(400, **make_result(status=400, msg='执行服务器名称不存在'))
+        return Response(server_host=server_host, server_name=server_name, page=page, limit=limit)
+
 
 class AlertVerify(object):
     @staticmethod

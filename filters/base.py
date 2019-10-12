@@ -41,6 +41,11 @@ class ExecFilter(object):
         """新增执行服务器"""
         return {'status': 200, 'msg': '成功', 'data': {'id': host_id}}, 200
 
+    @staticmethod
+    @make_decorator
+    def filter_exec_host_status(result):
+        """获取执行服务器状态"""
+        return {'status': 200, 'msg': '成功', 'data': result}, 200
 
 class AlertFilter(object):
     @staticmethod

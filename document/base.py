@@ -16,7 +16,7 @@ exec_host_request = api.doc(params={
 # 执行服务器修改请求
 exec_host_update_request = api.doc(body=api.model('exec_host_update_request', {
     'server_id': fields.Integer(description='执行服务器id'),
-    'server_host': fields.Integer(description='执行服务器ip'),
+    'server_host': fields.String(description='执行服务器ip'),
     'server_name': fields.String(description='执行服务器名称'),
     'is_deleted': fields.Integer(description='是否失效: 0正常, 1失效')
 }, description='执行服务器修改请求'))
@@ -77,3 +77,22 @@ alert_conf_detail_add_request = api.doc(body=api.model('alert_conf_detail_add_re
     'param_port': fields.String(description='邮箱端口: eg: 465'),
     'param_pass': fields.String(description='发件人邮箱密码')
 }, description='执行服务器修改请求'))
+
+# 测试执行服务器
+exec_host_test_request = api.doc(body=api.model('exec_host_test_request', {
+    'server_host': fields.String(description='执行服务器ip')
+}), description='测试执行服务器')
+
+# 新增执行服务器
+exec_host_add_request = api.doc(body=api.model('exec_host_add_request', {
+    'server_host': fields.String(description='执行服务器ip'),
+    'server_name': fields.String(description='执行服务器名称'),
+}), description='新增执行服务器')
+
+# 获取执行服务器状态列表
+exec_host_status_list_request = api.doc(params={
+    'server_name': '服务器名称',
+    'server_host': '服务器IP',
+    'page': '页码',
+    'limit': '条数'
+})

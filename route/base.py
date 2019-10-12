@@ -29,6 +29,14 @@ def ExecHostAdd():
     return redirect('/login/')
 
 
+@app.route('/base/exec/host/status/')
+def ExecHostStatus():
+    """执行服务器状态"""
+    if session.get('login'):
+        return render_template('base/exec_host_status.html')
+    return redirect('/login/')
+
+
 @app.route('/base/alert/')
 def Alert():
     """预警配置"""

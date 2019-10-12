@@ -121,6 +121,113 @@ class ExecHostModel(object):
         result = cursor.query(command)
         return result if result else []
 
+    @staticmethod
+    def get_exec_host_status(cursor, condition, page, limit):
+        """获取执行服务器状态"""
+        command = '''
+        SELECT server_id, server_host, server_name, core_num, system_version, disk_used,
+        disk_all, memory_used, memory_all, last_ping_time, process_status
+        FROM tb_exec_host AS a
+        LEFT JOIN tb_exec_host_status AS b USING(server_id)
+        WHERE is_deleted = 0 %
+        LIMIT :limit OFFSET :offset
+        '''
+        command = command % condition
+        result = cursor.query(command, {
+            'page': page,
+            'limit': limit
+        })
+        return result if result else []
+
+    @staticmethod
+    def get_exec_host_status_by_host(cursor, server_host):
+        """根据域名获取服务器状态"""
+        command = '''
+        SELECT server_id, b.id AS status_id
+        FROM tb_exec_host
+        LEFT JOIN tb_exec_host_status AS b USING(server_id)
+        WHERE server_host = :server_host
+        '''
+        result = cursor.query_one(command, {
+            'server_host': server_host
+        })
+        return result if result else {}
+
+    @staticmethod
+    def update_exec_host_status_by_host_success(cursor, server_id, core_num, system_version, disk_used,
+                                                disk_all, memory_used, memory_all, last_ping_time, process_status):
+        """根据域名更新服务器状态-成功时"""
+        command = '''
+        UPDATE tb_exec_host_status
+        SET core_num = :core_num, system_version = :system_version, disk_used = :disk_used, disk_all = :disk_all,
+        memory_used = :memory_used, memory_all = :memory_all, last_ping_time = :last_ping_time, process_status = :process_status
+        WHERE server_id = :server_id
+        '''
+        result = cursor.update(command, {
+            'server_id': server_id,
+            'core_num': core_num,
+            'system_version': system_version,
+            'disk_used': disk_used,
+            'disk_all': disk_all,
+            'memory_used': memory_used,
+            'memory_all': memory_all,
+            'last_ping_time': last_ping_time,
+            'process_status': process_status
+        })
+        return result
+
+    @staticmethod
+    def add_exec_host_status_by_host_success(cursor, server_id, core_num, system_version, disk_used,
+                                             disk_all, memory_used, memory_all, last_ping_time, process_status):
+        """根据域名新增服务器状态-成功时"""
+        command = '''
+        INSERT INTO tb_exec_host_status(server_id, core_num, system_version, disk_used,
+        disk_all, memory_used, memory_all, last_ping_time, process_status)
+        VALUES(:server_id, :core_num, :system_version, :disk_used,
+        :disk_all, :memory_used, :memory_all, :last_ping_time, :process_status)
+        '''
+        result = cursor.insert(command, {
+            'server_id': server_id,
+            'core_num': core_num,
+            'system_version': system_version,
+            'disk_used': disk_used,
+            'disk_all': disk_all,
+            'memory_used': memory_used,
+            'memory_all': memory_all,
+            'last_ping_time': last_ping_time,
+            'process_status': process_status
+        })
+        return result
+
+    @staticmethod
+    def update_exec_host_status_by_host_failed(cursor, server_id, last_ping_time, process_status):
+        """根据域名更新服务器状态-失败时"""
+        command = '''
+        UPDATE tb_exec_host_status
+        SET last_ping_time = :last_ping_time, process_status = :process_status
+        WHERE server_id = :server_id
+        '''
+        result = cursor.update(command, {
+            'server_id': server_id,
+            'last_ping_time': last_ping_time,
+            'process_status': process_status
+        })
+        return result
+
+    @staticmethod
+    def add_exec_host_status_by_host_failed(cursor, server_id, last_ping_time, process_status):
+        """"根据域名新增服务器状态-失败时"""
+        command = '''
+        INSERT INTO tb_exec_host_status(server_id, last_ping_time, process_status)
+        VALUES (:server_id, :last_ping_time, :process_status)
+        '''
+        result = cursor.insert(command, {
+            'server_id': server_id,
+            'last_ping_time': last_ping_time,
+            'process_status': process_status
+        })
+        return result
+
 
 class AlertModel(object):
     @staticmethod

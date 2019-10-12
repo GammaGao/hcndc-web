@@ -9,7 +9,7 @@
     Controller.prototype = {
         init: function () {
             // 菜单样式加载
-            menu_init('基础配置', '执行服务器列表');
+            menu_init('基础配置', '执行服务器状态');
             // 侧边栏样式切换
             this.tree_toggle();
             // 用户数据渲染

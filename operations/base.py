@@ -8,6 +8,7 @@ from server.status import make_result
 from rpc.rpc_client import Connection
 
 import json
+import time
 from flask_restful import abort
 
 
@@ -64,12 +65,42 @@ class ExecHostOperation(object):
     @make_decorator
     def test_exec_host(server_host):
         """测试执行服务器"""
+        # 服务器状态
+        host_item = ExecHostModel.get_exec_host_status_by_host(db.etl_db, server_host)
         try:
             # rpc调用
             client = Connection(server_host, config.exec.port)
-            result = client.rpc.test()
-            return Response(result=json.loads(result))
+            result = json.loads(client.rpc.test())
+            # 不存在跳过
+            if not host_item:
+                pass
+            # 新增服务器状态
+            elif host_item['server_id'] and not host_item['status_id']:
+                now_time = int(time.time())
+                ExecHostModel.add_exec_host_status_by_host_success(db.etl_db, host_item['server_id'], result['cpu'],
+                                                                   result['system'], result['disk']['used'],
+                                                                   result['disk']['total'], result['memory']['used'],
+                                                                   result['memory']['total'], now_time, 0)
+            # 修改服务器状态
+            elif host_item['server_id'] and host_item['status_id']:
+                now_time = int(time.time())
+                ExecHostModel.update_exec_host_status_by_host_success(db.etl_db, host_item['server_id'], result['cpu'],
+                                                                   result['system'], result['disk']['used'],
+                                                                   result['disk']['total'], result['memory']['used'],
+                                                                   result['memory']['total'], now_time, 0)
+            return Response(result=result)
         except:
+            # 不存在跳过
+            if not host_item:
+                pass
+            # 新增服务器状态
+            elif host_item['server_id'] and not host_item['status_id']:
+                now_time = int(time.time())
+                ExecHostModel.add_exec_host_status_by_host_failed(db.etl_db, host_item['server_id'], now_time, 1)
+            # 修改服务器状态
+            elif host_item['server_id'] and host_item['status_id']:
+                now_time = int(time.time())
+                ExecHostModel.update_exec_host_status_by_host_failed(db.etl_db, host_item['server_id'], now_time, 1)
             abort(403, **make_result(status=403, msg='服务器连通失败'))
 
     @staticmethod
@@ -78,6 +109,19 @@ class ExecHostOperation(object):
         """新增执行服务器"""
         host_id = ExecHostModel.add_exec_host_detail(db.etl_db, server_host, server_name, user_id)
         return Response(host_id=host_id)
+
+    @staticmethod
+    @make_decorator
+    def get_exec_host_status(server_host, server_name, page, limit):
+        """获取执行服务器状态"""
+        condition = []
+        if server_name:
+            condition.append('server_name LIKE "%%%%%s%%%%"' % server_name)
+        if server_host:
+            condition.append('server_host LIKE "%%%%%s%%%%"' % server_host)
+        condition = ' AND '.join(condition) if condition else ''
+        result = ExecHostModel.get_exec_host_status(db.etl_db, condition, page, limit)
+        return Response(result=result)
 
 
 class AlertOperation(object):
