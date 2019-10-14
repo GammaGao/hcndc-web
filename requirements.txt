@@ -15,3 +15,4 @@ croniter
 pymongo
 dingtalkchatbot
 pycryptodome
+xlrd

@@ -20,6 +20,7 @@ def InterfaceDetail(id):
         return render_template('interface/interface_detail.html', interface_id=id)
     return redirect('/login/')
 
+
 @app.route('/interface/update/<int:id>/')
 def InterfaceUpdate(id):
     """接口修改"""
@@ -34,6 +35,7 @@ def InterfaceAdd():
     if session.get('login'):
         return render_template('interface/interface_add.html')
     return redirect('/login/')
+
 
 @app.route('/test/')
 def AllJobShow():

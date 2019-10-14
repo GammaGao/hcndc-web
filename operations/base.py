@@ -3,7 +3,7 @@
 
 from server.decorators import make_decorator, Response
 from models.base import ExecHostModel, AlertModel
-from configs import db, config
+from configs import db, config, log
 from server.status import make_result
 from rpc.rpc_client import Connection
 
@@ -44,9 +44,9 @@ class ExecHostOperation(object):
     def update_exec_host_detail(server_id, server_host, server_name, is_deleted, user_id):
         """修改执行服务器详情"""
         # 是否存在调度任务中
-        run_job_count = ExecHostModel.get_exec_host_in_dispatch_job(db.etl_db, server_id)
-        if run_job_count:
-            abort(400, **make_result(status=400, msg='调度任务中有%s个任务使用该执行服务器, 请停止调度任务后修改删除' % run_job_count))
+        # run_job_count = ExecHostModel.get_exec_host_in_dispatch_job(db.etl_db, server_id)
+        # if run_job_count:
+        #     abort(400, **make_result(status=400, msg='调度任务中有%s个任务使用该执行服务器, 请停止调度任务后修改删除' % run_job_count))
         ExecHostModel.update_exec_host_detail(db.etl_db, server_id, server_host, server_name, is_deleted, user_id)
         return Response(server_id=server_id)
 
@@ -55,9 +55,9 @@ class ExecHostOperation(object):
     def delete_exec_host_detail(server_id, user_id):
         """删除执行服务器"""
         # 是否存在调度任务中
-        run_job_count = ExecHostModel.get_exec_host_in_dispatch_job(db.etl_db, server_id)
-        if run_job_count:
-            abort(400, **make_result(status=400, msg='调度任务中有%s个任务使用该执行服务器, 请停止调度后删除' % run_job_count))
+        # run_job_count = ExecHostModel.get_exec_host_in_dispatch_job(db.etl_db, server_id)
+        # if run_job_count:
+        #     abort(400, **make_result(status=400, msg='调度任务中有%s个任务使用该执行服务器, 请停止调度后删除' % run_job_count))
         ExecHostModel.delete_exec_host_detail(db.etl_db, server_id, user_id)
         return Response(server_id=server_id)
 
@@ -85,11 +85,11 @@ class ExecHostOperation(object):
             elif host_item['server_id'] and host_item['status_id']:
                 now_time = int(time.time())
                 ExecHostModel.update_exec_host_status_by_host_success(db.etl_db, host_item['server_id'], result['cpu'],
-                                                                   result['system'], result['disk']['used'],
-                                                                   result['disk']['total'], result['memory']['used'],
-                                                                   result['memory']['total'], now_time, 0)
+                                                                      result['system'], result['disk']['used'],
+                                                                      result['disk']['total'], result['memory']['used'],
+                                                                      result['memory']['total'], now_time, 0)
             return Response(result=result)
-        except:
+        except Exception as e:
             # 不存在跳过
             if not host_item:
                 pass
@@ -101,7 +101,8 @@ class ExecHostOperation(object):
             elif host_item['server_id'] and host_item['status_id']:
                 now_time = int(time.time())
                 ExecHostModel.update_exec_host_status_by_host_failed(db.etl_db, host_item['server_id'], now_time, 1)
-            abort(403, **make_result(status=403, msg='服务器连通失败'))
+            log.error('执行服务器连通失败, [server_host: %s]' % server_host, exc_info=1)
+            abort(403, **make_result(status=403, msg='服务器连通失败: [ERROR: %s]' % e))
 
     @staticmethod
     @make_decorator
