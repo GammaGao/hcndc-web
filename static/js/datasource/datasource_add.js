@@ -9,16 +9,16 @@
     Controller.prototype = {
         init: function () {
             // 菜单样式加载
-            menu_init('基础配置', '新增预警配置');
+            menu_init('任务总览', '');
             // 侧边栏样式切换
             this.tree_toggle();
             // 用户数据渲染
             this.user_info();
             // 元素事件注册
             this.element_event();
-            // 预警配置表单选择器监听
+            // 数据源配置表单选择器监听
             this.select_form_event();
-            // 预警表单提交注册
+            // 任务表单事件注册
             this.form_event();
         },
         // 事件注册器
@@ -123,19 +123,22 @@
                 }
             })
         },
-        // 预警表单选择器监听
+        // 数据源表单选择器监听
         select_form_event: function () {
             layui.use('form', function () {
                 let form = layui.form;
-                form.on('select(alert_channel)', function (data) {
-                    if (data.value === '2'){
-                        $('input[name=param_host]').parent().parent().css('display', 'none');
-                        $('input[name=param_port]').parent().parent().css('display', 'none');
-                        $('input[name=param_pass]').parent().parent().css('display', 'none');
+                form.on('select(source_type)', function (data) {
+                    // mongo集合名称
+                    if (Number(data.value) === 2) {
+                        $('input[name=collection_name]').parent().parent().removeAttr('style');
                     } else {
-                        $('input[name=param_host]').parent().parent().removeAttr('style');
-                        $('input[name=param_port]').parent().parent().removeAttr('style');
-                        $('input[name=param_pass]').parent().parent().removeAttr('style');
+                        $('input[name=collection_name]').parent().parent().css('display', 'none');
+                    }
+                    // hive / impala 认证方式
+                    if (Number(data.value) < 4) {
+                        $('select[name=auth_type]').parent().parent().parent().css('display', 'none');
+                    } else {
+                        $('select[name=auth_type]').parent().parent().parent().removeAttr('style');
                     }
                     form.render();
                 });
@@ -145,32 +148,53 @@
         form_event: function () {
             layui.use('form', function () {
                 let form = layui.form;
-                form.on('submit(alert-save)', function (data) {
+                // 测试连接
+                form.on('submit(datasource-test)', function (data) {
                     data = data.field;
-                    data.param_port = data.param_port || 0;
                     $.ajax({
-                        url: BASE.uri.base.alert_add_api,
+                        url: BASE.uri.datasource.test_api,
+                        contentType: "application/json; charset=utf-8",
+                        type: 'post',
+                        data: JSON.stringify(data),
+                        success: function (result) {
+                            if (result.status === 200) {
+                                layer.alert(result.msg, {icon: 6});
+                            } else {
+                                layer.alert(result.msg, {icon: 5});
+                            }
+                        },
+                        error: function (error) {
+                            let result = error.responseJSON;
+                            layer.msg(sprintf('连接服务器失败: [%s]', result.msg), {icon: 2});
+                        }
+                    })
+                });
+                // 保存表单
+                form.on('submit(datasource-save)', function (data) {
+                    data = data.field;
+                    $.ajax({
+                        url: BASE.uri.datasource.add_api,
                         contentType: "application/json; charset=utf-8",
                         type: 'post',
                         data: JSON.stringify(data),
                         success: function (result) {
                             layer.open({
-                                id: 'alert_add_success',
+                                id: 'datasource_add_success',
                                 btn: ['返回列表', '留在本页'],
-                                title: '新增预警配置成功',
-                                content: sprintf('状态: %s', result.msg),
+                                title: '新增数据源成功',
+                                content: sprintf('数据源id: %s, 状态: %s', result.data.datasource_id, result.msg),
                                 yes: function (index) {
                                     layer.close(index);
-                                    window.location.href = BASE.uri.base.alert_list;
+                                    window.location.href = BASE.uri.datasource.list;
                                 }
                             })
                         },
                         error: function (error) {
                             let result = error.responseJSON;
                             layer.open({
-                                id: 'alert_add_error',
-                                title: '新增预警配置失败',
-                                content: sprintf('状态: %s', result.msg)
+                                id: 'datasource_add_error',
+                                title: '新增数据源失败',
+                                content: sprintf('数据源id: %s, 状态: %s', data.datasource_id, result.msg)
                             })
                         }
                     });

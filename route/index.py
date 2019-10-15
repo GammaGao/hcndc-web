@@ -1,8 +1,15 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from configs import app
 from flask import render_template, session, redirect
+
+from configs import app
+
+
+@app.route('/favicon.ico')
+def favicon():
+    """静态图标映射"""
+    return redirect('/static/favicon.ico')
 
 
 @app.route('/home/')

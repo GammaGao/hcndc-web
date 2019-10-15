@@ -111,6 +111,13 @@ let BASE = {
             'alert_add': '/base/alert/add/',
             'alert_add_api': '/base/alert/add/api/'
         },
+        datasource: {
+            'list': '/datasource/',
+            'list_api': '/datasource/list/api/',
+            'add': '/datasource/add/',
+            'test_api': '/datasource/test/api/',
+            'add_api': '/datasource/add/api/',
+        },
         flow_alert_detail_api: '/flow/alert/api/',
         flow_list_api: '/flow/list/api/',
         flow_detail: '/flow/detail/',

@@ -15,5 +15,6 @@ ENTRYPOINT ["python", "server.py"]
 # --restart always \
 # -p 2333:2333  \
 # --network=host \
+# 项目文件挂载
 # -v /root/hcdnc/hcndc-web:/app \
 # hcndc-web

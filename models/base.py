@@ -140,6 +140,19 @@ class ExecHostModel(object):
         return result if result else []
 
     @staticmethod
+    def get_exec_host_status_count(cursor, condition):
+        """获取执行服务器状态条数"""
+        command = '''
+        SELECT COUNT(*) AS count
+        FROM tb_exec_host AS a
+        LEFT JOIN tb_exec_host_status AS b USING(server_id)
+        WHERE is_deleted = 0 %s
+        '''
+        command = command % condition
+        result = cursor.query_one(command)
+        return result['count'] if result else 0
+
+    @staticmethod
     def get_exec_host_status_by_host(cursor, server_host):
         """根据域名获取服务器状态"""
         command = '''

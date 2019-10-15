@@ -44,12 +44,12 @@ class ExecFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_exec_host_status(result):
+    def filter_exec_host_status(result, total):
         """获取执行服务器状态"""
         for item in result:
             if item['last_ping_time']:
                 item['last_ping_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['last_ping_time']))
-        return {'status': 200, 'msg': '成功', 'data': result}, 200
+        return {'status': 200, 'msg': '成功', 'total': total, 'data': result}, 200
 
 
 class AlertFilter(object):

@@ -122,7 +122,8 @@ class ExecHostOperation(object):
             condition.append('server_host LIKE "%%%%%s%%%%"' % server_host)
         condition = ' AND ' + ' AND '.join(condition) if condition else ''
         result = ExecHostModel.get_exec_host_status(db.etl_db, condition, page, limit)
-        return Response(result=result)
+        total = ExecHostModel.get_exec_host_status_count(db.etl_db, condition)
+        return Response(result=result, total=total)
 
 
 class AlertOperation(object):

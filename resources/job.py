@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from flask_restplus.resource import Resource
+
 from configs import log
 from server.decorators import Response
 from server.request import get_arg, get_payload

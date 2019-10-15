@@ -112,7 +112,7 @@ class ExecHostAdd(Resource):
 class ExecHostStatusList(Resource):
     @staticmethod
     @exec_host_status_list_request
-    @ExecFilter.filter_exec_host_status(result=list)
+    @ExecFilter.filter_exec_host_status(result=list, total=int)
     @ExecHostOperation.get_exec_host_status(server_host=str, server_name=str, page=int, limit=int)
     @ExecHostVerify.verify_get_exec_host_status(server_host=str, server_name=str, page=int, limit=int)
     def get():

@@ -15,7 +15,7 @@ class JobVerify(object):
         if start_time and end_time and start_time >= end_time:
             abort(400, **make_result(status=400, msg='创建开始时间大于创建结束时间'))
         if is_deleted < 0 or is_deleted > 1:
-            abort(400, **make_result(status=400, msg='任务状态参数错误'))
+            abort(400, **make_result(status=400, msg='状态参数错误'))
 
         return Response(job_name=job_name, start_time=start_time, end_time=end_time,
                         interface_id=interface_id, is_deleted=is_deleted, page=page, limit=limit)

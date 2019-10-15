@@ -9,15 +9,13 @@
     Controller.prototype = {
         init: function () {
             // 菜单样式加载
-            menu_init('任务总览', '任务列表');
+            menu_init('任务总览', '数据源配置');
             // 侧边栏样式切换
             this.tree_toggle();
             // 用户数据渲染
             this.user_info();
             // 元素事件注册
             this.element_event();
-            // 接口ID渲染
-            this.interface_list_id();
             // 表单搜索事件
             this.form_search();
             // 表格数据初始化
@@ -127,42 +125,12 @@
                 }
             })
         },
-        // 接口ID渲染
-        interface_list_id: function () {
-            $.ajax({
-                url: BASE.uri.interface.id_list_api,
-                type: 'get',
-                success: function (res) {
-                    layui.use('form', function () {
-                        let form = layui.form;
-                        let html = [];
-                        html.push('<option value="0">请选择</option>');
-                        for (let i in res.data) {
-                            html.push('<option value="' + res.data[i].interface_id + '">' + res.data[i].interface_name + '</option>')
-                        }
-                        $('select[name=interface_id]').append(html.join(''));
-                        form.render('select');
-                    })
-                }
-            })
-        },
         // 表单搜索
         form_search: function () {
             let that = this;
             layui.use('form', function () {
                 let form = layui.form;
-                form.on('submit(job-search)', function (data) {
-                    let job_date_list = data.field.job_date.split(' - ');
-                    if (job_date_list.length === 2) {
-                        let start_time = job_date_list[0] + ' 00:00:00';
-                        data.field.start_time = new Date(start_time).getTime() / 1000;
-                        let end_time = job_date_list[1] + ' 23:59:59';
-                        data.field.end_time = new Date(end_time).getTime() / 1000;
-                    } else {
-                        data.field.start_time = 0;
-                        data.field.end_time = 0;
-                    }
-                    delete data.field.job_date;
+                form.on('submit(datasource-search)', function (data) {
                     that.table_data_load(data.field);
                 });
             });
@@ -174,49 +142,62 @@
             // 自定义左侧工具栏
             let toolbar_div = [
                 '<div class="layui-table-tool-temp">',
-                '<div class="layui-inline" lay-event="add" title="添加作业"><i class="layui-icon layui-icon-add-1"></i></div>',
-                '<div class="layui-inline" lay-event="update" title="修改作业"><i class="layui-icon layui-icon-edit"></i></div>',
-                '<div class="layui-inline" lay-event="upload" title="上传作业" id="job-upload"><i class="layui-icon layui-icon-upload"></i></div>',
+                '<div class="layui-inline" lay-event="add" title="添加数据源"><i class="layui-icon layui-icon-add-1"></i></div>',
+                '<div class="layui-inline" lay-event="update" title="修改数据源"><i class="layui-icon layui-icon-edit"></i></div>',
                 '</div>'
             ].join('');
             // 表格渲染
             layui.use('table', function () {
                 let table = layui.table;
                 table.render({
-                    elem: "#job-list",
+                    elem: "#datasource-list",
                     page: true,
                     toolbar: toolbar_div,
                     limits: [10, 20, 30, 40, 50],
-                    title: '任务列表',
-                    url: BASE.uri.job.list_api,
+                    title: '数据源列表',
+                    url: BASE.uri.datasource.list_api,
                     where: data,
                     cols: [[{
                         type: 'radio'
                     }, {
-                        field: "job_id",
-                        title: "任务id",
-                        width: "5%",
+                        field: "source_id",
+                        title: "数据源id",
+                        width: "6%",
                         sort: true
                     }, {
-                        field: "interface_id",
-                        title: "接口id",
-                        width: "5%"
+                        field: "source_name",
+                        title: "数据源名称"
                     }, {
-                        field: "job_name",
-                        title: "任务名称"
+                        field: "source_type",
+                        title: "数据库类型",
+                        templet: function (data) {
+                            if (data.source_type === 1) {
+                                return 'mysql'
+                            } else if (data.source_type === 2) {
+                                return 'mongo'
+                            } else if (data.source_type === 3) {
+                                return 'mssql'
+                            } else if (data.source_type === 4) {
+                                return 'hive'
+                            } else if (data.source_type === 5) {
+                                return 'impala'
+                            } else {
+                                return '-'
+                            }
+                        }
                     }, {
-                        field: "job_desc",
-                        title: "任务描述"
+                        field: "source_host",
+                        title: "数据库ip或域名"
                     }, {
-                        field: "server_id",
-                        title: "服务器id",
-                        width: "5%"
+                        field: "source_port",
+                        title: "数据库端口",
+                        width: "6%"
                     }, {
-                        field: "server_dir",
-                        title: "脚本目录"
+                        field: "source_database",
+                        title: "数据库库名"
                     }, {
-                        field: "server_script",
-                        title: "脚本命令"
+                        field: "source_desc",
+                        title: "描述"
                     }, {
                         field: "is_deleted",
                         title: "是否失效",
@@ -239,12 +220,10 @@
                                 html.push('<button class="layui-btn layui-btn-sm" lay-event="detail">详情</button>');
                                 html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
                                 html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
-                                html.push('<button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="run">立即执行</button>');
                             } else {
                                 html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">详情</button>');
                                 html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
                                 html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">删除</button>');
-                                html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">立即执行</button>');
                             }
                             html.push('</div>');
                             return html.join('');
@@ -264,70 +243,23 @@
         },
         // 工具栏事件监听
         toolbar_data_event: function () {
-            // 上传事件注册
-            layui.use('upload', function () {
-                let upload = layui.upload;
-                // 允许上传的文件后缀
-                upload.render({
-                    elem: '#job-upload',
-                    url: '/job/upload/',
-                    // 普通文件
-                    accept: 'file',
-                    auto: false,
-                    // 只允许上传压缩文件
-                    exts: 'xlsx|xls|csv',
-                    // 限制文件大小，单位 KB
-                    size: 5000,
-                    choose: function (obj) {
-                        //确认框
-                        layer.confirm('确定上传文件吗？', {icon: 3, title: '提示'}, function (index) {
-                            // 读取本地文件
-                            obj.preview(function (index, file) {
-                                // 单个重传
-                                obj.upload(index, file);
-                            });
-                            layer.close(index);
-                        });
-                    },
-                    done: function (res) {
-                        // 成功上传
-                        if (res.status && res.status === 200) {
-                            layer.msg("成功", {icon: 6});
-                        }
-                        // 上传参数错误
-                        else if (res.status && res.status === 401) {
-                            let err_msg = res.data.err_msg;
-                            let msg = err_msg.join('</br>');
-                            layer.alert(msg, {icon: 5});
-                        }
-                        // 文件类型错误
-                        else {
-                            layer.alert(res.msg);
-                        }
-                    },
-                    error: function (error) {
-                        let result = error.responseJSON;
-                        layer.alert(result.msg)
-                    }
-                });
-            });
             // 工具栏事件注册
             layui.use('table', function () {
                 let table = layui.table;
-                table.on('toolbar(job-list)', function (obj) {
+                table.on('toolbar(datasource-list)', function (obj) {
                     // 工具栏事件监听
                     let check_status = table.checkStatus(obj.config.id);
                     let check_data = check_status.data;
                     switch (obj.event) {
                         case 'add':
                             layer.open({
-                                id: 'job_add',
+                                id: 'datasource_add',
                                 btn: ['跳转', '取消'],
-                                title: '跳转新增任务页面',
-                                content: '确定新增任务?',
+                                title: '跳转新增数据源页面',
+                                content: '确定新增数据源?',
                                 yes: function (index, layero) {
                                     layer.close(index);
-                                    window.location.href = BASE.uri.job.add;
+                                    window.location.href = BASE.uri.datasource.add;
                                 }
                             });
                             break;
@@ -348,7 +280,7 @@
         table_data_event: function () {
             layui.use('table', function () {
                 let table = layui.table;
-                table.on('tool(job-list)', function (obj) {
+                table.on('tool(datasource-list)', function (obj) {
                     let data = obj.data;
                     let event = obj.event;
                     let tr = obj.tr;
@@ -381,43 +313,6 @@
                                     error: function (error) {
                                         let result = error.responseJSON;
                                         layer.alert(sprintf('删除项目%s失败: %s', data.job_id, result.msg))
-                                    }
-                                });
-                            });
-                            break;
-                        // 执行
-                        case 'run':
-                            if (data.is_deleted !== 0) {
-                                layer.alert('项目已失效');
-                                return
-                            }
-                            layer.confirm('确定执行任务?', function (index) {
-                                // 关闭弹窗
-                                layer.close(index);
-                                $.ajax({
-                                    url: BASE.uri.job.run_api,
-                                    contentType: "application/json; charset=utf-8",
-                                    type: 'post',
-                                    data: JSON.stringify({'job_id': data.job_id}),
-                                    success: function () {
-                                        layer.open({
-                                            id: 'job_run_success',
-                                            btn: ['跳转', '留在本页'],
-                                            title: '立即执行任务成功',
-                                            content: '是否跳转至执行日志?',
-                                            yes: function (index) {
-                                                layer.close(index);
-                                                window.location.href = BASE.uri.execute.list;
-                                            }
-                                        });
-                                    },
-                                    error: function (error) {
-                                        let result = error.responseJSON;
-                                        layer.open({
-                                            id: 'job_run_error',
-                                            title: '立即执行任务失败',
-                                            content: sprintf('%s', result.msg)
-                                        })
                                     }
                                 });
                             });

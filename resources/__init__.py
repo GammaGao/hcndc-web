@@ -8,3 +8,4 @@ from resources.job import ns
 from resources.dispatch import ns
 from resources.base import ns
 from resources.execute import ns
+from resources.datasource import ns

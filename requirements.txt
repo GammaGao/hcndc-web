@@ -16,3 +16,4 @@ pymongo
 dingtalkchatbot
 pycryptodome
 xlrd
+pymssql
