@@ -95,9 +95,9 @@ class DataSourceOperation(object):
     @staticmethod
     @make_decorator
     def update_datasource_detail(source_id, source_name, source_type, auth_type, source_host, source_port,
-                                 source_database, source_user, source_password, source_desc, user_id, is_delete):
+                                 source_database, source_user, source_password, source_desc, is_deleted, user_id):
         """修改数据源"""
         DataSourceModel.update_datasource_detail(db.etl_db, source_id, source_name, source_type, auth_type, source_host,
                                                  source_port, source_database, source_user, source_password,
-                                                 source_desc, user_id, is_delete)
+                                                 source_desc, user_id, is_deleted)
         return Response(source_id=source_id)

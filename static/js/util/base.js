@@ -114,10 +114,10 @@ let BASE = {
         datasource: {
             'list': '/datasource/',
             'list_api': '/datasource/list/api/',
-            'add': '/datasource/add/',
-            'update': '/datasource/update/',
             'test_api': '/datasource/test/api/',
+            'add': '/datasource/add/',
             'add_api': '/datasource/add/api/',
+            'update': '/datasource/update/',
             'detail_api': '/datasource/detail/api/',
         },
         flow_alert_detail_api: '/flow/alert/api/',

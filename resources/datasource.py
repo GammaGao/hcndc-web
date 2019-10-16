@@ -142,7 +142,7 @@ class DataSourceDetail(Resource):
             source_desc=payload.get('source_desc', ''),
             is_deleted=int(payload.get('is_deleted', 0))
         )
-        log.info('新增数据源[params: %s]' % str(params))
+        log.info('修改数据源[params: %s]' % str(params))
         return params
 
 

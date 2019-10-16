@@ -198,18 +198,18 @@
                     })
                 });
                 // 保存表单
-                form.on('submit(datasource-save)', function (data) {
+                form.on('submit(datasource-update)', function (data) {
                     data = data.field;
                     $.ajax({
-                        url: BASE.uri.datasource.add_api,
+                        url: BASE.uri.datasource.detail_api +  window.source_id + '/',
                         contentType: "application/json; charset=utf-8",
-                        type: 'post',
+                        type: 'put',
                         data: JSON.stringify(data),
                         success: function (result) {
                             layer.open({
-                                id: 'datasource_add_success',
+                                id: 'datasource_update_success',
                                 btn: ['返回列表', '留在本页'],
-                                title: '新增数据源成功',
+                                title: '修改数据源成功',
                                 content: sprintf('数据源id: %s, 状态: %s', result.data.source_id, result.msg),
                                 yes: function (index) {
                                     layer.close(index);
@@ -220,8 +220,8 @@
                         error: function (error) {
                             let result = error.responseJSON;
                             layer.open({
-                                id: 'datasource_add_error',
-                                title: '新增数据源失败',
+                                id: 'datasource_update_error',
+                                title: '修改数据源失败',
                                 content: sprintf('数据源id: %s, 状态: %s', data.source_id, result.msg)
                             })
                         }

@@ -95,8 +95,7 @@ class DataSourceModel(object):
 
     @staticmethod
     def update_datasource_detail(cursor, source_id, source_name, source_type, auth_type, source_host, source_port,
-                                        source_database, source_user, source_password, source_desc, user_id,
-                                        is_deleted):
+                                 source_database, source_user, source_password, source_desc, user_id, is_deleted):
         """修改数据源"""
         command = '''
         UPDATE tb_datasource
@@ -105,7 +104,7 @@ class DataSourceModel(object):
         source_database = :source_database, source_user = :source_user,
         source_password = :source_password, source_desc = :source_desc,
         is_deleted = :is_deleted, update_time = :update_time, updater_id = :user_id
-        WHERE source_id = source_id
+        WHERE source_id = :source_id
         '''
         result = cursor.update(command, {
             'source_id': source_id,
