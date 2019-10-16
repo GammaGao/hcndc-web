@@ -2,7 +2,6 @@
 <html>
 <head>
     {% include "util/style.html" %}
-    <link rel="stylesheet" href="/static/css/layui-formSelects.css">
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
@@ -77,12 +76,6 @@
                     <input type="text" class="layui-input" name="source_database" placeholder="数据库库名">
                 </div>
             </div>
-            <div class="layui-form-item" style="display: none;">
-                <label class="layui-form-label">集合名称</label>
-                <div class="layui-input-inline">
-                    <input type="text" class="layui-input" name="collection_name" placeholder="集合名称: mongodb使用">
-                </div>
-            </div>
             <div class="layui-form-item">
                 <label class="layui-form-label">用户名</label>
                 <div class="layui-input-inline">
@@ -93,13 +86,6 @@
                 <label class="layui-form-label">密码</label>
                 <div class="layui-input-inline">
                     <input type="password" class="layui-input" name="source_password" placeholder="密码">
-                </div>
-            </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">校验SQL</label>
-                <div class="layui-input-block">
-                    <textarea class="layui-textarea" name="check_sql" lay-verify="required"
-                              placeholder="校验SQL"></textarea>
                 </div>
             </div>
             <div class="layui-form-item">

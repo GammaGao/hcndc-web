@@ -18,7 +18,7 @@ def DataSource():
 def DataSourceUpdate(id):
     """数据源修改"""
     if session.get('login'):
-        return render_template('datasource/datasource_update.html', datasource_id=id)
+        return render_template('datasource/datasource_update.html', source_id=id)
     return redirect('/login/')
 
 

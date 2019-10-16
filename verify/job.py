@@ -25,7 +25,7 @@ class JobVerify(object):
     def verify_delete_job(job_id, user_id):
         """删除任务"""
         if not job_id:
-            abort(400, **make_result(status=400, msg='任务不存在'))
+            abort(400, **make_result(status=400, msg='任务id不存在'))
 
         return Response(job_id=job_id, user_id=user_id)
 
@@ -34,7 +34,7 @@ class JobVerify(object):
     def verify_get_job_id(job_id):
         """获取任务"""
         if not job_id:
-            abort(400, **make_result(status=400, msg='任务不存在'))
+            abort(400, **make_result(status=400, msg='任务id不存在'))
 
         return Response(job_id=job_id)
 

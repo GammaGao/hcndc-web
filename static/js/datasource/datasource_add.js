@@ -128,12 +128,6 @@
             layui.use('form', function () {
                 let form = layui.form;
                 form.on('select(source_type)', function (data) {
-                    // mongo集合名称
-                    if (Number(data.value) === 2) {
-                        $('input[name=collection_name]').parent().parent().removeAttr('style');
-                    } else {
-                        $('input[name=collection_name]').parent().parent().css('display', 'none');
-                    }
                     // hive / impala 认证方式
                     if (Number(data.value) < 4) {
                         $('select[name=auth_type]').parent().parent().parent().css('display', 'none');
@@ -182,7 +176,7 @@
                                 id: 'datasource_add_success',
                                 btn: ['返回列表', '留在本页'],
                                 title: '新增数据源成功',
-                                content: sprintf('数据源id: %s, 状态: %s', result.data.datasource_id, result.msg),
+                                content: sprintf('数据源id: %s, 状态: %s', result.data.source_id, result.msg),
                                 yes: function (index) {
                                     layer.close(index);
                                     window.location.href = BASE.uri.datasource.list;
@@ -194,7 +188,7 @@
                             layer.open({
                                 id: 'datasource_add_error',
                                 title: '新增数据源失败',
-                                content: sprintf('数据源id: %s, 状态: %s', data.datasource_id, result.msg)
+                                content: sprintf('数据源id: %s, 状态: %s', data.source_id, result.msg)
                             })
                         }
                     });

@@ -217,11 +217,9 @@
                             let html = [];
                             html.push('<div class="layui-btn-group">');
                             if (data.is_deleted === 0) {
-                                html.push('<button class="layui-btn layui-btn-sm" lay-event="detail">详情</button>');
                                 html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
                                 html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
                             } else {
-                                html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">详情</button>');
                                 html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
                                 html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">删除</button>');
                             }
@@ -269,7 +267,7 @@
                             } else if (check_data.length > 1) {
                                 layer.msg('只能同时编辑一个')
                             } else {
-                                window.location.href = BASE.uri.job.update + check_data[0].job_id + '/';
+                                window.location.href = BASE.uri.datasource.update + check_data[0].source_id + '/';
                             }
                             break;
                     }
@@ -285,13 +283,9 @@
                     let event = obj.event;
                     let tr = obj.tr;
                     switch (event) {
-                        // 详情
-                        case 'detail':
-                            window.location.href = BASE.uri.job.detail + data.job_id + '/';
-                            break;
                         // 修改
                         case 'update':
-                            window.location.href = BASE.uri.job.update + data.job_id + '/';
+                            window.location.href = BASE.uri.datasource.update + data.source_id + '/';
                             break;
                         // 删除
                         case 'delete':
@@ -303,7 +297,7 @@
                                 // 关闭弹窗
                                 layer.close(index);
                                 $.ajax({
-                                    url: BASE.uri.job.detail_api + data.job_id + '/',
+                                    url: BASE.uri.datasource.detail_api + data.source_id + '/',
                                     type: 'delete',
                                     success: function () {
                                         layer.alert('删除成功');
