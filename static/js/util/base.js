@@ -119,6 +119,12 @@ let BASE = {
             'add_api': '/datasource/add/api/',
             'update': '/datasource/update/',
             'detail_api': '/datasource/detail/api/',
+            'id_list_api': '/datasource/list/all/api/'
+        },
+        params: {
+            'list_api': '/params/list/api/',
+            'add': '/params/add',
+            'update': '/params/update/'
         },
         flow_alert_detail_api: '/flow/alert/api/',
         flow_list_api: '/flow/list/api/',

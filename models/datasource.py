@@ -123,3 +123,14 @@ class DataSourceModel(object):
             'updater_id': user_id
         })
         return result
+
+    @staticmethod
+    def get_datasource_list_all(cursor):
+        """获取所有数据源"""
+        command = '''
+        SELECT source_id, source_name
+        FROM tb_datasource
+        WHERE is_deleted = 0
+        '''
+        result = cursor.query(command)
+        return result if result else []

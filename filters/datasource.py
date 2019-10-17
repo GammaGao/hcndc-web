@@ -48,3 +48,9 @@ class DataSourceFilter(object):
     def filter_update_data(source_id):
         """修改数据源"""
         return {'status': 200, 'msg': '成功', 'data': {'source_id': source_id}}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_get_all_data(result):
+        """获取所有数据源"""
+        return {'status': 200, 'msg': '成功', 'data': result}, 200

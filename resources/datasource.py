@@ -146,8 +146,20 @@ class DataSourceDetail(Resource):
         return params
 
 
+class DataSourceListAll(Resource):
+    @staticmethod
+    @DataSourceFilter.filter_get_all_data(result=list)
+    @DataSourceOperation.get_datasource_list_all()
+    def get():
+        """获取所有数据源"""
+        params = Response()
+        log.info('获取所有数据源')
+        return params
+
+
 ns = api.namespace('datasource', description='数据源')
 ns.add_resource(DataSourceList, '/list/api/')
 ns.add_resource(DataSourceTest, '/test/api/')
 ns.add_resource(DataSourceAdd, '/add/api/')
 ns.add_resource(DataSourceDetail, '/detail/api/<int:source_id>/')
+ns.add_resource(DataSourceListAll, '/list/all/api/')

@@ -74,8 +74,8 @@ class DataSourceOperation(object):
                               source_database, source_user, source_password, source_desc, user_id):
         """新增数据源"""
         source_id = DataSourceModel.add_datasource_detail(db.etl_db, source_name, source_type, auth_type,
-                                                              source_host, source_port, source_database, source_user,
-                                                              source_password, source_desc, user_id)
+                                                          source_host, source_port, source_database, source_user,
+                                                          source_password, source_desc, user_id)
         return Response(source_id=source_id)
 
     @staticmethod
@@ -101,3 +101,10 @@ class DataSourceOperation(object):
                                                  source_port, source_database, source_user, source_password,
                                                  source_desc, user_id, is_deleted)
         return Response(source_id=source_id)
+
+    @staticmethod
+    @make_decorator
+    def get_datasource_list_all():
+        """获取所有数据源"""
+        result = DataSourceModel.get_datasource_list_all(db.etl_db)
+        return Response(result=result)
