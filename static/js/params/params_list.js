@@ -266,15 +266,24 @@
                     switch (obj.event) {
                         case 'add':
                             layer.open({
-                                id: 'params_add',
-                                btn: ['跳转', '取消'],
-                                title: '跳转新增参数页面',
-                                content: '确定新增参数?',
-                                yes: function (index, layero) {
-                                    layer.close(index);
-                                    window.location.href = BASE.uri.params.add;
-                                }
+                                type: 2,
+                                anim: 5,
+                                title: '新增参数页面',
+                                shadeClose: false,
+                                maxmin: true, //开启最大化最小化按钮
+                                area: ['60%', '80%'],
+                                content: BASE.uri.params.add
                             });
+                            // layer.open({
+                            //     id: 'params_add',
+                            //     btn: ['跳转', '取消'],
+                            //     title: '跳转新增参数页面',
+                            //     content: '确定新增参数?',
+                            //     yes: function (index, layero) {
+                            //         layer.close(index);
+                            //         window.location.href = BASE.uri.params.add;
+                            //     }
+                            // });
                             break;
                         case 'update':
                             if (check_data.length === 0) {

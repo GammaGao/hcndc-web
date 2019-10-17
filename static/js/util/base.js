@@ -122,9 +122,12 @@ let BASE = {
             'id_list_api': '/datasource/list/all/api/'
         },
         params: {
+            'list': '/params/',
             'list_api': '/params/list/api/',
             'add': '/params/add',
-            'update': '/params/update/'
+            'add_api': '/params/add/api/',
+            'update': '/params/update/',
+            'detail_api': '/params/detail/api/'
         },
         flow_alert_detail_api: '/flow/alert/api/',
         flow_list_api: '/flow/list/api/',

@@ -1,6 +1,8 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
+
 
 class ParamsModel(object):
     @staticmethod
@@ -27,12 +29,70 @@ class ParamsModel(object):
     def get_params_count(cursor, condition):
         """获取参数条数"""
         command = '''
-            SELECT COUNT(*) AS count
-            FROM tb_jobs
-            %s
-            '''
+        SELECT COUNT(*) AS count
+        FROM tb_jobs
+        %s
+        '''
 
         command = command % condition
 
         result = cursor.query_one(command)
         return result['count'] if result else 0
+
+    @staticmethod
+    def add_params_detail(cursor, param_type, param_name, source_id, param_value, param_desc, user_id):
+        """新增参数"""
+        command = '''
+        INSERT INTO tb_param_config(param_type, param_name, source_id,
+        param_value, param_desc, insert_time, update_time, creator_id, updater_id)
+        VALUES(:param_type, :param_name, :source_id, :param_value, :param_desc,
+        :insert_time, :update_time, :creator_id, :updater_id)
+        '''
+        result = cursor.insert(command, {
+            'param_type': param_type,
+            'param_name': param_name,
+            'source_id': source_id,
+            'param_value': param_value,
+            'param_desc': param_desc,
+            'insert_time': int(time.time()),
+            'update_time': int(time.time()),
+            'creator_id': user_id,
+            'updater_id': user_id
+        })
+        return result
+
+    @staticmethod
+    def get_params_detail(cursor, param_id):
+        """获取参数详情"""
+        command = '''
+        SELECT param_type, param_name, source_id, param_value, param_desc, is_deleted
+        FROM tb_param_config
+        WHERE param_id = :param_id
+        '''
+        result = cursor.query_one(command, {
+            'param_id': param_id
+        })
+        return result if result else {}
+
+    @staticmethod
+    def update_params_detail(cursor, param_id, param_type, param_name, source_id, param_value, param_desc, is_deleted,
+                             user_id):
+        """修改参数详情"""
+        command = '''
+        UPDATE tb_param_config
+        SET param_type = :param_type, param_name = :param_name, source_id = :source_id, param_value = :param_value,
+        param_desc = :param_desc, update_time = :update_time, updater_id = :updater_id, is_deleted = :is_deleted
+        WHERE param_id = :param_id
+        '''
+        result = cursor.update(command, {
+            'param_id': param_id,
+            'param_type': param_type,
+            'param_name': param_name,
+            'source_id': source_id,
+            'param_value': param_value,
+            'param_desc': param_desc,
+            'is_deleted': is_deleted,
+            'update_time': int(time.time()),
+            'updater_id': user_id
+        })
+        return result
