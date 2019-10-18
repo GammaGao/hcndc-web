@@ -6,24 +6,11 @@
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
-    <!-- 水平导航 -->
-    {% include "util/navbar.html" %}
-    <!-- 侧边栏 -->
-    {% include "util/tree.html" %}
-    <!-- 内容主体区域 -->
-    <div class="layui-body">
-        <fieldset class="layui-elem-field layui-field-title">
-            <legend>任务依赖</legend>
-        </fieldset>
-        <span class="layui-breadcrumb" style="margin-left: 20px">
-            <a href="/interface/">接口列表</a>
-            <a><cite>接口详情</cite></a>
-        </span>
-        <fieldset class="layui-elem-field layui-field-title">
-        </fieldset>
-        <!-- 矢量图 -->
-        <div class="svg-div" id="svg-div"></div>
-    </div>
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>任务依赖</legend>
+    </fieldset>
+    <!-- 矢量图 -->
+    <div class="svg-div" id="svg-div"></div>
 </div>
 <script>
     window.interface_id = {{ interface_id }};

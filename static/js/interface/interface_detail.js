@@ -8,14 +8,6 @@
 
     Controller.prototype = {
         init: function () {
-            // 菜单样式加载
-            menu_init('任务总览', '');
-            // 侧边栏样式切换
-            this.tree_toggle();
-            // 用户数据渲染
-            this.user_info();
-            // 元素事件注册
-            this.element_event();
             // 任务依赖svg渲染
             this.job_prep_init();
         },

@@ -233,13 +233,15 @@
                     switch (obj.event) {
                         case 'add':
                             layer.open({
-                                id: 'interface_add',
-                                btn: ['跳转', '取消'],
-                                title: '跳转新增接口页面',
-                                content: '确定新增接口?',
-                                yes: function (index, layero) {
-                                    layer.close(index);
-                                    window.location.href = BASE.uri.interface.add;
+                                type: 2,
+                                anim: 5,
+                                title: '新增接口',
+                                shadeClose: false,
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.interface.add,
+                                end: function () {
+                                    window.location.reload();
                                 }
                             });
                             break;
@@ -249,7 +251,18 @@
                             } else if (check_data.length > 1) {
                                 layer.msg('只能同时编辑一个')
                             } else {
-                                window.location.href = BASE.uri.interface.update + check_data[0].interface_id + '/';
+                                layer.open({
+                                    type: 2,
+                                    anim: 5,
+                                    title: '修改接口',
+                                    shadeClose: false,
+                                    maxmin: true,
+                                    area: ['60%', '80%'],
+                                    content: BASE.uri.interface.update + check_data[0].interface_id + '/',
+                                    end: function () {
+                                        window.location.reload();
+                                    }
+                                });
                             }
                             break;
                     }
@@ -266,9 +279,28 @@
                     let event = obj.event;
                     let tr = obj.tr;
                     if (event === 'detail') {
-                        window.location.href = BASE.uri.interface.detail + data.interface_id + '/';
+                        layer.open({
+                            type: 2,
+                            anim: 5,
+                            title: '任务依赖详情',
+                            shadeClose: false,
+                            maxmin: true,
+                            area: ['60%', '80%'],
+                            content: BASE.uri.interface.detail + data.interface_id + '/'
+                        });
                     } else if (event === 'update') {
-                        window.location.href = BASE.uri.interface.update + data.interface_id + '/';
+                        layer.open({
+                            type: 2,
+                            anim: 5,
+                            title: '修改接口',
+                            shadeClose: false,
+                            maxmin: true,
+                            area: ['60%', '80%'],
+                            content: BASE.uri.interface.update + data.interface_id + '/',
+                            end: function () {
+                                window.location.reload();
+                            }
+                        });
                     } else if (event === 'delete') {
                         if (data.is_deleted !== 0) {
                             layer.alert('项目已失效');

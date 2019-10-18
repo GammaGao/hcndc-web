@@ -272,18 +272,11 @@
                                 shadeClose: false,
                                 maxmin: true, //开启最大化最小化按钮
                                 area: ['60%', '80%'],
-                                content: BASE.uri.params.add
+                                content: BASE.uri.params.add,
+                                end: function () {
+                                    window.location.reload();
+                                }
                             });
-                            // layer.open({
-                            //     id: 'params_add',
-                            //     btn: ['跳转', '取消'],
-                            //     title: '跳转新增参数页面',
-                            //     content: '确定新增参数?',
-                            //     yes: function (index, layero) {
-                            //         layer.close(index);
-                            //         window.location.href = BASE.uri.params.add;
-                            //     }
-                            // });
                             break;
                         case 'update':
                             if (check_data.length === 0) {
@@ -291,7 +284,18 @@
                             } else if (check_data.length > 1) {
                                 layer.msg('只能同时编辑一个')
                             } else {
-                                window.location.href = BASE.uri.params.update + check_data[0].param_id + '/';
+                                layer.open({
+                                    type: 2,
+                                    anim: 5,
+                                    title: '修改参数页面',
+                                    shadeClose: false,
+                                    maxmin: true, //开启最大化最小化按钮
+                                    area: ['60%', '80%'],
+                                    content: BASE.uri.params.update + check_data[0].param_id + '/',
+                                    end: function () {
+                                        window.location.reload();
+                                    }
+                                });
                             }
                             break;
                     }
@@ -307,13 +311,20 @@
                     let event = obj.event;
                     let tr = obj.tr;
                     switch (event) {
-                        // 详情
-                        case 'detail':
-                            window.location.href = BASE.uri.params.detail + data.param_id + '/';
-                            break;
                         // 修改
                         case 'update':
-                            window.location.href = BASE.uri.params.update + data.param_id + '/';
+                            layer.open({
+                                type: 2,
+                                anim: 5,
+                                title: '修改参数页面',
+                                shadeClose: false,
+                                maxmin: true, //开启最大化最小化按钮
+                                area: ['60%', '80%'],
+                                content: BASE.uri.params.update + data.param_id + '/',
+                                end: function () {
+                                    window.location.reload();
+                                }
+                            });
                             break;
                         // 删除
                         case 'delete':
@@ -329,6 +340,7 @@
                                     type: 'delete',
                                     success: function () {
                                         layer.alert('删除成功');
+                                        $(tr.find('td[data-field="operation"] div button:eq(1)')).addClass('layui-btn-disabled');
                                         tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
                                     },
                                     error: function (error) {

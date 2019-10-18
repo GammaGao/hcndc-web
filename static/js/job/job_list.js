@@ -321,13 +321,15 @@
                     switch (obj.event) {
                         case 'add':
                             layer.open({
-                                id: 'job_add',
-                                btn: ['跳转', '取消'],
-                                title: '跳转新增任务页面',
-                                content: '确定新增任务?',
-                                yes: function (index, layero) {
-                                    layer.close(index);
-                                    window.location.href = BASE.uri.job.add;
+                                type: 2,
+                                anim: 5,
+                                title: '新增任务',
+                                shadeClose: false,
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.job.add,
+                                end: function () {
+                                    window.location.reload();
                                 }
                             });
                             break;
@@ -337,7 +339,18 @@
                             } else if (check_data.length > 1) {
                                 layer.msg('只能同时编辑一个')
                             } else {
-                                window.location.href = BASE.uri.job.update + check_data[0].job_id + '/';
+                                layer.open({
+                                    type: 2,
+                                    anim: 5,
+                                    title: '修改任务',
+                                    shadeClose: false,
+                                    maxmin: true,
+                                    area: ['60%', '80%'],
+                                    content: BASE.uri.job.update + check_data[0].job_id + '/',
+                                    end: function () {
+                                        window.location.reload();
+                                    }
+                                });
                             }
                             break;
                     }
@@ -355,11 +368,30 @@
                     switch (event) {
                         // 详情
                         case 'detail':
-                            window.location.href = BASE.uri.job.detail + data.job_id + '/';
+                            layer.open({
+                                type: 2,
+                                anim: 5,
+                                title: '任务详情',
+                                shadeClose: false,
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.job.detail + data.job_id + '/'
+                            });
                             break;
                         // 修改
                         case 'update':
-                            window.location.href = BASE.uri.job.update + data.job_id + '/';
+                            layer.open({
+                                type: 2,
+                                anim: 5,
+                                title: '任务修改',
+                                shadeClose: false,
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.job.update + data.job_id + '/',
+                                end: function () {
+                                    window.location.reload();
+                                }
+                            });
                             break;
                         // 删除
                         case 'delete':
@@ -375,6 +407,7 @@
                                     type: 'delete',
                                     success: function () {
                                         layer.alert('删除成功');
+                                        $(tr.find('td[data-field="operation"] div button:eq(2)')).addClass('layui-btn-disabled');
                                         tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
                                         tr.find('td[data-field="run"] div').html('<button class="layui-btn layui-btn-disabled layui-btn-xs" disabled="disabled">立即执行</button>');
                                     },

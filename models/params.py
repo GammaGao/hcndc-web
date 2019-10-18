@@ -96,3 +96,18 @@ class ParamsModel(object):
             'updater_id': user_id
         })
         return result
+
+    @staticmethod
+    def delete_params_detail(cursor, param_id, user_id):
+        """删除参数"""
+        command = '''
+        UPDATE tb_param_config
+        SET is_deleted = 1, update_time = :update_time, updater_id = :updater_id
+        WHERE param_id = :param_id
+        '''
+        result = cursor.update(command, {
+            'update_time': int(time.time()),
+            'updater_id': user_id,
+            'param_id': param_id
+        })
+        return result

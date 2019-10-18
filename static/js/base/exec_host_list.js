@@ -20,8 +20,6 @@
             this.form_search();
             // 表格数据初始化
             this.table_data_load({});
-            // UI组件渲染
-            // this.restart('job_date');
         },
         // 事件注册器
         control: function (controls) {
@@ -186,7 +184,7 @@
                         templet: function () {
                             let html = [];
                             html.push('<a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</a>');
-                            html.push('<a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</a>');
+                            html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
                             return html.join('');
                         }
                     }]],
@@ -215,7 +213,7 @@
                     switch (obj.event) {
                         case 'add':
                             layer.open({
-                                id: 'job_add',
+                                id: 'exec_host_add',
                                 btn: ['跳转', '取消'],
                                 title: '跳转新增执行服务器页面',
                                 content: '确定新增执行服务器?',
@@ -261,6 +259,7 @@
                                 type: 'delete',
                                 success: function () {
                                     layer.alert('删除成功');
+                                    $(tr.find('td[data-field="operation"] div button')).addClass('layui-btn-disabled');
                                     tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
                                 },
                                 error: function (error) {

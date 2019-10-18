@@ -5,104 +5,89 @@
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
-    <!-- 水平导航 -->
-    {% include "util/navbar.html" %}
-    <!-- 侧边栏 -->
-    {% include "util/tree.html" %}
     <!-- 内容主体区域 -->
-    <div class="layui-body">
-        <fieldset class="layui-elem-field layui-field-title">
-            <legend>新增数据源</legend>
-        </fieldset>
-        <span class="layui-breadcrumb" style="margin-left: 20px">
-            <a href="/datasource/">数据源列表</a>
-            <a><cite>新增数据源</cite></a>
-        </span>
-        <fieldset class="layui-elem-field layui-field-title">
-        </fieldset>
-        <form class="layui-form">
-            <div class="layui-form-item">
-                <label class="layui-form-label">数据源名称</label>
-                <div class="layui-input-inline">
-                    <input type="text" class="layui-input" name="source_name" lay-verify="required"
-                           placeholder="数据源名称">
-                </div>
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>新增数据源</legend>
+    </fieldset>
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">数据源名称</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="source_name" lay-verify="required" placeholder="数据源名称">
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">数据库类型</label>
-                <div class="layui-input-inline">
-                    <label>
-                        <select name="source_type" lay-filter="source_type" lay-verify="required">
-                            <option value="1">mysql</option>
-                            <option value="2">mongo</option>
-                            <option value="3">mssql</option>
-                            <option value="4">hive</option>
-                            <option value="5">impala</option>
-                        </select>
-                    </label>
-                </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">数据库类型</label>
+            <div class="layui-input-inline">
+                <label>
+                    <select name="source_type" lay-filter="source_type" lay-verify="required">
+                        <option value="1">mysql</option>
+                        <option value="2">mongo</option>
+                        <option value="3">mssql</option>
+                        <option value="4">hive</option>
+                        <option value="5">impala</option>
+                    </select>
+                </label>
             </div>
-            <div class="layui-form-item" style="display: none;">
-                <label class="layui-form-label">认证方式</label>
-                <div class="layui-input-inline">
-                    <label>
-                        <select name="auth_type" lay-verify="required">
-                            <option value="0">无</option>
-                            <option value="1">NOSASL</option>
-                            <option value="2">PLAIN</option>
-                            <option value="2">GSSAPI</option>
-                            <option value="2">LDAP</option>
-                        </select>
-                    </label>
-                </div>
+        </div>
+        <div class="layui-form-item" style="display: none;">
+            <label class="layui-form-label">认证方式</label>
+            <div class="layui-input-inline">
+                <label>
+                    <select name="auth_type" lay-verify="required">
+                        <option value="0">无</option>
+                        <option value="1">NOSASL</option>
+                        <option value="2">PLAIN</option>
+                        <option value="2">GSSAPI</option>
+                        <option value="2">LDAP</option>
+                    </select>
+                </label>
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">数据库ip或域名</label>
-                <div class="layui-input-inline">
-                    <input type="text" class="layui-input" name="source_host" lay-verify="required"
-                           placeholder="数据库ip或域名">
-                </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">数据库ip或域名</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="source_host" lay-verify="required" placeholder="数据库ip或域名">
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">数据库端口</label>
-                <div class="layui-input-inline">
-                    <input type="number" class="layui-input" name="source_port" lay-verify="required"
-                           placeholder="数据库端口">
-                </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">数据库端口</label>
+            <div class="layui-input-inline">
+                <input type="number" class="layui-input" name="source_port" lay-verify="required" placeholder="数据库端口">
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">数据库库名</label>
-                <div class="layui-input-inline">
-                    <input type="text" class="layui-input" name="source_database" placeholder="数据库库名">
-                </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">数据库库名</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="source_database" placeholder="数据库库名">
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">用户名</label>
-                <div class="layui-input-inline">
-                    <input type="text" class="layui-input" name="source_user" placeholder="用户名">
-                </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="source_user" placeholder="用户名">
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">密码</label>
-                <div class="layui-input-inline">
-                    <input type="password" class="layui-input" name="source_password" placeholder="密码">
-                </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码</label>
+            <div class="layui-input-inline">
+                <input type="password" class="layui-input" name="source_password" placeholder="密码">
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">描述</label>
-                <div class="layui-input-block">
-                    <input type="text" class="layui-input" name="source_desc" placeholder="描述">
-                </div>
-            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">描述</label>
             <div class="layui-input-block">
-                <div class="layui-input-inline">
-                    <button lay-submit class="layui-btn layui-btn-normal" lay-filter="datasource-test" type="button">测试</button>
-                    <button lay-submit class="layui-btn" lay-filter="datasource-save" type="button">保存</button>
-                    <button type="reset" class="layui-btn layui-btn-primary">清空</button>
-                </div>
+                <input type="text" class="layui-input" name="source_desc" placeholder="描述">
             </div>
-        </form>
-    </div>
+        </div>
+        <div class="layui-input-block">
+            <div class="layui-input-inline">
+                <button lay-submit class="layui-btn layui-btn-normal" lay-filter="datasource-test" type="button">测试</button>
+                <button lay-submit class="layui-btn" lay-filter="datasource-save" type="button">保存</button>
+                <button type="reset" class="layui-btn layui-btn-primary">清空</button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <script type="text/javascript" src="/static/layui/layui.all.js"></script>

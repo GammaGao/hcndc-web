@@ -5,54 +5,43 @@
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
-    <!-- 水平导航 -->
-    {% include "util/navbar.html" %}
-    <!-- 侧边栏 -->
-    {% include "util/tree.html" %}
-    <!-- 内容主体区域 -->
-    <div class="layui-body">
-        <fieldset class="layui-elem-field layui-field-title">
-            <legend>修改接口</legend>
-        </fieldset>
-        <span class="layui-breadcrumb" style="margin-left: 20px">
-            <a href="/interface/">接口列表</a>
-            <a><cite>修改接口</cite></a>
-        </span>
-        <fieldset class="layui-elem-field layui-field-title">
-        </fieldset>
-        <form class="layui-form" lay-filter="interface_detail">
-            <div class="layui-form-item">
-                <label class="layui-form-label">接口名称</label>
-                <div class="layui-input-inline">
-                    <input type="text" class="layui-input" name="interface_name" lay-verify="required" placeholder="接口名称" autocomplete="off">
-                </div>
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>修改接口</legend>
+    </fieldset>
+    <form class="layui-form" lay-filter="interface_detail">
+        <div class="layui-form-item">
+            <label class="layui-form-label">接口名称</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="interface_name" lay-verify="required" placeholder="接口名称"
+                       autocomplete="off">
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">接口描述</label>
-                <div class="layui-input-block">
-                    <textarea class="layui-textarea" name="interface_desc" placeholder="接口描述"></textarea>
-                </div>
-            </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">重试次数</label>
-                <div class="layui-input-inline">
-                    <input type="number" class="layui-input" name="retry" lay-verify="required|number" placeholder="重试次数" autocomplete="off">
-                </div>
-            </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">是否失效</label>
-                <div class="layui-input-block">
-                    <input type="checkbox" name="is_deleted" lay-skin="switch" placeholder="是否失效" lay-text="是|否" value="1">
-                </div>
-            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">接口描述</label>
             <div class="layui-input-block">
-                <div class="layui-input-inline">
-                    <button lay-submit class="layui-btn" lay-filter="interface-save" type="button">保存</button>
-                    <button type="reset" class="layui-btn layui-btn-primary">清空</button>
-                </div>
+                <textarea class="layui-textarea" name="interface_desc" placeholder="接口描述"></textarea>
             </div>
-        </form>
-    </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">重试次数</label>
+            <div class="layui-input-inline">
+                <input type="number" class="layui-input" name="retry" lay-verify="required|number" placeholder="重试次数"
+                       autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">是否失效</label>
+            <div class="layui-input-block">
+                <input type="checkbox" name="is_deleted" lay-skin="switch" placeholder="是否失效" lay-text="是|否" value="1">
+            </div>
+        </div>
+        <div class="layui-input-block">
+            <div class="layui-input-inline">
+                <button lay-submit class="layui-btn" lay-filter="interface-save" type="button">保存</button>
+                <button type="reset" class="layui-btn layui-btn-primary">清空</button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <script type="text/javascript" src="/static/layui/layui.all.js"></script>

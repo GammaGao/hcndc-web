@@ -93,8 +93,14 @@ class ParamsDetail(Resource):
         return params
 
     @staticmethod
+    @ParamsFilter.filter_delete_data(param_id=int)
+    @ParamsOperation.delete_params_detail(param_id=int, user_id=int)
+    @PermissionVerify.verify_write_permission(param_id=int)
     def delete(param_id):
         """删除参数"""
+        params = Response(param_id=param_id)
+        log.info('删除参数[params: %s]' % str(params))
+        return params
 
 
 ns = api.namespace('params', description='参数')

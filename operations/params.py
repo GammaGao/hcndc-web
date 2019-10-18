@@ -56,3 +56,10 @@ class ParamsOperation(object):
         ParamsModel.update_params_detail(db.etl_db, param_id, param_type, param_name, source_id, param_value,
                                          param_desc, is_deleted, user_id)
         return Response(param_id=param_id)
+
+    @staticmethod
+    @make_decorator
+    def delete_params_detail(param_id, user_id):
+        """删除参数"""
+        ParamsModel.delete_params_detail(db.etl_db, param_id, user_id)
+        return Response(param_id=param_id)

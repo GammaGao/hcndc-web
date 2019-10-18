@@ -28,3 +28,9 @@ class ParamsFilter(object):
     def filter_update_data(param_id):
         """修改参数详情"""
         return {'status': 200, 'msg': '成功', 'data': {'param_id': param_id}}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_delete_data(param_id):
+        """删除参数详情"""
+        return {'status': 200, 'msg': '成功', 'data': {'param_id': param_id}}, 200

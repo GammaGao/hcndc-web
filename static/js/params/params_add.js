@@ -61,7 +61,7 @@
                 form.on('submit(param-save)', function (data) {
                     data = data.field;
                     if (Number(data.param_type) === 1 && Number(data.source_id) === 0) {
-                        layer.msg('请选择数据源', {icon: 5, shift : 6});
+                        layer.msg('请选择数据源', {icon: 5, shift: 6});
                         return
                     }
                     $.ajax({
@@ -70,24 +70,20 @@
                         type: 'post',
                         data: JSON.stringify(data),
                         success: function (result) {
-                            layer.open({
-                                id: 'params_add_success',
-                                btn: ['返回列表', '留在本页'],
-                                title: '新增参数成功',
-                                content: sprintf('参数id: %s, 状态: %s', result.data.id, result.msg),
-                                yes: function (index) {
-                                    layer.close(index);
-                                    window.location.href = BASE.uri.params.list;
-                                }
-                            })
+                            if (result.status === 200) {
+                                layer.msg('新增成功', {icon: 6});
+                                // 关闭自身iframe窗口
+                                setTimeout(function () {
+                                    let index = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(index);
+                                }, 2000);
+                            } else {
+                                layer.msg(sprintf('新增失败[%s]', result.msg), {icon: 5});
+                            }
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.open({
-                                id: 'params_add_error',
-                                title: '新增参数失败',
-                                content: sprintf('参数id: %s, 状态: %s', data.job_id, result.msg)
-                            })
+                            layer.msg(sprintf('新增失败[%s]', result.msg), {icon: 5});
                         }
                     });
                 });

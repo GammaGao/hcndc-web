@@ -109,29 +109,25 @@
                         return
                     }
                     $.ajax({
-                        url: BASE.uri.params.detail_api +  window.param_id + '/',
+                        url: BASE.uri.params.detail_api + window.param_id + '/',
                         contentType: "application/json; charset=utf-8",
                         type: 'put',
                         data: JSON.stringify(data),
                         success: function (result) {
-                            layer.open({
-                                id: 'params_update_success',
-                                btn: ['返回列表', '留在本页'],
-                                title: '修改参数成功',
-                                content: sprintf('参数id: %s, 状态: %s', result.data.param_id, result.msg),
-                                yes: function (index) {
-                                    layer.close(index);
-                                    window.location.href = BASE.uri.params.list;
-                                }
-                            })
+                            if (result.status === 200) {
+                                layer.msg('修改成功', {icon: 6});
+                                // 关闭自身iframe窗口
+                                setTimeout(function () {
+                                    let index = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(index);
+                                }, 2000);
+                            } else {
+                                layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5});
+                            }
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.open({
-                                id: 'params_update_error',
-                                title: '修改参数失败',
-                                content: sprintf('参数id: %s, 状态: %s', data.param_id, result.msg)
-                            })
+                            layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5});
                         }
                     });
                 });

@@ -216,7 +216,7 @@
                         templet: function () {
                             let html = [];
                             html.push('<a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</a>');
-                            html.push('<a class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</a>');
+                            html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
                             return html.join('');
                         }
                     }]],
@@ -289,6 +289,7 @@
                                 type: 'delete',
                                 success: function () {
                                     layer.alert('删除成功');
+                                    $(tr.find('td[data-field="operation"] div button')).addClass('layui-btn-disabled');
                                     tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
                                 },
                                 error: function (error) {

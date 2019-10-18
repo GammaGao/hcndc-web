@@ -251,13 +251,15 @@
                     switch (obj.event) {
                         case 'add':
                             layer.open({
-                                id: 'datasource_add',
-                                btn: ['跳转', '取消'],
-                                title: '跳转新增数据源页面',
-                                content: '确定新增数据源?',
-                                yes: function (index, layero) {
-                                    layer.close(index);
-                                    window.location.href = BASE.uri.datasource.add;
+                                type: 2,
+                                anim: 5,
+                                title: '新增数据源',
+                                shadeClose: false,
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.datasource.add,
+                                end: function () {
+                                    window.location.reload();
                                 }
                             });
                             break;
@@ -267,7 +269,18 @@
                             } else if (check_data.length > 1) {
                                 layer.msg('只能同时编辑一个')
                             } else {
-                                window.location.href = BASE.uri.datasource.update + check_data[0].source_id + '/';
+                                layer.open({
+                                    type: 2,
+                                    anim: 5,
+                                    title: '修改数据源',
+                                    shadeClose: false,
+                                    maxmin: true,
+                                    area: ['60%', '80%'],
+                                    content: BASE.uri.datasource.update + check_data[0].source_id + '/',
+                                    end: function () {
+                                        window.location.reload();
+                                    }
+                                });
                             }
                             break;
                     }
@@ -285,7 +298,18 @@
                     switch (event) {
                         // 修改
                         case 'update':
-                            window.location.href = BASE.uri.datasource.update + data.source_id + '/';
+                            layer.open({
+                                type: 2,
+                                anim: 5,
+                                title: '修改数据源',
+                                shadeClose: false,
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.datasource.update + data.source_id + '/',
+                                end: function () {
+                                    window.location.reload();
+                                }
+                            });
                             break;
                         // 删除
                         case 'delete':
