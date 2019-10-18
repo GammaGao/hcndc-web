@@ -3,48 +3,41 @@
 <head>
     {% include "util/style.html" %}
 </head>
-<body class="layui-layout-body">
+<body>
 <div class="layui-layout layui-layout-admin">
-    <!-- 水平导航 -->
-    {% include "util/navbar.html" %}
-    <!-- 侧边栏 -->
-    {% include "util/tree.html" %}
     <!-- 内容主体区域 -->
-    <div class="layui-body">
-        <fieldset class="layui-elem-field layui-field-title">
-            <legend>修改执行服务器</legend>
-        </fieldset>
-        <span class="layui-breadcrumb" style="margin-left: 20px">
-            <a href="/base/">执行服务器列表</a>
-            <a><cite>修改执行服务器</cite></a>
-        </span>
-        <form class="layui-form" lay-filter="exec_host_detail">
-            <div class="layui-form-item">
-                <label class="layui-form-label">服务器ip</label>
-                <div class="layui-input-inline">
-                    <input type="text" class="layui-input" name="server_host" lay-verify="required" placeholder="服务器ip" autocomplete="off">
-                </div>
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>修改执行服务器</legend>
+    </fieldset>
+    <form class="layui-form" lay-filter="exec_host_detail">
+        <div class="layui-form-item">
+            <label class="layui-form-label">服务器ip</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="server_host" lay-verify="required" placeholder="服务器ip"
+                       autocomplete="off">
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">服务器名称</label>
-                <div class="layui-input-inline">
-                    <input type="text" class="layui-input" name="server_name" lay-verify="required" placeholder="服务器名称" autocomplete="off">
-                </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">服务器名称</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="server_name" lay-verify="required" placeholder="服务器名称"
+                       autocomplete="off">
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">是否失效</label>
-                <div class="layui-input-block">
-                    <input type="checkbox" name="is_deleted" lay-skin="switch" lay-text="是|否" value="1">
-                </div>
-            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">是否失效</label>
             <div class="layui-input-block">
-                <div class="layui-input-inline">
-                    <button lay-submit class="layui-btn layui-btn-normal" lay-filter="exec-host-test" type="button">测试</button>
-                    <button lay-submit class="layui-btn" lay-filter="exec-host-save" type="button">保存</button>
-                </div>
+                <input type="checkbox" name="is_deleted" lay-skin="switch" lay-text="是|否" value="1">
             </div>
-        </form>
-    </div>
+        </div>
+        <div class="layui-input-block">
+            <div class="layui-input-inline">
+                <button lay-submit class="layui-btn layui-btn-normal" lay-filter="exec-host-test" type="button">测试
+                </button>
+                <button lay-submit class="layui-btn" lay-filter="exec-host-save" type="button">保存</button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <script>

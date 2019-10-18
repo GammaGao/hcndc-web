@@ -213,13 +213,14 @@
                     switch (obj.event) {
                         case 'add':
                             layer.open({
-                                id: 'exec_host_add',
-                                btn: ['跳转', '取消'],
-                                title: '跳转新增执行服务器页面',
-                                content: '确定新增执行服务器?',
-                                yes: function (index, layero) {
-                                    layer.close(index);
-                                    window.location.href = BASE.uri.base.exec_host_add;
+                                type: 2,
+                                anim: 5,
+                                title: '新增执行服务器',
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.base.exec_host_add,
+                                end: function () {
+                                    window.location.reload();
                                 }
                             });
                             break;
@@ -229,7 +230,17 @@
                             } else if (check_data.length > 1) {
                                 layer.msg('只能同时编辑一个')
                             } else {
-                                window.location.href = BASE.uri.base.exec_host_update + check_data[0].server_id + '/';
+                                layer.open({
+                                    type: 2,
+                                    anim: 5,
+                                    title: '修改执行服务器',
+                                    maxmin: true,
+                                    area: ['60%', '80%'],
+                                    content: BASE.uri.base.exec_host_update + check_data[0].server_id + '/',
+                                    end: function () {
+                                        window.location.reload();
+                                    }
+                                });
                             }
                             break;
                     }
@@ -245,7 +256,17 @@
                     let event = obj.event;
                     let tr = obj.tr;
                     if (event === 'update') {
-                        window.location.href = BASE.uri.base.exec_host_update + data.server_id + '/';
+                        layer.open({
+                            type: 2,
+                            anim: 5,
+                            title: '修改执行服务器',
+                            maxmin: true,
+                            area: ['60%', '80%'],
+                            content: BASE.uri.base.exec_host_update + data.server_id + '/',
+                            end: function () {
+                                window.location.reload();
+                            }
+                        });
                     } else if (event === 'delete') {
                         if (data.is_deleted !== 0) {
                             layer.alert('项目已失效');

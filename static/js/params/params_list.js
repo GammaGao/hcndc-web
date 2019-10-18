@@ -269,7 +269,6 @@
                                 type: 2,
                                 anim: 5,
                                 title: '新增参数页面',
-                                shadeClose: false,
                                 maxmin: true, //开启最大化最小化按钮
                                 area: ['60%', '80%'],
                                 content: BASE.uri.params.add,
@@ -288,7 +287,6 @@
                                     type: 2,
                                     anim: 5,
                                     title: '修改参数页面',
-                                    shadeClose: false,
                                     maxmin: true, //开启最大化最小化按钮
                                     area: ['60%', '80%'],
                                     content: BASE.uri.params.update + check_data[0].param_id + '/',
@@ -317,7 +315,6 @@
                                 type: 2,
                                 anim: 5,
                                 title: '修改参数页面',
-                                shadeClose: false,
                                 maxmin: true, //开启最大化最小化按钮
                                 area: ['60%', '80%'],
                                 content: BASE.uri.params.update + data.param_id + '/',

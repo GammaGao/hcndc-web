@@ -27,14 +27,6 @@
 
     Controller.prototype = {
         init: function () {
-            // 菜单样式加载
-            menu_init('调度总览', '');
-            // 侧边栏样式切换
-            this.tree_toggle();
-            // 用户数据渲染
-            this.user_info();
-            // 元素事件注册
-            this.element_event();
             // 调度表单提交事件
             this.form_event();
             // 接口ID渲染
@@ -43,108 +35,6 @@
             this.dispatch_alert_event_init();
             // UI组件渲染
             this.restart('run_date');
-        },
-        // 事件注册器
-        control: function (controls) {
-            let controller = this;
-            for (let selector in controls) {
-                for (let event in controls[selector]) {
-                    $(document).on(event, selector, (function (selector, event) {
-                        return function () {
-                            let continueBubbling = controls[selector][event].call(controller, this);
-                            if (continueBubbling !== true) {
-                                return false;
-                            }
-                        };
-                    })(selector, event));
-                }
-            }
-        },
-        user_info: function () {
-            // 元素渲染
-            let element_restart = this.element_init;
-            $.ajax({
-                url: BASE.uri.user_api,
-                type: 'get',
-                success: function (result) {
-                    if (!result.data.role) {
-                        window.location.href = BASE.uri.login;
-                    }
-                    let html = [];
-                    html.push('<a href="#">', result.data.user_name, '</a>');
-                    html.push('<dl class="layui-nav-child">');
-                    html.push('<dd><a href="#">退出登陆</a></dd></dl>');
-                    $('#user-info').html(html.join(''));
-                    element_restart();
-                }
-            });
-        },
-        tree_toggle: function () {
-            let isShow = true;
-            $('.kit-side-fold').click(function () {
-                $('div.layui-side.layui-bg-black li span').each(function () {
-                    if ($(this).is(':hidden')) {
-                        $(this).show();
-                    } else {
-                        $(this).hide();
-                    }
-                });
-                if (isShow) {
-                    // 设置宽度
-                    $('.layui-side.layui-bg-black').width(60);
-                    // 修改图标的位置
-                    $('.kit-side-fold button').css('width', '60px');
-                    $('.kit-side-fold button i').addClass('layui-icon-spread-left');
-                    $('.kit-side-fold button i').removeClass('layui-icon-shrink-right');
-                    // footer和body的宽度修改
-                    $('.layui-body').css('left', '60px');
-                    // 二级导航栏隐藏
-                    $('dd span').each(function () {
-                        $(this).hide();
-                    });
-                    isShow = false;
-                    layui.use('element', function () {
-                        let element = layui.element;
-                        element.init();
-                    })
-                } else {
-                    $('.layui-side.layui-bg-black').width(200);
-                    $('.kit-side-fold button').css('width', '100%');
-                    $('.kit-side-fold button i').removeClass('layui-icon-spread-left');
-                    $('.kit-side-fold button i').addClass('layui-icon-shrink-right');
-                    $('.layui-body').css('left', '200px');
-                    $('dd span').each(function () {
-                        $(this).show();
-                    });
-                    isShow = true;
-                }
-                // 元素渲染刷新
-                layui.use('element', function () {
-                    let element = layui.element;
-                    element.init();
-                })
-            });
-        },
-        element_event: function () {
-            this.control({
-                '#user-info dl a': {
-                    // 用户登出
-                    click: this.userLoginOut
-                }
-            })
-        },
-        userLoginOut: function () {
-            $.ajax({
-                url: BASE.uri.login_api,
-                type: 'delete',
-                success: function () {
-                    window.location.href = BASE.uri.login;
-                },
-                error: function (error) {
-                    let result = error.responseJSON;
-                    layer.alert(sprintf('退出登陆失败: %s', result.msg))
-                }
-            })
         },
         // 接口ID渲染
         interface_list_id: function () {
@@ -155,7 +45,7 @@
                     layui.use('form', function () {
                         let form = layui.form;
                         let html = [];
-                        for (let i in res.data) {
+                        for (let i = 0; i < res.data.length; i++) {
                             html.push(sprintf(
                                 '<option value="%s">%s(%s)</option>',
                                 res.data[i].interface_id,
@@ -203,27 +93,23 @@
                         data: JSON.stringify(data),
                         success: function (result) {
                             window.dispatch_id = result.data.id;
-                            layer.open({
-                                id: 'dispatch_add_success',
-                                btn: ['返回列表', '留在本页'],
-                                title: '新增调度成功',
-                                content: sprintf('调度id: %s, 状态: %s', result.data.id, result.msg),
-                                yes: function (index) {
-                                    layer.close(index);
-                                    window.location.href = BASE.uri.dispatch.list;
-                                }
-                            });
+                            if (result.status === 200) {
+                                layer.msg('新增调度成功', {icon: 6});
+                                // 关闭自身iframe窗口
+                                setTimeout(function () {
+                                    let index = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(index);
+                                }, 2000);
+                            } else {
+                                layer.msg(sprintf('新增调度失败[%s]', result.msg), {icon: 5});
+                            }
                             // 禁止多次提交
-                            $('button[lay-filter=flow-save]').attr('class', 'layui-btn layui-btn-disabled');
-                            $('button[lay-filter=flow-save]').attr('disabled', 'disabled');
+                            // $('button[lay-filter=flow-save]').attr('class', 'layui-btn layui-btn-disabled');
+                            // $('button[lay-filter=flow-save]').attr('disabled', 'disabled');
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.open({
-                                id: 'dispatch_add_error',
-                                title: '新增调度失败',
-                                content: sprintf('%s', result.msg)
-                            })
+                            layer.msg(sprintf('新增调度失败[%s]', result.msg), {icon: 5});
                         }
                     });
                 });
@@ -237,7 +123,7 @@
                 url: BASE.uri.base.alert_list_all_api,
                 type: 'get',
                 success: function (result) {
-                    for (let i in result.data) {
+                    for (let i = 0; i < result.data.length; i++) {
                         if (!config_list[result.data[i].alert_channel]) {
                             config_list[result.data[i].alert_channel] = []
                         }
@@ -323,7 +209,7 @@
                     data.alert_s_button = data.alert_s_button ? 1 : 0;
                     data.alert_f_button = data.alert_f_button ? 1 : 0;
                     // 参数验证
-                    if (!data.alert_s_button && !data.alert_f_button){
+                    if (!data.alert_s_button && !data.alert_f_button) {
                         layer.open({title: '预警配置', content: '预警配置不得为空', icon: 5});
                         return
                     }
@@ -374,30 +260,23 @@
                         type: 'post',
                         data: JSON.stringify(params),
                         success: function (result) {
-                            layer.open({
-                                id: 'dispatch_alert_add_success',
-                                btn: ['返回列表', '留在本页'],
-                                title: '新增调度预警成功',
-                                content: sprintf('调度id: %s, 状态: %s', window.dispatch_id, result.msg),
-                                yes: function (index) {
-                                    layer.close(index);
-                                    window.location.href = BASE.uri.dispatch.list;
-                                },
-                                btn2: function (index) {
-                                    layer.close(index);
-                                }
-                            });
+                            if (result.status === 200) {
+                                layer.msg('新增调度预警成功', {icon: 6});
+                                // 关闭自身iframe窗口
+                                setTimeout(function () {
+                                    let index = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(index);
+                                }, 2000);
+                            } else {
+                                layer.msg(sprintf('新增调度预警失败[%s]', result.msg), {icon: 5});
+                            }
                             // 禁止多次提交
-                            $('button[lay-filter=alert-save]').attr('class', 'layui-btn layui-btn-disabled');
-                            $('button[lay-filter=alert-save]').attr('disabled', 'disabled');
+                            // $('button[lay-filter=alert-save]').attr('class', 'layui-btn layui-btn-disabled');
+                            // $('button[lay-filter=alert-save]').attr('disabled', 'disabled');
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.open({
-                                id: 'dispatch_alert_add_error',
-                                title: '新增调度预警失败',
-                                content: sprintf('调度id: %s, 状态: %s', window.dispatch_id, result.msg)
-                            })
+                            layer.msg(sprintf('新增调度预警失败[%s]', result.msg), {icon: 5});
                         }
                     });
                 });

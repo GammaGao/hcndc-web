@@ -272,7 +272,6 @@
                                 type: 2,
                                 anim: 5,
                                 title: '新增调度',
-                                shadeClose: false,
                                 maxmin: true,
                                 area: ['60%', '80%'],
                                 content: BASE.uri.dispatch.add,
@@ -291,7 +290,6 @@
                                     type: 2,
                                     anim: 5,
                                     title: '修改调度',
-                                    shadeClose: false,
                                     maxmin: true,
                                     area: ['60%', '80%'],
                                     content: BASE.uri.dispatch.update + check_data[0].dispatch_id + '/',
@@ -341,11 +339,7 @@
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
-                                        layer.open({
-                                            id: 'dispatch_run_error',
-                                            title: '立即执行任务失败',
-                                            content: sprintf('%s', result.msg)
-                                        })
+                                        layer.msg(sprintf('立即执行任务失败[%s]', result.msg), {icon: 5});
                                     }
                                 });
                             });
@@ -374,11 +368,7 @@
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;
-                                    layer.open({
-                                        id: 'dispatch_pause_error',
-                                        title: '暂停调度失败',
-                                        content: sprintf('%s', result.msg)
-                                    })
+                                    layer.msg(sprintf('暂停调度失败[%s]', result.msg), {icon: 5});
                                 }
                             });
                             break;
@@ -406,29 +396,23 @@
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;
-                                    layer.open({
-                                        id: 'dispatch_resume_error',
-                                        title: '恢复调度失败',
-                                        content: sprintf('%s', result.msg)
-                                    })
+                                    layer.msg(sprintf('恢复调度失败[%s]', result.msg), {icon: 5});
                                 }
                             });
                             break;
                         // 修改
                         case 'update':
-                            window.location.href = BASE.uri.dispatch.update + data.dispatch_id + '/';
                             layer.open({
-            type: 2,
-            anim: 5,
-            title: '修改**',
-            shadeClose: false,
-            maxmin: true,
-            area: ['60%', '80%'],
-            content: BASE.uri.interface.update + check_data[0].interface_id + '/',
-            end: function () {
-                window.location.reload();
-            }
-        });
+                                type: 2,
+                                anim: 5,
+                                title: '修改调度',
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.dispatch.update + data.dispatch_id + '/',
+                                end: function () {
+                                    window.location.reload();
+                                }
+                            });
                             break;
                         // 删除
                         case 'delete':

@@ -167,7 +167,7 @@
                         field: "alert_channel",
                         title: "预警渠道",
                         templet: function (data) {
-                            if (data.alert_channel === 1){
+                            if (data.alert_channel === 1) {
                                 return '<span class="layui-badge layui-bg-green">邮件</span>'
                             } else {
                                 return '<span class="layui-badge layui-bg-blue">钉钉</span>'
@@ -180,7 +180,7 @@
                         field: "param_host",
                         title: "邮箱域名",
                         templet: function (data) {
-                            if (data.alert_channel === 2){
+                            if (data.alert_channel === 2) {
                                 return '-'
                             } else {
                                 return data.param_host
@@ -190,7 +190,7 @@
                         field: "param_port",
                         title: "邮箱端口",
                         templet: function (data) {
-                            if (data.alert_channel === 2){
+                            if (data.alert_channel === 2) {
                                 return '-'
                             } else {
                                 return data.param_port
@@ -243,13 +243,14 @@
                     switch (obj.event) {
                         case 'add':
                             layer.open({
-                                id: 'alert_add',
-                                btn: ['跳转', '取消'],
-                                title: '跳转新增预警配置页面',
-                                content: '确定新增预警配置?',
-                                yes: function (index, layero) {
-                                    layer.close(index);
-                                    window.location.href = BASE.uri.base.alert_add;
+                                type: 2,
+                                anim: 5,
+                                title: '新增预警配置',
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.base.alert_add,
+                                end: function () {
+                                    window.location.reload();
                                 }
                             });
                             break;
@@ -259,7 +260,17 @@
                             } else if (check_data.length > 1) {
                                 layer.msg('只能同时编辑一个')
                             } else {
-                                window.location.href = BASE.uri.base.alert_update_api + check_data[0].id + '/';
+                                layer.open({
+                                    type: 2,
+                                    anim: 5,
+                                    title: '修改预警配置',
+                                    maxmin: true,
+                                    area: ['60%', '80%'],
+                                    content: BASE.uri.base.alert_update_api + check_data[0].id + '/',
+                                    end: function () {
+                                        window.location.reload();
+                                    }
+                                });
                             }
                             break;
                     }
@@ -275,7 +286,17 @@
                     let event = obj.event;
                     let tr = obj.tr;
                     if (event === 'update') {
-                        window.location.href = BASE.uri.base.alert_update_api + data.id + '/';
+                        layer.open({
+                            type: 2,
+                            anim: 5,
+                            title: '修改预警配置',
+                            maxmin: true,
+                            area: ['60%', '80%'],
+                            content: BASE.uri.base.alert_update_api + data.id + '/',
+                            end: function () {
+                                window.location.reload();
+                            }
+                        });
                     } else if (event === 'delete') {
                         if (data.is_deleted !== 0) {
                             layer.alert('项目已失效');
