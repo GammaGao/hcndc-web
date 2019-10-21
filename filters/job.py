@@ -22,9 +22,13 @@ class JobFilter(object):
     def filter_detail_data(result):
         """任务详情"""
         if result['prep_id']:
-            result['prep_id'] = list(set(result['prep_id'].split(',')))
+            result['prep_id'] = list(result['prep_id'].split(','))
         else:
             result['prep_id'] = []
+        if result['param_id']:
+            result['param_id'] = list(result['param_id'].split(','))
+        else:
+            result['param_id'] = []
         return {'status': 200, 'msg': '成功', 'data': result}, 200
 
     @staticmethod

@@ -14,6 +14,8 @@
             this.exec_host_req();
             // 任务列表请求
             this.job_list_req();
+            // 任务参数请求
+            this.job_params_req();
             // 任务表单事件注册
             this.form_event();
         },
@@ -57,6 +59,26 @@
                     }
                     $('select[xm-select=job_prep]').append(html.join(''));
                     formSelects.render('job_prep');
+                }
+            })
+        },
+        // 任务参数请求
+        job_params_req: function () {
+            $.ajax({
+                url: BASE.uri.params.id_list_api,
+                type: 'get',
+                success: function (res) {
+                    let formSelects = layui.formSelects;
+                    let html = [];
+                    for (let i = 0; i < res.data.length; i++) {
+                        html.push(sprintf('<option value="%s">%s(%s)</option>',
+                            res.data[i].param_id,
+                            res.data[i].param_id,
+                            res.data[i].param_name
+                        ))
+                    }
+                    $('select[xm-select=job_params]').append(html.join(''));
+                    formSelects.render('job_params');
                 }
             })
         },

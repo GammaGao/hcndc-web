@@ -33,16 +33,22 @@
                     url: BASE.uri.job.id_list_api,
                     type: 'get'
                 }),
+                // 参数列表请求
+                $.ajax({
+                    url: BASE.uri.params.id_list_api,
+                    type: 'get'
+                }),
                 // 任务表单请求
                 $.ajax({
                     url: BASE.uri.job.detail_api + window.job_id + '/',
                     type: 'get'
                 })
             ).done(
-                function (interface_id_list, exec_host_list, job_id_list, job_detail) {
+                function (interface_id_list, exec_host_list, job_id_list, param_id_list, job_detail) {
                     that.interface_id_list_init(interface_id_list);
                     that.exec_host_init(exec_host_list);
                     that.job_id_list_init(job_id_list);
+                    that.param_id_list_init(param_id_list);
                     that.job_detail_init(job_detail);
                 }
             ).fail(function () {
@@ -101,11 +107,28 @@
             $('select[xm-select=job_prep]').append(html.join(''));
             formSelects.render('job_prep');
         },
+        // 参数列表初始化
+        param_id_list_init: function(result) {
+            let data = result[0].data;
+            let formSelects = layui.formSelects;
+            let html = [];
+            for (let i = 0; i < data.length; i++) {
+                html.push(sprintf('<option value="%s">%s(%s)</option>',
+                    data[i].param_id,
+                    data[i].param_id,
+                    data[i].param_name
+                ))
+            }
+            $('select[xm-select=job_params]').append(html.join(''));
+            formSelects.render('job_params');
+        },
         // 任务详情初始化
         job_detail_init: function (result) {
             let data = result[0].data;
-            // 旧依赖
+            // 任务旧依赖
             window.old_prep = data.prep_id.join(',');
+            // 参数旧依赖
+            window.old_params = data.param_id.join(',');
             layui.use('form', function () {
                 let form = layui.form;
                 let formSelects = layui.formSelects;
@@ -118,6 +141,7 @@
                     'is_deleted': data.is_deleted === 1
                 });
                 formSelects.value('job_prep', data.prep_id);
+                formSelects.value('job_params', data.param_id);
                 form.render();
             })
         },
@@ -129,6 +153,8 @@
                     data = data.field;
                     // 添加原任务依赖
                     data.old_prep = window.old_prep;
+                    // 添加原任务参数
+                    data.old_params = window.old_params;
                     $.ajax({
                         url: BASE.uri.job.detail_api + window.job_id + '/',
                         contentType: "application/json; charset=utf-8",

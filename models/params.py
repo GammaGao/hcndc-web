@@ -111,3 +111,14 @@ class ParamsModel(object):
             'param_id': param_id
         })
         return result
+
+    @staticmethod
+    def get_params_all(cursor):
+        """获取所有参数"""
+        command = '''
+        SELECT param_id, param_name
+        FROM tb_param_config
+        WHERE is_deleted = 0
+        '''
+        result = cursor.query(command)
+        return result if result else []

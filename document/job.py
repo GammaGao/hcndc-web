@@ -45,6 +45,8 @@ job_update_request = api.doc(body=api.model('job_update_request', {
     'server_script': fields.String(description='脚本命令'),
     'old_prep': fields.String(description='原依赖任务'),
     'job_prep': fields.String(description='依赖任务'),
+    'old_params': fields.String(description='原任务参数'),
+    'job_params': fields.String(description='任务参数'),
     'is_deleted': fields.Integer(description='是否删除: 0否, 1是')
 }, description='任务修改请求参数'))
 
@@ -56,7 +58,8 @@ job_add_request = api.doc(body=api.model('job_add_request', {
     'server_id': fields.Integer(description='执行服务器id'),
     'server_dir': fields.String(description='服务器目录'),
     'server_script': fields.String(description='脚本命令'),
-    'job_prep': fields.String(description='依赖任务')
+    'job_prep': fields.String(description='依赖任务'),
+    'job_params': fields.String(description='任务参数')
 }, description='任务新增请求参数'))
 
 # 获取所有任务请求

@@ -43,3 +43,9 @@ class ParamsFilter(object):
             return {'status': 200, 'msg': msg, 'data': {'text': result}}, 200
         else:
             return {'status': 400, 'msg': msg, 'data': {'text': result}}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_all_list_data(result):
+        """获取所有参数"""
+        return {'status': 200, 'msg': '成功', 'data': result}, 200

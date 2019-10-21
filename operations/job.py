@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
 from flask_restful import abort
 
 from server.decorators import make_decorator, Response
@@ -57,7 +58,7 @@ class JobOperation(object):
     @staticmethod
     @make_decorator
     def update_job_detail(job_id, interface_id, job_name, job_desc, server_id, server_dir, server_script,
-                          old_prep, job_prep, user_id, is_deleted):
+                          old_prep, job_prep, user_id, old_params, job_params, is_deleted):
         """修改任务详情"""
         # 修改详情
         JobModel.update_job_detail(db.etl_db, job_id, interface_id, job_name, job_desc, server_id, server_dir,
@@ -86,11 +87,38 @@ class JobOperation(object):
         if add_data:
             JobModel.add_job_prep(db.etl_db, add_data)
 
+        # 修改任务参数
+        old_params = set() if not old_prep else set(int(i) for i in old_params.split(','))
+        job_params = set() if not job_prep else set(int(i) for i in job_params.split(','))
+        # 删
+        del_data = []
+        for param_id in old_params - job_params:
+            del_data.append({
+                'job_id': job_id,
+                'param_id': param_id,
+                'user_id': user_id,
+                'update_time': int(time.time())
+            })
+        if del_data:
+            JobModel.delete_job_param(db.etl_db, del_data)
+        # 增
+        add_data = []
+        for param_id in job_params - old_params:
+            add_data.append({
+                'job_id': job_id,
+                'param_id': param_id,
+                'user_id': user_id,
+                'insert_time': int(time.time()),
+                'update_time': int(time.time())
+            })
+        if add_data:
+            JobModel.add_job_param(db.etl_db, add_data)
+
         return Response(job_id=job_id)
 
     @staticmethod
     @make_decorator
-    def add_job_detail(job_name, interface_id, job_desc, server_id, server_dir, job_prep, server_script, user_id):
+    def add_job_detail(job_name, interface_id, job_desc, server_id, server_dir, job_prep, job_params, server_script, user_id):
         """新增任务详情"""
         # 新增任务详情
         job_id = JobModel.add_job_detail(db.etl_db, job_name, interface_id, job_desc, server_id, server_dir,
@@ -105,6 +133,18 @@ class JobOperation(object):
                     'user_id': user_id
                 })
             JobModel.add_job_prep(db.etl_db, data)
+        # 新增任务参数
+        if job_params:
+            data = []
+            for param_id in job_params.split(','):
+                data.append({
+                    'job_id': job_id,
+                    'param_id': param_id,
+                    'insert_time': int(time.time()),
+                    'update_time': int(time.time()),
+                    'user_id': user_id
+                })
+            JobModel.add_job_param(db.etl_db, data)
         return Response(job_id=job_id)
 
     @staticmethod

@@ -72,10 +72,12 @@ class JobModel(object):
         """获取任务详情"""
         command = '''
         SELECT a.job_id, interface_id, job_name, job_desc, server_name,
-        b.server_id, server_host, server_dir, server_script, a.is_deleted, GROUP_CONCAT(c.prep_id) AS prep_id
+        b.server_id, server_host, server_dir, server_script, a.is_deleted,
+        GROUP_CONCAT(DISTINCT c.prep_id) AS prep_id, GROUP_CONCAT(DISTINCT d.param_id) AS param_id
         FROM tb_jobs AS a
         LEFT JOIN tb_exec_host AS b ON a.server_id = b.server_id AND b.is_deleted = 0
         LEFT JOIN tb_job_prep AS c ON a.job_id = c.job_id AND c.is_deleted = 0
+        LEFT JOIN tb_job_param AS d ON a.job_id = d.job_id AND d.is_deleted = 0
         WHERE a.job_id = :job_id
         '''
 
@@ -175,6 +177,28 @@ class JobModel(object):
         UPDATE tb_job_prep
         SET is_deleted = 1, updater_id = :user_id, update_time = UNIX_TIMESTAMP()
         WHERE job_id = :job_id AND prep_id = :prep_id
+        '''
+        result = cursor.update(command, args=data)
+        return result
+
+    @staticmethod
+    def add_job_param(cursor, data):
+        """新增任务参数-批量"""
+        command = '''
+        INSERT INTO tb_job_param(job_id, param_id, insert_time, update_time, creator_id, updater_id)
+        VALUES (:job_id, :param_id, :insert_time, :update_time, :user_id, :user_id)
+        '''
+
+        result = cursor.insert(command, args=data)
+        return result
+
+    @staticmethod
+    def delete_job_param(cursor, data):
+        """删除任务参数-批量"""
+        command = '''
+        UPDATE tb_job_param
+        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
+        WHERE job_id = :job_id AND param_id = :param_id
         '''
         result = cursor.update(command, args=data)
         return result

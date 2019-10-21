@@ -117,3 +117,10 @@ class ParamsOperation(object):
         except Exception as e:
             log.error('测试数据源连接异常: [error: %s]' % e, exc_info=1)
             return Response(result='', msg=traceback.format_exc(), flag=1)
+
+    @staticmethod
+    @make_decorator
+    def get_params_list_all():
+        """获取所有参数"""
+        result = ParamsModel.get_params_all(db.etl_db)
+        return Response(result=result)

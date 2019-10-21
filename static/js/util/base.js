@@ -70,7 +70,7 @@ let BASE = {
             'add': '/job/add/',
             'add_api': '/job/add/api/',
             'id_list_api': '/job/list/all/api/',
-            'run_api': '/job/run/api/'
+            'run_api': '/job/run/api/',
         },
         dispatch: {
             'list': '/dispatch/',
@@ -128,7 +128,8 @@ let BASE = {
             'add_api': '/params/add/api/',
             'update': '/params/update/',
             'detail_api': '/params/detail/api/',
-            'test_api': '/params/test/api/'
+            'test_api': '/params/test/api/',
+            'id_list_api': '/params/list/all/api/'
         },
         flow_alert_detail_api: '/flow/alert/api/',
         flow_list_api: '/flow/list/api/',

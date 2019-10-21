@@ -120,8 +120,20 @@ class ParamsTest(Resource):
         return params
 
 
+class ParamsListAll(Resource):
+    @staticmethod
+    @ParamsFilter.filter_all_list_data(result=list)
+    @ParamsOperation.get_params_list_all()
+    def get():
+        """获取所有参数"""
+        params = Response()
+        log.info('获取所有参数')
+        return params
+
+
 ns = api.namespace('params', description='参数')
 ns.add_resource(ParamsList, '/list/api/')
 ns.add_resource(ParamsAdd, '/add/api/')
 ns.add_resource(ParamsDetail, '/detail/api/<int:param_id>/')
 ns.add_resource(ParamsTest, '/test/api/')
+ns.add_resource(ParamsListAll, '/list/all/api/')
