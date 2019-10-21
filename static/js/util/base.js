@@ -127,7 +127,8 @@ let BASE = {
             'add': '/params/add',
             'add_api': '/params/add/api/',
             'update': '/params/update/',
-            'detail_api': '/params/detail/api/'
+            'detail_api': '/params/detail/api/',
+            'test_api': '/params/test/api/'
         },
         flow_alert_detail_api: '/flow/alert/api/',
         flow_list_api: '/flow/list/api/',

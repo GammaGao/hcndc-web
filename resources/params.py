@@ -103,7 +103,25 @@ class ParamsDetail(Resource):
         return params
 
 
+class ParamsTest(Resource):
+    @staticmethod
+    @params_test_request
+    @ParamsFilter.filter_test_data(result=str, msg=str, flag=int)
+    @ParamsOperation.test_params_detail(source_id=int, param_value=str)
+    @ParamsVerify.verify_test_param(source_id=int, param_value=str)
+    def post():
+        """测试SQL参数"""
+        payload = get_payload()
+        params = Response(
+            source_id=int(payload.get('source_id', 0)),
+            param_value=payload.get('param_value', '')
+        )
+        log.info('SQL参数测试[params: %s]' % params)
+        return params
+
+
 ns = api.namespace('params', description='参数')
 ns.add_resource(ParamsList, '/list/api/')
 ns.add_resource(ParamsAdd, '/add/api/')
 ns.add_resource(ParamsDetail, '/detail/api/<int:param_id>/')
+ns.add_resource(ParamsTest, '/test/api/')

@@ -17,3 +17,9 @@ dingtalkchatbot
 pycryptodome
 xlrd
 pymssql
+bitarray==0.9.3
+pure-sasl==0.6.1
+# thrift_sasl==0.2.1 --no-deps
+thrift==0.11.0
+thriftpy==0.3.9
+impyla==0.16.0

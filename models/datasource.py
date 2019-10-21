@@ -134,3 +134,17 @@ class DataSourceModel(object):
         '''
         result = cursor.query(command)
         return result if result else []
+
+    @staticmethod
+    def get_datasource_by_id(cursor, source_id):
+        """根据id获取数据源"""
+        command = '''
+        SELECT source_id, source_name, source_type, auth_type, source_host, source_port, source_database,
+        source_user, source_password
+        FROM tb_datasource
+        WHERE is_deleted = 0 AND source_id = :source_id
+        '''
+        result = cursor.query_one(command, {
+            'source_id': source_id
+        })
+        return result if source_id else {}

@@ -34,3 +34,12 @@ class ParamsFilter(object):
     def filter_delete_data(param_id):
         """删除参数详情"""
         return {'status': 200, 'msg': '成功', 'data': {'param_id': param_id}}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_test_data(result, msg, flag):
+        """测试SQL参数"""
+        if not flag:
+            return {'status': 200, 'msg': msg, 'data': {'text': result}}, 200
+        else:
+            return {'status': 400, 'msg': msg, 'data': {'text': result}}, 200

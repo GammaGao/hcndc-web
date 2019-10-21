@@ -52,3 +52,13 @@ class ParamsVerify(object):
             abort(400, **make_result(status=400, msg='状态参数错误'))
         return Response(param_id=param_id, param_type=param_type, param_name=param_name, source_id=source_id,
                         param_value=param_value, param_desc=param_desc, is_deleted=is_deleted, user_id=user_id)
+
+    @staticmethod
+    @make_decorator
+    def verify_test_param(source_id, param_value):
+        """测试SQL参数"""
+        if not source_id:
+            abort(400, **make_result(status=400, msg='数据源不得为空'))
+        if not param_value:
+            abort(400, **make_result(status=400, msg='参数值不得为空'))
+        return Response(source_id=source_id, param_value=param_value)

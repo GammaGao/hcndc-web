@@ -58,6 +58,32 @@
         form_event: function () {
             layui.use('form', function () {
                 let form = layui.form;
+                // 参数测试
+                form.on('submit(param-test)', function (data) {
+                    data = data.field;
+                    if (Number(data.param_type) === 1 && Number(data.source_id) === 0) {
+                        layer.msg('请选择数据源', {icon: 5, shift: 6});
+                        return
+                    }
+                    $.ajax({
+                        url: BASE.uri.params.test_api,
+                        contentType: "application/json; charset=utf-8",
+                        type: 'post',
+                        data: JSON.stringify(data),
+                        success: function (result) {
+                            if (result.status === 200) {
+                                layer.msg(sprintf('成功, 参数值[%s]', result.data.text), {icon: 6});
+                            } else {
+                                layer.alert(sprintf('测试失败[%s]', result.msg), {icon: 5});
+                            }
+                        },
+                        error: function (error) {
+                            let result = error.responseJSON;
+                            layer.alert(sprintf('测试失败[%s]', result.msg), {icon: 5});
+                        }
+                    });
+                });
+                // 表单保存
                 form.on('submit(param-save)', function (data) {
                     data = data.field;
                     if (Number(data.param_type) === 1 && Number(data.source_id) === 0) {
