@@ -62,6 +62,18 @@ class ParamsModel(object):
         return result
 
     @staticmethod
+    def add_param_many(cursor, data):
+        """新增参数-批量"""
+        command = '''
+        INSERT INTO tb_param_config(param_type, param_name, source_id,
+        param_value, param_desc, insert_time, update_time, creator_id, updater_id)
+        VALUES(:param_type, :param_name, :source_id, :param_value, :param_desc,
+        :insert_time, :update_time, :creator_id, :updater_id)
+        '''
+        result = cursor.insert(command, args=data)
+        return result
+
+    @staticmethod
     def get_params_detail(cursor, param_id):
         """获取参数详情"""
         command = '''

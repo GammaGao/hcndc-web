@@ -49,7 +49,7 @@ def JobAdd():
 
 @app.route('/job/upload/', methods=['POST'])
 def JobUpload():
-    """上传配置文件"""
+    """上传任务配置文件"""
     # 文件路径
     file_dir = './uploads'
     # 文件类型
@@ -95,6 +95,7 @@ def JobUpload():
                 reader = csv.reader(csv_file)
                 for index, line in enumerate(reader):
                     if index > 0:
+                        # 取前10列
                         data.append(line[:10])
         # 异常原因
         err_msg = []
@@ -140,25 +141,26 @@ def JobUpload():
                                     row[i] = []
                             else:
                                 row[i] = [int(param)]
-                        # 非空参数
-                        if i == 2 and row[i] == '':
-                            err_msg.append('第%s行[任务名称]参数不得为空' % row_num)
-                        if i == 6 and row[i] == '':
-                            err_msg.append('第%s行[脚本命令]参数不得为空' % row_num)
-                        # 添加依赖任务序号
-                        if i == 0 and isinstance(row[i], int):
-                            curr_job_num.append(row[i])
                     except:
                         err_msg.append(err_type[i] % row_num)
+
                 for i, param in enumerate(row):
+                    # 添加依赖任务序号
+                    if i == 0 and isinstance(row[i], int):
+                        curr_job_num.append(row[i])
                     # 校验接口id是否存在
                     if i == 1 and isinstance(param, int):
                         if param not in interface_ids:
                             err_msg.append('第%s行[所属接口id]不存在' % row_num)
+                    # 非空参数
+                    if i == 2 and row[i] == '':
+                        err_msg.append('第%s行[任务名称]参数不得为空' % row_num)
                     # 校验服务器id是否存在
                     if i == 4 and isinstance(param, int):
                         if param not in exec_host_ids:
                             err_msg.append('第%s行[服务器id]不存在' % row_num)
+                    if i == 6 and row[i] == '':
+                        err_msg.append('第%s行[脚本命令]参数不得为空' % row_num)
                     # 校验依赖任务序号(本次新建任务)是否存在
                     if i == 7 and isinstance(param, list):
                         for job_num in param:
@@ -174,6 +176,7 @@ def JobUpload():
                         for job_param in param:
                             if job_param not in job_params_ids:
                                 err_msg.append('第%s行[任务参数][%s]不存在' % (row_num, job_param))
+
         # 序号是否重复
         serial_num = [row[0] for row in data]
         if len(serial_num) != len(set(serial_num)):

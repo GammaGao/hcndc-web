@@ -176,7 +176,7 @@
                 '<div class="layui-table-tool-temp">',
                 '<div class="layui-inline" lay-event="add" title="添加作业"><i class="layui-icon layui-icon-add-1"></i></div>',
                 '<div class="layui-inline" lay-event="update" title="修改作业"><i class="layui-icon layui-icon-edit"></i></div>',
-                '<div class="layui-inline" lay-event="upload" title="上传作业" id="job-upload"><i class="layui-icon layui-icon-upload"></i></div>',
+                '<div class="layui-inline" lay-event="upload" title="上传作业文件" id="job-upload"><i class="layui-icon layui-icon-upload"></i></div>',
                 '</div>'
             ].join('');
             // 表格渲染

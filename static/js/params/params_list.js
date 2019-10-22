@@ -163,6 +163,7 @@
                 '<div class="layui-table-tool-temp">',
                 '<div class="layui-inline" lay-event="add" title="添加参数"><i class="layui-icon layui-icon-add-1"></i></div>',
                 '<div class="layui-inline" lay-event="update" title="修改参数"><i class="layui-icon layui-icon-edit"></i></div>',
+                '<div class="layui-inline" lay-event="upload" title="上传参数文件" id="param-upload"><i class="layui-icon layui-icon-upload"></i></div>',
                 '</div>'
             ].join('');
             // 表格渲染
@@ -256,6 +257,53 @@
         },
         // 工具栏事件监听
         toolbar_data_event: function () {
+            // 上传事件注册
+            layui.use('upload', function () {
+                let upload = layui.upload;
+                // 允许上传的文件后缀
+                upload.render({
+                    elem: '#param-upload',
+                    url: '/params/upload/',
+                    // 普通文件
+                    accept: 'file',
+                    auto: false,
+                    // 只允许上传压缩文件
+                    exts: 'xlsx|xls|csv',
+                    // 限制文件大小，单位 KB
+                    size: 5000,
+                    choose: function (obj) {
+                        //确认框
+                        layer.confirm('确定上传文件吗？', {icon: 3, title: '提示'}, function (index) {
+                            // 读取本地文件
+                            obj.preview(function (index, file) {
+                                // 单个重传
+                                obj.upload(index, file);
+                            });
+                            layer.close(index);
+                        });
+                    },
+                    done: function (res) {
+                        // 成功上传
+                        if (res.status && res.status === 200) {
+                            layer.msg("成功", {icon: 6});
+                        }
+                        // 上传参数错误
+                        else if (res.status && res.status === 401) {
+                            let err_msg = res.data.err_msg;
+                            let msg = err_msg.join('</br>');
+                            layer.alert(msg, {icon: 5});
+                        }
+                        // 文件类型错误
+                        else {
+                            layer.alert(res.msg);
+                        }
+                    },
+                    error: function (error) {
+                        let result = error.responseJSON;
+                        layer.alert(result.msg)
+                    }
+                });
+            });
             // 工具栏事件注册
             layui.use('table', function () {
                 let table = layui.table;
