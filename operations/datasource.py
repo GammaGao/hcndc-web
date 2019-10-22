@@ -1,7 +1,6 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json
 import traceback
 
 from server.decorators import make_decorator, Response
@@ -11,6 +10,7 @@ from conn.mysql import MysqlConn
 from conn.mongo import MongoLinks
 from conn.mssql import MssqlConn
 from conn.impala import ImpalaLink
+from util.db_util import test_db_conn
 
 
 class DataSourceOperation(object):
@@ -38,35 +38,12 @@ class DataSourceOperation(object):
 
     @staticmethod
     @make_decorator
-    def test_datasource_link(source_type, auth_type, source_host, source_port, source_database,
-                             source_user, source_password):
+    def test_datasource_link(source_type, auth_type, source_host, source_port, source_database, source_user,
+                             source_password):
         """测试数据源连接"""
-        # 用户名
-        if not source_user:
-            source_user = None
-        # 密码
-        if not source_password:
-            source_password = None
-        # 数据库库名
-        if not source_database:
-            source_database = None
-        try:
-            # mysql
-            if source_type == 1:
-                MysqlConn(source_host, source_port, source_user, source_password, source_database)
-            # mongo
-            elif source_type == 2:
-                MongoLinks(source_host, source_port, source_database, source_user, source_password)
-            # mssql
-            elif source_type == 3:
-                MssqlConn(source_host, source_port, source_user, source_password, source_database)
-            # hive / impala
-            else:
-                ImpalaLink(source_host, source_port, source_user, source_password, source_database, auth_type)
-            return Response(tag=True, msg='成功')
-        except Exception as e:
-            log.error('测试数据源连接异常: [error: %s]' % e, exc_info=1)
-            return Response(tag=False, msg=traceback.format_exc())
+        data = test_db_conn(source_type, auth_type, source_host, source_port, source_database, source_user,
+                            source_password)
+        return Response(tag=data['tag'], msg=data['msg'])
 
     @staticmethod
     @make_decorator

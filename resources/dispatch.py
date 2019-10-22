@@ -17,13 +17,12 @@ class CrontabSearch(Resource):
     @staticmethod
     @cron_request
     @DispatchFilter.filter_cron_data(run_times=list)
-    @DispatchOperation.CrontabNextTime(sched=str, queryTimes=int)
+    @DispatchOperation.crontab_next_time(sched=str, query_times=int)
     def get():
         """获取调度时间"""
         params = Response(
             sched=get_arg('sched'),
-            timeFormat=get_arg('timeFormat', '%Y-%m-%d %H:%M:%S'),
-            queryTimes=int(get_arg('queryTimes', 10))
+            query_times=int(get_arg('queryTimes', 10))
         )
         log.info('获取调度时间[params: %s]' % str(params))
         return params

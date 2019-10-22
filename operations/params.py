@@ -2,16 +2,13 @@
 # -*- coding: utf-8 -*-
 
 from flask_restful import abort
-import traceback
 
 from configs import db, log
 from server.decorators import make_decorator, Response
 from server.status import make_result
 from models.params import ParamsModel
 from models.datasource import DataSourceModel
-from conn.mysql import MysqlConn
-from conn.mssql import MssqlConn
-from conn.impala import ImpalaLink
+from util.db_util import get_db_data_one
 
 
 class ParamsOperation(object):
@@ -76,47 +73,11 @@ class ParamsOperation(object):
         item = DataSourceModel.get_datasource_by_id(db.etl_db, source_id)
         if not item:
             abort(400, **make_result(status=400, msg='该数据源id不存在'))
-        # 用户名
-        if not item['source_user']:
-            item['source_user'] = None
-        # 密码
-        if not item['source_password']:
-            item['source_password'] = None
-        # 数据库库名
-        if not item['source_database']:
-            item['source_database'] = None
-        try:
-            # mysql
-            if item['source_type'] == 1:
-                cursor = MysqlConn(item['source_host'], item['source_port'], item['source_user'],
-                                   item['source_password'],
-                                   item['source_database'])
-                result = cursor.query_one(param_value)
-            # mongo
-            # elif item['source_type'] == 2:
-            #     MongoLinks(item['source_host'], item['source_port'], item['source_database'], item['source_user'],
-            #                         item['source_password'])
-            # mssql
-            elif item['source_type'] == 3:
-                cursor = MssqlConn(item['source_host'], item['source_port'], item['source_user'],
-                                   item['source_password'], item['source_database'])
-                result = cursor.query_one(param_value)
-                result = str(result.values()[0]) if result else ''
-            # hive / impala
-            else:
-                cursor = ImpalaLink(item['source_host'], item['source_port'], item['source_user'],
-                                    item['source_password'], item['source_database'], item['auth_type'])
-                result = cursor.query_one(param_value)
-            if isinstance(result, tuple):
-                result = str(result[0])
-            elif isinstance(result, dict):
-                result = str([i for i in result.values()][0] if result.values() else '')
-            else:
-                result = ''
-            return Response(result=result, msg='成功', flag=0)
-        except Exception as e:
-            log.error('测试数据源连接异常: [error: %s]' % e, exc_info=1)
-            return Response(result='', msg=traceback.format_exc(), flag=1)
+        # 获取数据源数据
+        result_data = get_db_data_one(item['source_type'], item['source_host'], item['source_port'],
+                                      item['source_user'], item['source_password'], item['source_database'],
+                                      item['auth_type'], param_value)
+        return Response(result=result_data['result'], msg=result_data['msg'], flag=result_data['flag'])
 
     @staticmethod
     @make_decorator

@@ -10,6 +10,7 @@ from models.job import JobModel
 from models.execute import ExecuteModel
 from configs import db, config, log
 from rpc.rpc_client import Connection
+from util.db_util import get_db_data_one
 
 
 class JobOperation(object):
@@ -88,8 +89,8 @@ class JobOperation(object):
             JobModel.add_job_prep(db.etl_db, add_data)
 
         # 修改任务参数
-        old_params = set() if not old_prep else set(int(i) for i in old_params.split(','))
-        job_params = set() if not job_prep else set(int(i) for i in job_params.split(','))
+        old_params = set() if not old_params else set(int(i) for i in old_params.split(','))
+        job_params = set() if not job_params else set(int(i) for i in job_params.split(','))
         # 删
         del_data = []
         for param_id in old_params - job_params:
@@ -118,7 +119,8 @@ class JobOperation(object):
 
     @staticmethod
     @make_decorator
-    def add_job_detail(job_name, interface_id, job_desc, server_id, server_dir, job_prep, job_params, server_script, user_id):
+    def add_job_detail(job_name, interface_id, job_desc, server_id, server_dir, job_prep, job_params, server_script,
+                       user_id):
         """新增任务详情"""
         # 新增任务详情
         job_id = JobModel.add_job_detail(db.etl_db, job_name, interface_id, job_desc, server_id, server_dir,
@@ -165,6 +167,23 @@ class JobOperation(object):
         job = JobModel.get_job_detail(db.etl_db, job_id)
         if job.get('is_deleted', 1):
             abort(400, **make_result(status=400, msg='任务已删除, 不能执行'))
+        # 获取任务参数
+        job_params = JobModel.get_job_params_by_job_id(db.etl_db, job_id)
+        params = []
+        for item in job_params:
+            # 静态参数
+            if item['param_type'] == 0:
+                params.append(item['param_value'])
+            # SQL参数
+            else:
+                # 获取SQL参数
+                result = get_db_data_one(item['source_type'], item['source_host'], item['source_port'],
+                                         item['source_user'], item['source_password'], item['source_database'],
+                                         item['auth_type'], item['param_value'])
+                if result['flag'] == 0:
+                    params.append(result['result'])
+                else:
+                    abort(400, **make_result(status=400, msg='获取任务SQL参数错误[ERROR: %s]' % result['msg']))
         # 添加执行表
         exec_id = ExecuteModel.add_execute(db.etl_db, 2, 0)
         # 添加执行详情表
@@ -173,6 +192,7 @@ class JobOperation(object):
             'job_id': job_id,
             'in_degree': '',
             'out_degree': '',
+            'params': ','.join(params),
             'server_host': job['server_host'],
             'server_dir': job['server_dir'],
             'server_script': job['server_script'],
@@ -189,6 +209,7 @@ class JobOperation(object):
                 job_id=job['job_id'],
                 server_dir=job['server_dir'],
                 server_script=job['server_script'],
+                params=params,
                 status='preparing'
             )
             log.info('分发任务: 执行id: %s, 任务id: %s' % (exec_id, job['job_id']))

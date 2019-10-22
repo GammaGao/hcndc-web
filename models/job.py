@@ -202,3 +202,19 @@ class JobModel(object):
         '''
         result = cursor.update(command, args=data)
         return result
+
+    @staticmethod
+    def get_job_params_by_job_id(cursor, job_id):
+        """获取任务参数"""
+        command = '''
+        SELECT param_type, param_value, source_type, auth_type, source_host,
+        source_port, source_database, source_user, source_password
+        FROM tb_job_param AS a
+        LEFT JOIN tb_param_config AS b ON a.param_id = b.param_id AND b.is_deleted = 0
+        LEFT JOIN tb_datasource AS c ON b.source_id = c.source_id AND c.is_deleted = 0
+        WHERE job_id = :job_id AND a.is_deleted = 0
+        '''
+        result = cursor.query(command, {
+            'job_id': job_id
+        })
+        return result if result else []

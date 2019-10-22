@@ -24,6 +24,7 @@ def get_dispatch_job(dispatch_id):
                     job_id=job['id'],
                     server_dir=job['server_dir'],
                     server_script=job['server_script'],
+                    params=job['params'],
                     status=job['status']
                 )
                 log.info('分发任务: 执行id: %s, 任务id: %s' % (exec_id, job['id']))
@@ -43,6 +44,7 @@ def add_exec_record(dispatch_id, source):
             'out_degree': ','.join(str(j) for j in i['out']),
             'server_host': i.get('server_host', ''),
             'server_dir': i.get('server_dir', ''),
+            'params': ','.join(i['params']),
             'server_script': i.get('server_script', ''),
             'position': i['position'],
             'level': i['level'],

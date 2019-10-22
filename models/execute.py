@@ -62,9 +62,9 @@ class ExecuteModel(object):
     def add_execute_detail(cursor, data):
         """添加执行详情表"""
         command = '''
-        INSERT INTO tb_execute_detail(exec_id, job_id, in_degree, out_degree,
+        INSERT INTO tb_execute_detail(exec_id, job_id, in_degree, out_degree, params,
         server_host, server_dir, server_script, position, `level`, `status`, insert_time, update_time)
-        VALUES (:exec_id, :job_id, :in_degree, :out_degree, :server_host, :server_dir, :server_script,
+        VALUES (:exec_id, :job_id, :in_degree, :out_degree, :params, :server_host, :server_dir, :server_script,
         :position, :level, :status, UNIX_TIMESTAMP(), UNIX_TIMESTAMP())
         '''
         result = cursor.insert(command, data)

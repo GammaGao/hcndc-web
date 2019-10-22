@@ -14,13 +14,13 @@ from flask_restful import abort
 class DispatchOperation(object):
     @staticmethod
     @make_decorator
-    def CrontabNextTime(sched, timeFormat='%Y-%m-%d %H:%M:%S', queryTimes=10):
+    def crontab_next_time(sched, time_format='%Y-%m-%d %H:%M:%S', query_times=10):
         """计算定时任务下次运行时间"""
         try:
             now = datetime.datetime.now()
             # 以当前时间为基准开始计算
             cron = croniter.croniter(sched, now)
-            result = [cron.get_next(datetime.datetime).strftime(timeFormat) for _ in range(queryTimes)]
+            result = [cron.get_next(datetime.datetime).strftime(time_format) for _ in range(query_times)]
         except Exception as e:
             log.error('计算cron表达式异常 [ERROR: %s]' % e, exc_info=True)
             result = ['计算cron表达式异常']
@@ -80,7 +80,7 @@ class DispatchOperation(object):
             return Response(dispatch_id=dispatch_id)
         except Exception as e:
             log.error('删除调度异常[ERROR: %s]' % e, exc_info=True)
-            abort(400,**make_result(status=400, msg='删除调度异常'))
+            abort(400, **make_result(status=400, msg='删除调度异常'))
 
     @staticmethod
     @make_decorator
@@ -94,27 +94,26 @@ class DispatchOperation(object):
             # 修改调度状态
             run_id = 'scheduler_%s' % dispatch_id
             # 仍删除
-            if (old_status == 0 and new_status == 0):
+            if old_status == 0 and new_status == 0:
                 pass
             # 新增 or 先新增后暂停
-            elif (old_status == 0 and new_status == 1 or old_status == 0 and new_status == 2):
+            elif old_status == 0 and new_status == 1 or old_status == 0 and new_status == 2:
                 scheduler_handler.add_job(run_id, dispatch_id, minute, hour, day, month, week)
             # 修改
             else:
                 scheduler_handler.modify_job(run_id, dispatch_id, minute, hour, day, month, week)
             # 先新增后暂停
-            if (old_status == 0 and new_status == 2):
+            if old_status == 0 and new_status == 2:
                 scheduler_handler.pause_job(run_id)
             # 暂停
-            elif (old_status == 1 and new_status == 2):
+            elif old_status == 1 and new_status == 2:
                 scheduler_handler.pause_job(run_id)
             # 删除
-            elif (old_status == 1 and new_status == 0 or old_status == 2 and new_status == 0):
+            elif old_status == 1 and new_status == 0 or old_status == 2 and new_status == 0:
                 scheduler_handler.remove_job(run_id)
             # 恢复
-            elif (old_status == 2 and new_status == 1):
+            elif old_status == 2 and new_status == 1:
                 scheduler_handler.resume_job(run_id)
-
 
             return Response(dispatch_id=dispatch_id)
         except pymysql.err.IntegrityError as e:
@@ -132,7 +131,6 @@ class DispatchOperation(object):
         except Exception as e:
             log.error('立即执行调度异常 [ERROR: %s]' % e, exc_info=True)
             abort(400, **make_result(status=400, msg='立即执行调度异常'))
-
 
     @staticmethod
     @make_decorator
