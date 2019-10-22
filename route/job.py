@@ -5,12 +5,14 @@ from configs import app, db
 from models.interface import InterfaceModel
 from models.base import ExecHostModel
 from models.job import JobModel
+from models.params import ParamsModel
 from util import session as curr_session
 
 from flask import render_template, session, redirect, request, jsonify
 import os
 import csv
 import xlrd
+import time
 
 
 @app.route('/job/')
@@ -62,7 +64,8 @@ def JobUpload():
         5: '第%s行[脚本目录]参数不为字符串类型',
         6: '第%s行[脚本命令]参数不为字符串类型',
         7: '第%s行[依赖任务序号(本次新建任务)]参数不为整型或没按逗号分隔',
-        8: '第%s行[依赖任务id(已有任务)]参数不为空或整型或没按逗号分隔'
+        8: '第%s行[依赖任务id(已有任务)]参数不为空或整型或没按逗号分隔',
+        9: '第%s行[任务参数]不为空或整型或没按逗号分隔'
     }
     file = request.files['file']
     # 获取文件名
@@ -83,8 +86,8 @@ def JobUpload():
             # 从第2行开始读取
             data = []
             for i in range(1, sheet.nrows):
-                # 取前9列
-                data.append(sheet.row_values(i)[:9])
+                # 取前10列
+                data.append(sheet.row_values(i)[:10])
         # csv文件
         else:
             data = []
@@ -92,7 +95,7 @@ def JobUpload():
                 reader = csv.reader(csv_file)
                 for index, line in enumerate(reader):
                     if index > 0:
-                        data.append(line[:9])
+                        data.append(line[:10])
         # 异常原因
         err_msg = []
         # 接口id列表
@@ -106,6 +109,9 @@ def JobUpload():
         # 依赖任务id(已有任务)列表
         job_result = JobModel.get_job_list_all(db.etl_db)
         job_ids = [i['job_id'] for i in job_result]
+        # 任务参数列表
+        job_params = ParamsModel.get_params_all(db.etl_db)
+        job_params_ids = [i['param_id'] for i in job_params]
         # 文件为空
         if not data:
             err_msg.append('文件为空')
@@ -113,8 +119,8 @@ def JobUpload():
             # Excel行号
             row_num = index + 2
             # 校验列数
-            if len(row) < 9:
-                err_msg.append('第%s行参数个数小于9个')
+            if len(row) < 10:
+                err_msg.append('第%s行参数个数小于10个')
             else:
                 # 校验并处理每列参数
                 for i, param in enumerate(row):
@@ -147,7 +153,7 @@ def JobUpload():
                 for i, param in enumerate(row):
                     # 校验接口id是否存在
                     if i == 1 and isinstance(param, int):
-                        if row[i] not in interface_ids:
+                        if param not in interface_ids:
                             err_msg.append('第%s行[所属接口id]不存在' % row_num)
                     # 校验服务器id是否存在
                     if i == 4 and isinstance(param, int):
@@ -163,6 +169,11 @@ def JobUpload():
                         for job_id in param:
                             if job_id not in job_ids:
                                 err_msg.append('第%s行[依赖任务id(已有任务)][%s]不存在' % (row_num, job_id))
+                    # 检验任务参数是否存在
+                    if i == 9 and isinstance(param, list):
+                        for job_param in param:
+                            if job_param not in job_params_ids:
+                                err_msg.append('第%s行[任务参数][%s]不存在' % (row_num, job_param))
         # 序号是否重复
         serial_num = [row[0] for row in data]
         if len(serial_num) != len(set(serial_num)):
@@ -178,30 +189,48 @@ def JobUpload():
             # 用户id
             user_info = curr_session.get_info()
             user_id = user_info['id']
-            # 依赖任务序号 -> job_id映射
+            # 依赖任务序号 -> 任务id映射
             job_map = {}
             # 新增任务详情
             for line in data:
                 job_id = JobModel.add_job_detail(db.etl_db, line[2], line[1], line[3], line[4], line[5], line[6],
                                                  user_id)
                 job_map[line[0]] = job_id
+                # 表格数据中新增任务id字段
                 line.append(job_id)
             # 新增任务依赖
+            prep_data = []
             for line in data:
-                perp_job = []
+                prep_job = []
+                # 本次新增任务序号与任务id映射
                 if line[7]:
-                    perp_job = [job_map[i] for i in line[7]]
+                    prep_job = [job_map[i] for i in line[7]]
                 if line[8]:
-                    perp_job += line[8]
-                data = []
-                for prep_id in perp_job:
-                    data.append({
-                        'job_id': line[9],
+                    # 合并数组
+                    prep_job += line[8]
+                for prep_id in prep_job:
+                    prep_data.append({
+                        # 最后一位为新增的任务id字段
+                        'job_id': line[len(line) - 1],
                         'prep_id': prep_id,
                         'user_id': user_id
                     })
-                if data:
-                    JobModel.add_job_prep(db.etl_db, data)
+            if prep_data:
+                JobModel.add_job_prep(db.etl_db, prep_data)
+            # 新增任务参数
+            job_params = []
+            for line in data:
+                for param_id in line[9]:
+                    job_params.append({
+                        # 最后一位为新增的任务id字段
+                        'job_id': line[len(line) - 1],
+                        'param_id': param_id,
+                        'insert_time': int(time.time()),
+                        'update_time': int(time.time()),
+                        'user_id': user_id
+                    })
+            if job_params:
+                JobModel.add_job_param(db.etl_db, job_params)
             return jsonify({'status': 200, 'msg': '成功', 'data': {}})
     else:
         return jsonify({'status': 400, 'msg': '文件类型错误', 'data': {}})
