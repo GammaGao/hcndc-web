@@ -187,11 +187,12 @@
                         sort: true
                     }, {
                         field: "interface_id",
-                        title: "接口/任务id"
+                        title: "接口/任务id",
+                        width: '8%'
                     }, {
                         field: "exec_type",
                         title: "执行类型",
-                        width: '8%',
+                        width: '6%',
                         templet: function (data) {
                             if (data.exec_type === 1) {
                                 return '<span class="layui-badge layui-bg-green">调度</span>';
@@ -222,11 +223,14 @@
                     }, {
                         field: "status",
                         title: "运行状态",
+                        width: '6%',
                         templet: function (data) {
                             if (data.status === 0) {
                                 return '<span class="layui-badge layui-bg-green">成功</span>';
-                            } else if (data.status === 1){
+                            } else if (data.status === 1) {
                                 return '<span class="layui-badge layui-bg-blue">运行中</span>';
+                            } else if (data.status === 2) {
+                                return '<span class="layui-badge layui-bg-orange">中止</span>';
                             } else {
                                 return '<span class="layui-badge">失败</span>';
                             }
@@ -243,9 +247,20 @@
                     }, {
                         field: "operation",
                         title: "操作",
-                        templet: function () {
+                        templet: function (data) {
                             let html = [];
+                            html.push('<div class="layui-btn-group">');
                             html.push('<a class="layui-btn layui-btn-sm" lay-event="detail">执行详情</a>');
+                            // 运行中
+                            if (data.status === 1) {
+                                html.push('<a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="stop">中止</a>');
+                            }
+                            // 失败或中止
+                            else if (data.status === 2 || data.status === -1) {
+                                html.push('<a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="restart">断点重跑</a>');
+                                html.push('<a class="layui-btn layui-btn-sm" lay-event="reset" style="background-color: #5FB878">重置</a>');
+                            }
+                            html.push('</div>');
                             return html.join('');
                         }
                     }]],
@@ -264,12 +279,56 @@
             layui.use('table', function () {
                 let table = layui.table;
                 table.on('tool(execute-list)', function (obj) {
-                    let data = obj.data;
-                    let event = obj.event;
-                    if (event === 'detail') {
-                        window.location.href = BASE.uri.execute.detail + data.exec_id + '/';
+                        let data = obj.data;
+                        let event = obj.event;
+                        let tr = obj.tr;
+                        // 执行详情
+                        if (event === 'detail') {
+                            layer.open({
+                                type: 2,
+                                anim: 5,
+                                title: '执行详情',
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.execute.detail + data.exec_id + '/'
+                            });
+                        }
+                        // 中止
+                        else if (event === 'stop') {
+                            layer.confirm('确定中止?', function (index) {
+                                // 关闭弹窗
+                                layer.close(index);
+                                $.ajax({
+                                    url: '/xxx/',
+                                    type: 'delete',
+                                    success: function (result) {
+                                        if (result.status === 200) {
+                                            layer.msg('中止成功', {icon: 6});
+                                            // 关闭自身iframe窗口
+                                            setTimeout(function () {
+                                                window.location.reload();
+                                            }, 2000);
+                                        } else {
+                                            layer.msg(sprintf('中止失败[%s]', result.msg), {icon: 5});
+                                        }
+                                    },
+                                    error: function (error) {
+                                        let result = error.responseJSON;
+                                        layer.alert(sprintf('中止失败: %s', result.msg))
+                                    }
+                                })
+                            })
+                        }
+                        // 断点重跑
+                        else if (event === 'restart') {
+
+                        }
+                        // 重置
+                        else if (event === 'reset') {
+
+                        }
                     }
-                })
+                )
             })
         },
         element_init: function () {

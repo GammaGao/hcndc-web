@@ -3,30 +3,22 @@
 <head>
     {% include "util/style.html" %}
 </head>
-<body class="layui-layout-body">
+<body>
 <div class="layui-layout layui-layout-admin">
-    <!-- 水平导航 -->
-    {% include "util/navbar.html" %}
-    <!-- 侧边栏 -->
-    {% include "util/tree.html" %}
     <!-- 内容主体区域 -->
-    <div class="layui-body" style="margin: 0 20px 0 20px">
-        <fieldset class="layui-elem-field layui-field-title">
-            <legend>执行日志</legend>
-        </fieldset>
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>执行日志</legend>
+    </fieldset>
+    <div style="margin: 0 20px 0 20px">
         <span class="layui-breadcrumb">
-            <a href="/execute/list/">执行列表</a>
-            <a href="/execute/detail/{{ exec_id }}/">执行详情</a>
+            <a href="/execute/detail/{{ exec_id }}/">返回上一级</a>
             <a><cite>执行日志</cite></a>
         </span>
-        <fieldset class="layui-elem-field layui-field-title">
-        </fieldset>
         <!-- 执行日志 -->
         <div class="exec-log-div">
             <ul class="layui-timeline" id="exec-log">
             </ul>
         </div>
-
     </div>
 </div>
 <script>

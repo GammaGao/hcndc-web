@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 class ExecuteModel(object):
     @staticmethod
     def add_execute(cursor, exec_type, dispatch_id):
@@ -74,7 +75,8 @@ class ExecuteModel(object):
     def get_execute_jobs(cursor, exec_id):
         """获取所有执行任务"""
         command = '''
-        SELECT job_id, in_degree, out_degree, server_host, server_dir, server_script, position, `level`, `status`
+        SELECT job_id, in_degree, out_degree, server_host, server_dir,
+        server_script, position, `level`, `status`, params
         FROM tb_execute_detail
         WHERE exec_id = :exec_id
         '''

@@ -61,6 +61,28 @@ class ExecuteDetail(Resource):
         log.info('获取执行详情[params: %s]' % str(params))
         return params
 
+    @staticmethod
+    @ExecuteOperation.stop_execute_job(exec_id=int)
+    def delete(exec_id):
+        """中止执行任务"""
+        params = Response(exec_id=exec_id)
+        log.info('中止执行任务[params: %s]' % str(params))
+        return params
+
+    @staticmethod
+    def post(exec_id):
+        """断点续跑"""
+        params = Response(exec_id=exec_id)
+        log.info('执行任务断点续跑[params: %s]' % str(params))
+        return params
+
+    @staticmethod
+    def put(exec_id):
+        """重置执行任务"""
+        params = Response(exec_id=exec_id)
+        log.info('重置执行任务[params: %s]' % str(params))
+        return params
+
 
 class ExecuteLog(Resource):
     @staticmethod

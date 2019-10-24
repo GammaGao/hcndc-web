@@ -44,6 +44,7 @@ class ExecuteOperation(object):
                     job_id=job_id,
                     server_dir=nodes[job_id]['server_dir'],
                     server_script=nodes[job_id]['server_script'],
+                    params=nodes[job_id]['params'],
                     status=nodes[job_id]['status']
                 )
         # 查看调度执行表状态
@@ -100,12 +101,18 @@ class ExecuteOperation(object):
         if end_time:
             condition.append('a.insert_time <= %s' % end_time)
         if run_status:
+            # 成功
             if run_status == 1:
                 condition.append('a.`status` = 0')
+            # 运行中
             elif run_status == 2:
                 condition.append('a.`status` = 1')
-            else:
+            # 失败
+            elif run_status == 3:
                 condition.append('a.`status` = -1')
+            # 中止
+            else:
+                condition.append('a.`status` = 2')
         if exec_type:
             condition.append('exec_type = %s' % exec_type)
 
@@ -138,3 +145,10 @@ class ExecuteOperation(object):
         """获取执行拓扑结构"""
         job_nodes = ExecuteModel.get_execute_graph(db.etl_db, exec_id)
         return Response(job_nodes=job_nodes)
+
+    @staticmethod
+    @make_decorator
+    def stop_execute_job(exec_id):
+        """中止执行任务"""
+        # 获取该执行任务
+        result = ExecuteModel.get_execute_detail(db.etl_db, exec_id)
