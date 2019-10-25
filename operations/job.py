@@ -59,11 +59,11 @@ class JobOperation(object):
     @staticmethod
     @make_decorator
     def update_job_detail(job_id, interface_id, job_name, job_desc, server_id, server_dir, server_script,
-                          old_prep, job_prep, user_id, old_params, job_params, is_deleted):
+                          return_code, old_prep, job_prep, user_id, old_params, job_params, is_deleted):
         """修改任务详情"""
         # 修改详情
         JobModel.update_job_detail(db.etl_db, job_id, interface_id, job_name, job_desc, server_id, server_dir,
-                                   server_script, user_id, is_deleted)
+                                   server_script, return_code, user_id, is_deleted)
         # 修改任务依赖
         old_prep = set() if not old_prep else set(int(i) for i in old_prep.split(','))
         job_prep = set() if not job_prep else set(int(i) for i in job_prep.split(','))
@@ -88,12 +88,17 @@ class JobOperation(object):
         if add_data:
             JobModel.add_job_prep(db.etl_db, add_data)
 
-        # 修改任务参数
+        # 修改任务参数(保证参数顺序, 全部删除再新增)
         old_params = set() if not old_params else set(int(i) for i in old_params.split(','))
-        job_params = set() if not job_params else set(int(i) for i in job_params.split(','))
+        job_params = [] if not job_params else [int(i) for i in job_params.split(',')]
+        # 原顺序不变去重
+        add_params = []
+        for x in job_params:
+            if x not in add_params:
+                add_params.append(x)
         # 删
         del_data = []
-        for param_id in old_params - job_params:
+        for param_id in old_params:
             del_data.append({
                 'job_id': job_id,
                 'param_id': param_id,
@@ -104,7 +109,7 @@ class JobOperation(object):
             JobModel.delete_job_param(db.etl_db, del_data)
         # 增
         add_data = []
-        for param_id in job_params - old_params:
+        for param_id in add_params:
             add_data.append({
                 'job_id': job_id,
                 'param_id': param_id,
@@ -120,11 +125,11 @@ class JobOperation(object):
     @staticmethod
     @make_decorator
     def add_job_detail(job_name, interface_id, job_desc, server_id, server_dir, job_prep, job_params, server_script,
-                       user_id):
+                       user_id, return_code):
         """新增任务详情"""
         # 新增任务详情
         job_id = JobModel.add_job_detail(db.etl_db, job_name, interface_id, job_desc, server_id, server_dir,
-                                         server_script, user_id)
+                                         server_script, return_code, user_id)
         # 新增任务依赖
         if job_prep:
             data = []
@@ -196,6 +201,7 @@ class JobOperation(object):
             'server_host': job['server_host'],
             'server_dir': job['server_dir'],
             'server_script': job['server_script'],
+            'return_code': job['return_code'],
             'position': 1,
             'level': 0,
             'status': 'preparing'
@@ -209,6 +215,7 @@ class JobOperation(object):
                 job_id=job['job_id'],
                 server_dir=job['server_dir'],
                 server_script=job['server_script'],
+                return_code=job['return_code'],
                 params=params,
                 status='preparing'
             )

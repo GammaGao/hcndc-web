@@ -72,8 +72,8 @@ class JobModel(object):
         """获取任务详情"""
         command = '''
         SELECT a.job_id, interface_id, job_name, job_desc, server_name,
-        b.server_id, server_host, server_dir, server_script, a.is_deleted,
-        GROUP_CONCAT(DISTINCT c.prep_id) AS prep_id, GROUP_CONCAT(DISTINCT d.param_id) AS param_id
+        b.server_id, server_host, server_dir, server_script, return_code, a.is_deleted,
+        GROUP_CONCAT(DISTINCT c.prep_id) AS prep_id, GROUP_CONCAT(d.param_id) AS param_id
         FROM tb_jobs AS a
         LEFT JOIN tb_exec_host AS b ON a.server_id = b.server_id AND b.is_deleted = 0
         LEFT JOIN tb_job_prep AS c ON a.job_id = c.job_id AND c.is_deleted = 0
@@ -88,13 +88,13 @@ class JobModel(object):
 
     @staticmethod
     def update_job_detail(cursor, job_id, interface_id, job_name, job_desc, server_id, server_dir, server_script,
-                          user_id, is_deleted):
+                          return_code, user_id, is_deleted):
         """修改任务详情"""
         command = '''
         UPDATE tb_jobs
         SET job_name = :job_name, interface_id = :interface_id, job_desc = :job_desc, server_id = :server_id,
-        server_dir = :server_dir, server_script = :server_script, update_time = UNIX_TIMESTAMP(),
-        updater_id = :user_id, is_deleted = :is_deleted
+        server_dir = :server_dir, server_script = :server_script, return_code = :return_code,
+        update_time = UNIX_TIMESTAMP(), updater_id = :user_id, is_deleted = :is_deleted
         WHERE job_id = :job_id
         '''
 
@@ -106,21 +106,21 @@ class JobModel(object):
             'server_id': server_id,
             'server_dir': server_dir,
             'server_script': server_script,
+            'return_code': return_code,
             'user_id': user_id,
             'is_deleted': is_deleted
         })
         return result
 
     @staticmethod
-    def add_job_detail(cursor, job_name, interface_id, job_desc, server_id, server_dir, server_script, user_id):
+    def add_job_detail(cursor, job_name, interface_id, job_desc, server_id, server_dir, server_script, return_code,
+                       user_id):
         """新增任务详情"""
         command = '''
-        INSERT INTO tb_jobs(interface_id, job_name, job_desc, server_id, server_dir, server_script,
+        INSERT INTO tb_jobs(interface_id, job_name, job_desc, server_id, server_dir, server_script, return_code,
         insert_time, update_time, creator_id, updater_id)
-        VALUES (:interface_id, :job_name, :job_desc, :server_id, :server_dir, :server_script,
-        UNIX_TIMESTAMP(), UNIX_TIMESTAMP(),
-        :user_id, :user_id
-        )
+        VALUES (:interface_id, :job_name, :job_desc, :server_id, :server_dir, :server_script, :return_code,
+        UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), :user_id, :user_id)
         '''
 
         result = cursor.insert(command, {
@@ -130,6 +130,7 @@ class JobModel(object):
             'server_id': server_id,
             'server_dir': server_dir,
             'server_script': server_script,
+            'return_code': return_code,
             'user_id': user_id
         })
         return result

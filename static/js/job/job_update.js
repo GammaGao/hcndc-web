@@ -133,11 +133,13 @@
                 let form = layui.form;
                 let formSelects = layui.formSelects;
                 form.val('job_detail', {
+                    'interface_id': data.interface_id,
                     'job_name': data.job_name,
                     'job_desc': data.job_desc,
                     'server_id': data.server_id,
                     'server_dir': data.server_dir,
                     'server_script': data.server_script,
+                    'return_code': data.return_code,
                     'is_deleted': data.is_deleted === 1
                 });
                 formSelects.value('job_prep', data.prep_id);

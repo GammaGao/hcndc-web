@@ -24,6 +24,7 @@ def get_dispatch_job(dispatch_id):
                     job_id=job['id'],
                     server_dir=job['server_dir'],
                     server_script=job['server_script'],
+                    return_code=job['return_code'],
                     params=job['params'],
                     status=job['status']
                 )
@@ -47,6 +48,7 @@ def add_exec_record(dispatch_id, source):
             'params': ','.join(i['params']),
             'server_script': i.get('server_script', ''),
             'position': i['position'],
+            'return_code': i['return_code'],
             'level': i['level'],
             'status': i['status']
         })

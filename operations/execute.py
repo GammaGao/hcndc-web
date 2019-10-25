@@ -44,6 +44,7 @@ class ExecuteOperation(object):
                     job_id=job_id,
                     server_dir=nodes[job_id]['server_dir'],
                     server_script=nodes[job_id]['server_script'],
+                    return_code=nodes[job_id]['return_code'],
                     params=nodes[job_id]['params'],
                     status=nodes[job_id]['status']
                 )

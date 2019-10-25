@@ -64,9 +64,9 @@ class ExecuteModel(object):
         """添加执行详情表"""
         command = '''
         INSERT INTO tb_execute_detail(exec_id, job_id, in_degree, out_degree, params,
-        server_host, server_dir, server_script, position, `level`, `status`, insert_time, update_time)
+        server_host, server_dir, server_script, return_code, position, `level`, `status`, insert_time, update_time)
         VALUES (:exec_id, :job_id, :in_degree, :out_degree, :params, :server_host, :server_dir, :server_script,
-        :position, :level, :status, UNIX_TIMESTAMP(), UNIX_TIMESTAMP())
+        :return_code, :position, :level, :status, UNIX_TIMESTAMP(), UNIX_TIMESTAMP())
         '''
         result = cursor.insert(command, data)
         return result
@@ -76,7 +76,7 @@ class ExecuteModel(object):
         """获取所有执行任务"""
         command = '''
         SELECT job_id, in_degree, out_degree, server_host, server_dir,
-        server_script, position, `level`, `status`, params
+        server_script, position, `level`, `status`, params, return_code
         FROM tb_execute_detail
         WHERE exec_id = :exec_id
         '''

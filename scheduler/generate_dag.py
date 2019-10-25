@@ -47,6 +47,7 @@ def generate_dag_by_dispatch_id(dispatch_id):
             'server_dir': job['server_dir'],
             'server_script': job['server_script'],
             'params': params,
+            'return_code': job['return_code'],
             'position': 1,
             'run_period': job['run_period'],
             'level': 0

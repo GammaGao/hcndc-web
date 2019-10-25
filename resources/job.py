@@ -63,14 +63,14 @@ class JobDetail(Resource):
     @job_update_request
     @JobFilter.filter_update_data(job_id=int)
     @JobOperation.update_job_detail(job_id=int, interface_id=int, job_name=str, job_desc=str, server_id=int,
-                                    server_dir=str, server_script=str, old_prep=str, job_prep=str, user_id=int,
-                                    old_params=str, job_params=str, is_deleted=int)
+                                    server_dir=str, server_script=str, return_code=int, old_prep=str, job_prep=str,
+                                    user_id=int, old_params=str, job_params=str, is_deleted=int)
     @JobVerify.verify_update_job_id(job_id=int, interface_id=int, job_name=str, job_desc=str, server_id=int,
-                                    server_dir=str, server_script=str, old_prep=str, job_prep=str, user_id=int,
-                                    old_params=str, job_params=str, is_deleted=int)
+                                    server_dir=str, server_script=str, return_code=int, old_prep=str, job_prep=str,
+                                    user_id=int, old_params=str, job_params=str, is_deleted=int)
     @PermissionVerify.verify_write_permission(job_id=int, interface_id=int, job_name=str, job_desc=str, server_id=int,
-                                              server_dir=str, server_script=str, old_prep=str, job_prep=str,
-                                              old_params=str, job_params=str, is_deleted=int)
+                                              server_dir=str, server_script=str, return_code=int, old_prep=str,
+                                              job_prep=str, old_params=str, job_params=str, is_deleted=int)
     def put(job_id):
         """修改任务"""
         payload = get_payload()
@@ -82,6 +82,7 @@ class JobDetail(Resource):
             server_id=int(payload.get('server_id', 0)),
             server_dir=payload.get('server_dir', ''),
             server_script=payload.get('server_script', ''),
+            return_code=int(payload.get('return_code', 0)),
             old_prep=payload.get('old_prep', ''),
             job_prep=payload.get('job_prep', ''),
             old_params=payload.get('old_params', ''),
@@ -97,11 +98,12 @@ class JobAdd(Resource):
     @job_add_request
     @JobFilter.filter_add_data(job_id=int)
     @JobOperation.add_job_detail(job_name=str, interface_id=int, job_desc=str, server_id=int, server_dir=str,
-                                 job_prep=str, job_params=str, server_script=str, user_id=int)
+                                 job_prep=str, job_params=str, server_script=str, user_id=int, return_code=int)
     @JobVerify.verify_add_job_id(job_name=str, interface_id=int, job_desc=str, server_id=int, server_dir=str,
-                                 job_prep=str, job_params=str, server_script=str, user_id=int)
+                                 job_prep=str, job_params=str, server_script=str, user_id=int, return_code=int)
     @PermissionVerify.verify_write_permission(job_name=str, interface_id=int, job_desc=str, server_id=int,
-                                              job_prep=str, job_params=str, server_dir=str, server_script=str)
+                                              job_prep=str, job_params=str, server_dir=str, server_script=str,
+                                              return_code=int)
     def post():
         """新增任务"""
         payload = get_payload()
@@ -113,7 +115,8 @@ class JobAdd(Resource):
             job_desc=payload.get('job_desc', ''),
             server_id=int(payload.get('server_id', 0)),
             server_dir=payload.get('server_dir', ''),
-            server_script=payload.get('server_script', '')
+            server_script=payload.get('server_script', ''),
+            return_code=int(payload.get('return_code', 0))
         )
         log.info('新增任务[params: %s]' % str(params))
         return params

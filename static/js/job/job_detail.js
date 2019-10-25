@@ -46,6 +46,7 @@
                             'server_host': '服务器IP',
                             'server_dir': '脚本路径',
                             'server_script': '脚本命令',
+                            'return_code': '执行成功返回码',
                             'is_deleted': '是否删除',
                             'prep_id': '依赖任务'
                         };

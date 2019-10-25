@@ -23,7 +23,7 @@ class ScheduleModel(object):
     def get_run_job_detail(cursor, interface_id):
         """获取运行任务详情"""
         command = '''
-        SELECT a.job_id, c.prep_id, b.server_host, a.server_dir, a.server_script, run_period
+        SELECT a.job_id, c.prep_id, b.server_host, a.server_dir, a.server_script, run_period, return_code
         FROM tb_jobs AS a
         LEFT JOIN tb_exec_host AS b ON a.server_id = b.server_id AND b.is_deleted = 0
         -- 依赖作业
