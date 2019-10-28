@@ -5,7 +5,7 @@ from server.decorators import make_decorator, Response
 from server.status import make_result
 from models.dispatch import DispatchModel, DispatchAlertModel
 from configs import db, log
-from scheduler.handler import scheduler_handler
+from scheduler.handler import SchedulerHandler
 
 import croniter, datetime, pymysql
 from flask_restful import abort
@@ -36,7 +36,7 @@ class DispatchOperation(object):
                                                             minute, hour, day, month, week, user_id)
             # 添加调度任务
             run_id = 'scheduler_%s' % dispatch_id
-            scheduler_handler.add_job(run_id, dispatch_id, minute, hour, day, month, week)
+            SchedulerHandler.add_job(run_id, dispatch_id, minute, hour, day, month, week)
             return Response(dispatch_id=dispatch_id)
         except pymysql.err.IntegrityError as e:
             log.error('请勿重复为接口添加调度 [ERROR: %s]' % e, exc_info=True)
@@ -76,7 +76,7 @@ class DispatchOperation(object):
         try:
             run_id = 'scheduler_%s' % dispatch_id
             DispatchModel.update_dispatch_status(db.etl_db, dispatch_id, 0, user_id)
-            scheduler_handler.remove_job(run_id)
+            SchedulerHandler.remove_job(run_id)
             return Response(dispatch_id=dispatch_id)
         except Exception as e:
             log.error('删除调度异常[ERROR: %s]' % e, exc_info=True)
@@ -98,22 +98,22 @@ class DispatchOperation(object):
                 pass
             # 新增 or 先新增后暂停
             elif old_status == 0 and new_status == 1 or old_status == 0 and new_status == 2:
-                scheduler_handler.add_job(run_id, dispatch_id, minute, hour, day, month, week)
+                SchedulerHandler.add_job(run_id, dispatch_id, minute, hour, day, month, week)
             # 修改
             else:
-                scheduler_handler.modify_job(run_id, dispatch_id, minute, hour, day, month, week)
+                SchedulerHandler.modify_job(run_id, dispatch_id, minute, hour, day, month, week)
             # 先新增后暂停
             if old_status == 0 and new_status == 2:
-                scheduler_handler.pause_job(run_id)
+                SchedulerHandler.pause_job(run_id)
             # 暂停
             elif old_status == 1 and new_status == 2:
-                scheduler_handler.pause_job(run_id)
+                SchedulerHandler.pause_job(run_id)
             # 删除
             elif old_status == 1 and new_status == 0 or old_status == 2 and new_status == 0:
-                scheduler_handler.remove_job(run_id)
+                SchedulerHandler.remove_job(run_id)
             # 恢复
             elif old_status == 2 and new_status == 1:
-                scheduler_handler.resume_job(run_id)
+                SchedulerHandler.resume_job(run_id)
 
             return Response(dispatch_id=dispatch_id)
         except pymysql.err.IntegrityError as e:
@@ -126,7 +126,7 @@ class DispatchOperation(object):
         """立即执行调度"""
         try:
             run_id = 'scheduler_%s' % dispatch_id
-            scheduler_handler.run_job(run_id)
+            SchedulerHandler.run_job(run_id)
             return Response(dispatch_id=dispatch_id)
         except Exception as e:
             log.error('立即执行调度异常 [ERROR: %s]' % e, exc_info=True)
@@ -141,11 +141,11 @@ class DispatchOperation(object):
             # 暂停调度任务
             if action == 1:
                 DispatchModel.update_dispatch_status(db.etl_db, dispatch_id, 2, user_id)
-                scheduler_handler.pause_job(run_id)
+                SchedulerHandler.pause_job(run_id)
             # 恢复调度任务
             elif action == 2:
                 DispatchModel.update_dispatch_status(db.etl_db, dispatch_id, 1, user_id)
-                scheduler_handler.resume_job(run_id)
+                SchedulerHandler.resume_job(run_id)
             return Response(dispatch_id=dispatch_id)
         except Exception as e:
             log.error('暂停/恢复调度异常 [ERROR: %s]' % e, exc_info=True)

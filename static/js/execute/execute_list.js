@@ -231,7 +231,9 @@
                                 return '<span class="layui-badge layui-bg-blue">运行中</span>';
                             } else if (data.status === 2) {
                                 return '<span class="layui-badge layui-bg-orange">中止</span>';
-                            } else {
+                            } else if (data.status === 3) {
+                                return '<span class="layui-badge-rim">就绪</span>';
+                            }else {
                                 return '<span class="layui-badge">失败</span>';
                             }
                         }
@@ -253,12 +255,16 @@
                             html.push('<a class="layui-btn layui-btn-sm" lay-event="detail">执行详情</a>');
                             // 运行中
                             if (data.status === 1) {
-                                html.push('<a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="stop">中止</a>');
+                                html.push('<a class="layui-btn layui-btn-sm layui-btn-warm" lay-event="stop">中止</a>');
                             }
                             // 失败或中止
                             else if (data.status === 2 || data.status === -1) {
-                                html.push('<a class="layui-btn layui-btn-normal layui-btn-sm" lay-event="restart">断点重跑</a>');
-                                html.push('<a class="layui-btn layui-btn-sm" lay-event="reset" style="background-color: #5FB878">重置</a>');
+                                html.push('<a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="restart">断点重跑</a>');
+                                html.push('<a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="reset">重置</a>');
+                            }
+                            // 就绪
+                            else if (data.status === 3) {
+                                html.push('<a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="start" style="background-color: #5FB878">启动</a>');
                             }
                             html.push('</div>');
                             return html.join('');

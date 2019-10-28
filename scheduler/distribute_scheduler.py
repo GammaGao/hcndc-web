@@ -1,6 +1,8 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
+
 from scheduler.generate_dag import generate_dag_by_dispatch_id
 from models.execute import ExecuteModel
 from configs import db
@@ -12,6 +14,15 @@ def get_dispatch_job(dispatch_id):
     """获取调度任务"""
     result = generate_dag_by_dispatch_id(dispatch_id)
     source = result['source']
+    # 任务流中任务为空, 则视调度已完成
+    if not source:
+        # 修改调度执行表账期
+        run_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+        ExecuteModel.update_interface_account_by_dispatch_id(db.etl_db, dispatch_id, run_time)
+        log.info('任务流中任务为空: 调度id: %s' % dispatch_id)
+        # 添加执行表-完成状态
+        ExecuteModel.add_execute_success(db.etl_db, 1, dispatch_id)
+        return
     # 添加相关信息至数据库
     exec_id = add_exec_record(dispatch_id, source)
     # rpc分发任务
@@ -53,5 +64,6 @@ def add_exec_record(dispatch_id, source):
             'status': i['status']
         })
     # 添加执行详情表
-    ExecuteModel.add_execute_detail(db.etl_db, data)
+    if data:
+        ExecuteModel.add_execute_detail(db.etl_db, data)
     return exec_id

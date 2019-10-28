@@ -83,7 +83,7 @@ class ExecuteOperation(object):
         if exec_status == 0:
             # 修改调度执行表账期
             run_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
-            ExecuteModel.update_interface_account(db.etl_db, exec_id, run_time)
+            ExecuteModel.update_interface_account_by_execute_id(db.etl_db, exec_id, run_time)
 
         # 修改调度执行表状态
         ExecuteModel.update_execute_status(db.etl_db, exec_id, exec_status)
@@ -112,8 +112,11 @@ class ExecuteOperation(object):
             elif run_status == 3:
                 condition.append('a.`status` = -1')
             # 中止
-            else:
+            elif run_status == 4:
                 condition.append('a.`status` = 2')
+            # 就绪
+            elif run_status == 5:
+                condition.append('a.`status` = 3')
         if exec_type:
             condition.append('exec_type = %s' % exec_type)
 

@@ -5,7 +5,7 @@ from configs import scheduler
 from scheduler.distribute_scheduler import get_dispatch_job
 
 
-class scheduler_handler(object):
+class SchedulerHandler(object):
     """调度操作"""
 
     @staticmethod

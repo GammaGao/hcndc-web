@@ -1,6 +1,8 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
+
 
 class ExecuteModel(object):
     @staticmethod
@@ -8,11 +10,26 @@ class ExecuteModel(object):
         """添加执行表"""
         command = '''
         INSERT INTO tb_execute(exec_type, dispatch_id, `status`, insert_time, update_time)
-        VALUES(:exec_type, :dispatch_id, 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP())
+        VALUES (:exec_type, :dispatch_id, 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP())
         '''
         result = cursor.insert(command, {
             'exec_type': exec_type,
             'dispatch_id': dispatch_id
+        })
+        return result
+
+    @staticmethod
+    def add_execute_success(cursor, exec_type, dispatch_id):
+        """添加执行表-任务流为空时成功状态"""
+        command = '''
+        INSERT INTO tb_execute(exec_type, dispatch_id, `status`, insert_time, update_time)
+        VALUES (:exec_type, :dispatch_id, 0, :insert_time, :update_time)
+        '''
+        result = cursor.insert(command, {
+            'exec_type': exec_type,
+            'dispatch_id': dispatch_id,
+            'insert_time': int(time.time()),
+            'update_time': int(time.time())
         })
         return result
 
@@ -31,8 +48,8 @@ class ExecuteModel(object):
         return result
 
     @staticmethod
-    def update_interface_account(cursor, exec_id, run_time):
-        """修改调度执行表账期"""
+    def update_interface_account_by_execute_id(cursor, exec_id, run_time):
+        """修改调度执行表账期-执行id"""
         command = '''
         UPDATE tb_interface a
         LEFT JOIN tb_dispatch b USING(interface_id)
@@ -42,6 +59,21 @@ class ExecuteModel(object):
         '''
         result = cursor.update(command, {
             'exec_id': exec_id,
+            'run_time': run_time
+        })
+        return result
+
+    @staticmethod
+    def update_interface_account_by_dispatch_id(cursor, dispatch_id, run_time):
+        """修改调度执行表账期-调度id"""
+        command = '''
+        UPDATE tb_interface a
+        LEFT JOIN tb_dispatch b USING(interface_id)
+        SET a.run_time = :run_time
+        WHERE b.dispatch_id = :dispatch_id
+        '''
+        result = cursor.update(command, {
+            'dispatch_id': dispatch_id,
             'run_time': run_time
         })
         return result
@@ -76,8 +108,10 @@ class ExecuteModel(object):
         """获取所有执行任务"""
         command = '''
         SELECT job_id, in_degree, out_degree, server_host, server_dir,
-        server_script, position, `level`, `status`, params, return_code
-        FROM tb_execute_detail
+        server_script, position, `level`, a.`status`, params, return_code
+        FROM tb_execute_detail AS a
+        -- 执行主表状态为运行中
+        INNER JOIN tb_execute AS b ON a.exec_id = b.exec_id AND b.status = 1
         WHERE exec_id = :exec_id
         '''
         result = cursor.query(command, {
