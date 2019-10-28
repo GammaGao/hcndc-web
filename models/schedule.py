@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+
 class ScheduleModel(object):
     @staticmethod
     def get_interface_detail(cursor, dispatch_id):

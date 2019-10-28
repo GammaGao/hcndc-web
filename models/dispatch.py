@@ -1,6 +1,9 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
+
+
 class DispatchModel(object):
     @staticmethod
     def add_dispatch_detail(cursor, interface_id, dispatch_name, dispatch_desc, minute, hour, day, month, week,
@@ -10,7 +13,7 @@ class DispatchModel(object):
         INSERT INTO tb_dispatch(interface_id, dispatch_name, dispatch_desc, `minute`,
         `hour`, `day`, `month`, `week`, creator_id, updater_id, insert_time, update_time, `status`)
         VALUES (:interface_id, :dispatch_name, :dispatch_desc, :minute, :hour,
-        :day, :month, :week, :user_id, :user_id, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), 1)
+        :day, :month, :week, :user_id, :user_id, :insert_time, :update_time, 1)
         '''
 
         result = cursor.insert(command, {
@@ -22,7 +25,9 @@ class DispatchModel(object):
             'day': day,
             'month': month,
             'week': week,
-            'user_id': user_id
+            'user_id': user_id,
+            'insert_time': int(time.time()),
+            'update_time': int(time.time())
         })
         return result
 
@@ -80,7 +85,7 @@ class DispatchModel(object):
         SET interface_id = :interface_id, dispatch_name = :dispatch_name,
         dispatch_desc = :dispatch_desc, `minute` = :minute, `hour` = :hour,
         `day` = :day, `month` = :month, `week` = :week, updater_id = :user_id,
-        update_time = UNIX_TIMESTAMP(), status = :new_status
+        update_time = :update_time, status = :new_status
         WHERE dispatch_id = :dispatch_id
         '''
 
@@ -95,6 +100,7 @@ class DispatchModel(object):
             'month': month,
             'week': week,
             'user_id': user_id,
+            'update_time': int(time.time()),
             'new_status': new_status
         })
         return result
@@ -104,14 +110,15 @@ class DispatchModel(object):
         """修改/暂停调度任务"""
         command = '''
         UPDATE tb_dispatch
-        SET `status` = :status, updater_id = :user_id, update_time = UNIX_TIMESTAMP()
+        SET `status` = :status, updater_id = :user_id, update_time = :update_time
         WHERE dispatch_id = :dispatch_id
         '''
 
         result = cursor.update(command, {
             'dispatch_id': dispatch_id,
             'status': status,
-            'user_id': user_id
+            'user_id': user_id,
+            'update_time': int(time.time())
         })
         return result
 
@@ -124,7 +131,7 @@ class DispatchAlertModel(object):
         INSERT INTO tb_dispatch_alert(dispatch_id, config_id, alert_type, send_mail,
         creator_id, updater_id, insert_time, update_time)
         VALUES(:dispatch_id, :config_id, :alert_type, :send_mail,
-        :user_id, :user_id, UNIX_TIMESTAMP(), UNIX_TIMESTAMP())
+        :user_id, :user_id, :insert_time, :update_time)
         '''
         result = cursor.insert(command, args=data)
         return result
@@ -149,7 +156,7 @@ class DispatchAlertModel(object):
         command = '''
         UPDATE tb_dispatch_alert
         SET config_id = :config_id, alert_type = :alert_type, send_mail = :send_mail,
-        updater_id = :user_id, update_time = UNIX_TIMESTAMP(), is_deleted = :is_deleted
+        updater_id = :user_id, update_time = :update_time, is_deleted = :is_deleted
         WHERE id = :id
         '''
         result = cursor.update(command, args=data)

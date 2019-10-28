@@ -1,6 +1,8 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
+
 
 class JobModel(object):
     @staticmethod
@@ -57,13 +59,14 @@ class JobModel(object):
         """删除项目"""
         command = '''
         UPDATE tb_jobs
-        SET is_deleted = 1, updater_id = :user_id, update_time = UNIX_TIMESTAMP()
+        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
         WHERE job_id = :job_id
         '''
 
         result = cursor.update(command, {
             'job_id': job_id,
-            'user_id': user_id
+            'user_id': user_id,
+            'update_time': int(time.time())
         })
         return result
 
@@ -94,7 +97,7 @@ class JobModel(object):
         UPDATE tb_jobs
         SET job_name = :job_name, interface_id = :interface_id, job_desc = :job_desc, server_id = :server_id,
         server_dir = :server_dir, server_script = :server_script, return_code = :return_code,
-        update_time = UNIX_TIMESTAMP(), updater_id = :user_id, is_deleted = :is_deleted
+        update_time = :update_time, updater_id = :user_id, is_deleted = :is_deleted
         WHERE job_id = :job_id
         '''
 
@@ -108,7 +111,8 @@ class JobModel(object):
             'server_script': server_script,
             'return_code': return_code,
             'user_id': user_id,
-            'is_deleted': is_deleted
+            'is_deleted': is_deleted,
+            'update_time': int(time.time())
         })
         return result
 
@@ -120,7 +124,7 @@ class JobModel(object):
         INSERT INTO tb_jobs(interface_id, job_name, job_desc, server_id, server_dir, server_script, return_code,
         insert_time, update_time, creator_id, updater_id)
         VALUES (:interface_id, :job_name, :job_desc, :server_id, :server_dir, :server_script, :return_code,
-        UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), :user_id, :user_id)
+        :insert_time, :update_time, :user_id, :user_id)
         '''
 
         result = cursor.insert(command, {
@@ -131,7 +135,9 @@ class JobModel(object):
             'server_dir': server_dir,
             'server_script': server_script,
             'return_code': return_code,
-            'user_id': user_id
+            'user_id': user_id,
+            'insert_time': int(time.time()),
+            'update_time': int(time.time())
         })
         return result
 
@@ -165,7 +171,7 @@ class JobModel(object):
         """新增任务依赖-批量"""
         command = '''
         INSERT INTO tb_job_prep(job_id, prep_id, insert_time, update_time, creator_id, updater_id)
-        VALUES (:job_id, :prep_id, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), :user_id, :user_id)
+        VALUES (:job_id, :prep_id, :insert_time, :update_time, :user_id, :user_id)
         '''
 
         result = cursor.insert(command, args=data)
@@ -176,7 +182,7 @@ class JobModel(object):
         """删除任务依赖-批量"""
         command = '''
         UPDATE tb_job_prep
-        SET is_deleted = 1, updater_id = :user_id, update_time = UNIX_TIMESTAMP()
+        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
         WHERE job_id = :job_id AND prep_id = :prep_id
         '''
         result = cursor.update(command, args=data)

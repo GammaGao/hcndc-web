@@ -1,14 +1,17 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
+import croniter
+import datetime
+import pymysql
+from flask_restful import abort
+
+from configs import db, log
+from models.dispatch import DispatchModel, DispatchAlertModel
+from scheduler.handler import SchedulerHandler
 from server.decorators import make_decorator, Response
 from server.status import make_result
-from models.dispatch import DispatchModel, DispatchAlertModel
-from configs import db, log
-from scheduler.handler import SchedulerHandler
-
-import croniter, datetime, pymysql
-from flask_restful import abort
 
 
 class DispatchOperation(object):
@@ -172,7 +175,9 @@ class DispatchAlertOperation(object):
                 'config_id': conf_id_f,
                 'alert_type': 2,
                 'user_id': user_id,
-                'send_mail': send_mail_f
+                'send_mail': send_mail_f,
+                'insert_time': int(time.time()),
+                'update_time': int(time.time())
             })
         # 批处理
         DispatchAlertModel.add_dispatch_alert(db.etl_db, data)
@@ -199,7 +204,9 @@ class DispatchAlertOperation(object):
                 'config_id': conf_id_s,
                 'alert_type': 1,
                 'user_id': user_id,
-                'send_mail': send_mail_s
+                'send_mail': send_mail_s,
+                'insert_time': int(time.time()),
+                'update_time': int(time.time())
             })
         # 失败配置
         if alert_id_f < 0 and alert_f:
@@ -208,7 +215,9 @@ class DispatchAlertOperation(object):
                 'config_id': conf_id_f,
                 'alert_type': 2,
                 'user_id': user_id,
-                'send_mail': send_mail_f
+                'send_mail': send_mail_f,
+                'insert_time': int(time.time()),
+                'update_time': int(time.time())
             })
         # 修改/启用/关闭
         update_data = []
@@ -219,7 +228,8 @@ class DispatchAlertOperation(object):
                 'alert_type': 1,
                 'send_mail': send_mail_s,
                 'user_id': user_id,
-                'is_deleted': 0 if alert_s else 1
+                'is_deleted': 0 if alert_s else 1,
+                'update_time': int(time.time())
             })
         if alert_id_f > 0:
             update_data.append({
@@ -228,7 +238,8 @@ class DispatchAlertOperation(object):
                 'alert_type': 2,
                 'send_mail': send_mail_f,
                 'user_id': user_id,
-                'is_deleted': 0 if alert_f else 1
+                'is_deleted': 0 if alert_f else 1,
+                'update_time': int(time.time())
             })
         # 批处理
         if insert_data:

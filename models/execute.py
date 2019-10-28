@@ -10,11 +10,13 @@ class ExecuteModel(object):
         """添加执行表"""
         command = '''
         INSERT INTO tb_execute(exec_type, dispatch_id, `status`, insert_time, update_time)
-        VALUES (:exec_type, :dispatch_id, 1, UNIX_TIMESTAMP(), UNIX_TIMESTAMP())
+        VALUES (:exec_type, :dispatch_id, 1, :insert_time, :update_time)
         '''
         result = cursor.insert(command, {
             'exec_type': exec_type,
-            'dispatch_id': dispatch_id
+            'dispatch_id': dispatch_id,
+            'insert_time': int(time.time()),
+            'update_time': int(time.time())
         })
         return result
 
@@ -38,12 +40,13 @@ class ExecuteModel(object):
         """修改调度执行表状态"""
         command = '''
         UPDATE tb_execute
-        SET status = :status, update_time = UNIX_TIMESTAMP()
+        SET status = :status, update_time = :update_time
         WHERE exec_id = :exec_id
         '''
         result = cursor.update(command, {
             'exec_id': exec_id,
-            'status': status
+            'status': status,
+            'update_time': int(time.time())
         })
         return result
 
@@ -98,7 +101,7 @@ class ExecuteModel(object):
         INSERT INTO tb_execute_detail(exec_id, job_id, in_degree, out_degree, params,
         server_host, server_dir, server_script, return_code, position, `level`, `status`, insert_time, update_time)
         VALUES (:exec_id, :job_id, :in_degree, :out_degree, :params, :server_host, :server_dir, :server_script,
-        :return_code, :position, :level, :status, UNIX_TIMESTAMP(), UNIX_TIMESTAMP())
+        :return_code, :position, :level, :status, :insert_time, :update_time)
         '''
         result = cursor.insert(command, data)
         return result
@@ -239,10 +242,11 @@ class ExecuteModel(object):
         """修改消息推送状态"""
         command = '''
         UPDATE tb_execute
-        SET is_push = 1, update_time = UNIX_TIMESTAMP()
+        SET is_push = 1, update_time = :update_time
         WHERE exec_id = :exec_id
         '''
         result = cursor.update(command, {
-            'exec_id': exec_id
+            'exec_id': exec_id,
+            'update_time': int(time.time())
         })
         return result

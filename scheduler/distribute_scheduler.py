@@ -61,7 +61,9 @@ def add_exec_record(dispatch_id, source):
             'position': i['position'],
             'return_code': i['return_code'],
             'level': i['level'],
-            'status': i['status']
+            'status': i['status'],
+            'insert_time': int(time.time()),
+            'update_time': int(time.time())
         })
     # 添加执行详情表
     if data:

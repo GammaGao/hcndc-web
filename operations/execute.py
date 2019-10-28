@@ -154,5 +154,7 @@ class ExecuteOperation(object):
     @make_decorator
     def stop_execute_job(exec_id):
         """中止执行任务"""
+        # 修改调度主表状态为中止
+        ExecuteModel.update_execute_status(db.etl_db, exec_id, 2)
         # 获取该执行任务
         result = ExecuteModel.get_execute_detail(db.etl_db, exec_id)

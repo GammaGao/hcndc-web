@@ -216,7 +216,9 @@ def JobUpload():
                         # 最后一位为新增的任务id字段
                         'job_id': line[len(line) - 1],
                         'prep_id': prep_id,
-                        'user_id': user_id
+                        'user_id': user_id,
+                        'insert_time': int(time.time()),
+                        'update_time': int(time.time())
                     })
             if prep_data:
                 JobModel.add_job_prep(db.etl_db, prep_data)

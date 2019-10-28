@@ -1,6 +1,9 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
+
+
 class InterfaceModel(object):
     @staticmethod
     def get_interface_list(cursor, condition, page=1, limit=10):
@@ -82,7 +85,7 @@ class InterfaceModel(object):
         command = '''
         UPDATE tb_interface
         SET interface_name = :interface_name, interface_desc = :interface_desc, retry = :retry,
-        is_deleted = :is_deleted, updater_id = :user_id, update_time = UNIX_TIMESTAMP()
+        is_deleted = :is_deleted, updater_id = :user_id, update_time = :update_time
         WHERE interface_id = :interface_id
         '''
         result = cursor.update(command, {
@@ -91,7 +94,8 @@ class InterfaceModel(object):
             'interface_desc': interface_desc,
             'retry': retry,
             'is_deleted': is_deleted,
-            'user_id': user_id
+            'user_id': user_id,
+            'update_time': int(time.time())
         })
         return result
 
@@ -101,15 +105,16 @@ class InterfaceModel(object):
         command = '''
         INSERT INTO tb_interface(interface_name, interface_desc,
         insert_time, update_time, retry, creator_id, updater_id)
-        VALUES(:interface_name, :interface_desc, UNIX_TIMESTAMP(),
-        UNIX_TIMESTAMP(), :retry, :user_id, :user_id)
+        VALUES (:interface_name, :interface_desc, :insert_time, :update_time, :retry, :user_id, :user_id)
         '''
 
         result = cursor.insert(command, {
             'interface_name': interface_name,
             'interface_desc': interface_desc,
             'retry': retry,
-            'user_id': user_id
+            'user_id': user_id,
+            'insert_time': int(time.time()),
+            'update_time': int(time.time())
         })
         return result
 
@@ -133,13 +138,14 @@ class InterfaceModel(object):
         """删除接口"""
         command = '''
         UPDATE tb_interface
-        SET is_deleted = 1, updater_id = :user_id, update_time = UNIX_TIMESTAMP()
+        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
         WHERE interface_id = :interface_id
         '''
 
         result = cursor.delete(command, {
             'interface_id': interface_id,
-            'user_id': user_id
+            'user_id': user_id,
+            'update_time': int(time.time())
         })
         return result
 

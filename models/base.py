@@ -1,6 +1,8 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
+
 
 class ExecHostModel(object):
     @staticmethod
@@ -70,13 +72,14 @@ class ExecHostModel(object):
         command = '''
         UPDATE tb_exec_host
         SET server_host = :server_host, server_name = :server_name,
-        update_time = UNIX_TIMESTAMP(), updater_id = :user_id, is_deleted = :is_deleted
+        update_time = :update_time, updater_id = :user_id, is_deleted = :is_deleted
         WHERE server_id = :server_id
         '''
         result = cursor.update(command, {
             'server_id': server_id,
             'server_host': server_host,
             'server_name': server_name,
+            'update_time': int(time.time()),
             'is_deleted': is_deleted,
             'user_id': user_id
         })
@@ -87,10 +90,11 @@ class ExecHostModel(object):
         """删除执行服务器详情"""
         command = '''
         UPDATE tb_exec_host
-        SET update_time = UNIX_TIMESTAMP(), updater_id = :user_id, is_deleted = 1
+        SET update_time = :update_time, updater_id = :user_id, is_deleted = 1
         WHERE server_id = :server_id
         '''
         result = cursor.delete(command, {
+            'update_time': int(time.time()),
             'user_id': user_id,
             'server_id': server_id
         })
@@ -101,11 +105,13 @@ class ExecHostModel(object):
         """新增执行服务器"""
         command = '''
         INSERT INTO tb_exec_host(server_host, server_name, insert_time, update_time, creator_id, updater_id)
-        VALUES(:server_host, :server_name, UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), :user_id, :user_id)
+        VALUES(:server_host, :server_name, :insert_time, :update_time, :user_id, :user_id)
         '''
         result = cursor.insert(command, {
             'server_host': server_host,
             'server_name': server_name,
+            'insert_time': int(time.time()),
+            'update_time': int(time.time()),
             'user_id': user_id
         })
         return result
@@ -306,10 +312,11 @@ class AlertModel(object):
         """删除预警配置"""
         command = '''
         UPDATE tb_dispatch_alert_conf
-        SET is_deleted = 1, update_time = UNIX_TIMESTAMP(), updater_id = :user_id
+        SET is_deleted = 1, update_time = :update_time, updater_id = :user_id
         WHERE id = :conf_id
         '''
         result = cursor.delete(command, {
+            'update_time': int(time.time()),
             'conf_id': conf_id,
             'user_id': user_id
         })
@@ -336,7 +343,7 @@ class AlertModel(object):
         UPDATE tb_dispatch_alert_conf
         SET alert_channel = :alert_channel, conf_name = :conf_name, param_host = :param_host,
         param_port = :param_port, param_config = :param_config,
-        param_pass = :param_pass, update_time = UNIX_TIMESTAMP(), updater_id = :user_id, is_deleted = :is_deleted
+        param_pass = :param_pass, update_time = :update_time, updater_id = :user_id, is_deleted = :is_deleted
         WHERE id = :conf_id
         '''
         result = cursor.update(command, {
@@ -347,6 +354,7 @@ class AlertModel(object):
             'param_host': param_host,
             'param_port': param_port,
             'param_pass': param_pass,
+            'update_time': int(time.time()),
             'is_deleted': is_deleted,
             'user_id': user_id
         })
@@ -360,7 +368,7 @@ class AlertModel(object):
         INSERT INTO tb_dispatch_alert_conf(alert_channel, conf_name, param_config, param_host, param_port, param_pass,
         insert_time, update_time, creator_id, updater_id)
         VALUES(:alert_channel, :conf_name, :param_config, :param_host, :param_port, :param_pass,
-        UNIX_TIMESTAMP(), UNIX_TIMESTAMP(), :user_id, :user_id)
+        :insert_time, :update_time, :user_id, :user_id)
         '''
         result = cursor.insert(command, {
             'alert_channel': alert_channel,
@@ -369,6 +377,8 @@ class AlertModel(object):
             'param_host': param_host,
             'param_port': param_port,
             'param_pass': param_pass,
+            'insert_time': int(time.time()),
+            'update_time': int(time.time()),
             'user_id': user_id
         })
         return result

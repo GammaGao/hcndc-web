@@ -73,7 +73,8 @@ class JobOperation(object):
             del_data.append({
                 'job_id': job_id,
                 'prep_id': prep_id,
-                'user_id': user_id
+                'user_id': user_id,
+                'update_time': int(time.time())
             })
         if del_data:
             JobModel.delete_job_prep(db.etl_db, del_data)
@@ -83,7 +84,9 @@ class JobOperation(object):
             add_data.append({
                 'job_id': job_id,
                 'prep_id': prep_id,
-                'user_id': user_id
+                'user_id': user_id,
+                'insert_time': int(time.time()),
+                'update_time': int(time.time())
             })
         if add_data:
             JobModel.add_job_prep(db.etl_db, add_data)
@@ -137,7 +140,9 @@ class JobOperation(object):
                 data.append({
                     'job_id': job_id,
                     'prep_id': prep_id,
-                    'user_id': user_id
+                    'user_id': user_id,
+                    'insert_time': int(time.time()),
+                    'update_time': int(time.time())
                 })
             JobModel.add_job_prep(db.etl_db, data)
         # 新增任务参数
@@ -204,7 +209,9 @@ class JobOperation(object):
             'return_code': job['return_code'],
             'position': 1,
             'level': 0,
-            'status': 'preparing'
+            'status': 'preparing',
+            'insert_time': int(time.time()),
+            'update_time': int(time.time())
         }
         ExecuteModel.add_execute_detail(db.etl_db, data)
         # rpc分发任务
