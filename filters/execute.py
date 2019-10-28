@@ -178,3 +178,12 @@ class ExecuteFilter(object):
 
         ]
         return {'status': 200, 'msg': '成功', 'data': {'nodes': nodes, 'links': links, 'categories': categories}}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_stop_execute_job(status):
+        """中止执行任务"""
+        if status:
+            return {'status': 200, 'msg': '成功', 'data': {}}, 200
+        else:
+            return {'status': 500, 'msg': '失败', 'data': {}}, 200

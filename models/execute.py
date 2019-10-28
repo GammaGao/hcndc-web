@@ -115,7 +115,7 @@ class ExecuteModel(object):
         FROM tb_execute_detail AS a
         -- 执行主表状态为运行中
         INNER JOIN tb_execute AS b ON a.exec_id = b.exec_id AND b.status = 1
-        WHERE exec_id = :exec_id
+        WHERE a.exec_id = :exec_id
         '''
         result = cursor.query(command, {
             'exec_id': exec_id
@@ -173,6 +173,22 @@ class ExecuteModel(object):
         '''
         result = cursor.query(command, {
             'exec_id': exec_id
+        })
+        return result if result else []
+
+    @staticmethod
+    def get_execute_detail_by_status(cursor, exec_id, status):
+        """获取执行详情-by任务状态"""
+        command = '''
+        SELECT job_id, in_degree, out_degree, server_host, server_dir,
+        server_script, position, `level`, a.`status`, params, return_code, pid
+        FROM tb_execute_detail AS a
+        INNER JOIN tb_execute AS b USING(exec_id)
+        WHERE a.exec_id = :exec_id AND a.`status` = :status
+        '''
+        result = cursor.query(command, {
+            'exec_id': exec_id,
+            'status': status
         })
         return result if result else []
 

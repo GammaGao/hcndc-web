@@ -111,11 +111,8 @@ class ExecuteOperation(object):
             # 失败
             elif run_status == 3:
                 condition.append('a.`status` = -1')
-            # 中止
-            elif run_status == 4:
-                condition.append('a.`status` = 2')
             # 就绪
-            elif run_status == 5:
+            elif run_status == 4:
                 condition.append('a.`status` = 3')
         if exec_type:
             condition.append('exec_type = %s' % exec_type)
@@ -154,7 +151,24 @@ class ExecuteOperation(object):
     @make_decorator
     def stop_execute_job(exec_id):
         """中止执行任务"""
-        # 修改调度主表状态为中止
-        ExecuteModel.update_execute_status(db.etl_db, exec_id, 2)
-        # 获取该执行任务
-        result = ExecuteModel.get_execute_detail(db.etl_db, exec_id)
+        # 修改调度主表状态为失败
+        ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
+        # 获取正在执行任务
+        result = ExecuteModel.get_execute_detail_by_status(db.etl_db, exec_id, 'running')
+        for execute in result:
+            try:
+                # 获取进程id
+                if execute['pid']:
+                    # rpc分发-停止任务
+                    client = Connection(execute['server_host'], config.exec.port)
+                    client.rpc.stop(exec_id=exec_id, job_id=execute['job_id'], pid=execute['pid'])
+                    log.info('rpc分发-停止任务: 执行id: %s, 任务id: %s' % (exec_id, execute['job_id']))
+            except:
+                log.error('rpc分发-停止任务异常: host: %s, port: %s, 执行id: %s, 任务id: %s' % (
+                    execute['server_host'],
+                    config.exec.port,
+                    exec_id,
+                    execute['job_id']
+                ), exc_info=True)
+                return Response(status=False)
+        return Response(status=True)

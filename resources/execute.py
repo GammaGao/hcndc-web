@@ -62,6 +62,7 @@ class ExecuteDetail(Resource):
         return params
 
     @staticmethod
+    @ExecuteFilter.filter_stop_execute_job(status=bool)
     @ExecuteOperation.stop_execute_job(exec_id=int)
     def delete(exec_id):
         """中止执行任务"""
