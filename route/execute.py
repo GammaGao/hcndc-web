@@ -27,3 +27,11 @@ def ExecuteDetailLog(exec_id, job_id):
     if session.get('login'):
         return render_template('execute/execute_log.html', exec_id=exec_id, job_id=job_id)
     return redirect('login')
+
+
+@app.route('/execute/restart/<int:exec_id>/')
+def ExecuteRestart(exec_id):
+    """断点重跑参数设置"""
+    if session.get('login'):
+        return render_template('execute/execute_restart_config.html', exec_id=exec_id)
+    return redirect('login')

@@ -1,28 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     {% include "util/style.html" %}
-    <script type="text/javascript" src="/static/echarts/echarts.min.js"></script>
+    <title>参数列表</title>
     <style>
-        .flow-progress {
-            background-color: #f5f5f5;
-            height: 24px;
-            border-radius: 4px;
-            -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        .site-tree {
+            position: fixed;
+            width: 220px;
         }
-
-        .flow-progress-bar {
-            height: 100%;
-            border-radius: 5px;
-        }
-
-        .FAILED {
-            background-color: #d9534f;
-        }
-
-        .SUCCEEDED {
-            background-color: #5cb85c;
+        .site-content {
+            margin-left: 220px;
         }
     </style>
 </head>
@@ -33,58 +20,27 @@
     <!-- 侧边栏 -->
     {% include "util/tree.html" %}
     <!-- 内容主体区域 -->
-    <div class="layui-body" style="margin: 0 20px 0 20px">
+    <div class="layui-body">
         <fieldset class="layui-elem-field layui-field-title">
-            <legend>任务依赖</legend>
+            <legend>参数列表</legend>
         </fieldset>
-        <span class="layui-breadcrumb">
-            <a href="/">首页</a>
-            <a href="/demo/">演示</a>
-            <a><cite>导航元素</cite></a>
-        </span>
-        <fieldset class="layui-elem-field layui-field-title"></fieldset>
-        <ul class="layui-timeline">
-            <li class="layui-timeline-item">
-                <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
-                <div class="layui-timeline-content layui-text">
-                    <div class="layui-timeline-title">
-                        <ul>
-                            <li>等级: 正常</li>
-                            <li>消息: 任务开始</li>
-                            <li>时间: 2019-02-18 06:58:26</li>
-                        </ul>
-                    </div>
-                </div>
-            </li>
-            <li class="layui-timeline-item">
-                <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
-                <div class="layui-timeline-content layui-text">
-                    <div class="layui-timeline-title">
-                        <ul>
-                            <li>等级: 正常</li>
-                            <li>消息: 任务开始</li>
-                            <li>时间: 2019-02-18 06:58:26</li>
-                        </ul>
-                    </div>
-                </div>
-            </li>
-            <li class="layui-timeline-item">
-                <i class="layui-icon layui-timeline-axis">&#xe63f;</i>
-                <div class="layui-timeline-content layui-text">
-                    <div class="layui-timeline-title">
-                        <ul>
-                            <li>等级: 正常</li>
-                            <li>消息: 任务开始</li>
-                            <li>时间: 2019-02-18 06:58:26</li>
-                        </ul>
-                    </div>
-                </div>
-            </li>
-        </ul>
+        <fieldset class="layui-elem-field layui-field-title">
+        </fieldset>
+        <!-- 左侧树形菜单 -->
+        <div class="site-tree" style="border: 1px solid #ddd;overflow-x: scroll;overflow-y: hidden;">
+            <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
+                <i class="layui-icon">&#xe654;</i>新增参数菜单
+            </button>
+            <ul id="param_index_tree"></ul>
+        </div>
+        <div class="site-content">
+            <!-- 参数列表 -->
+            <div id="params-list" lay-filter="params-list"></div>
+        </div>
     </div>
 </div>
 
 <script type="text/javascript" src="/static/layui/layui.all.js"></script>
-<script type="text/javascript" src="/static/js/test.js"></script>
+<script type="text/javascript" src="/static/js/params/params_list.js"></script>
 </body>
 </html>

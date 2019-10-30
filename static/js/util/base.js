@@ -131,6 +131,9 @@ let BASE = {
             'test_api': '/params/test/api/',
             'id_list_api': '/params/list/all/api/'
         },
+        params_index: {
+            'list_api': '/params_index/list/api/',
+        },
         flow_alert_detail_api: '/flow/alert/api/',
         flow_list_api: '/flow/list/api/',
         flow_detail: '/flow/detail/',

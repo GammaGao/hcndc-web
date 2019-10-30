@@ -325,7 +325,14 @@
                         }
                         // 断点重跑
                         else if (event === 'restart') {
-
+                            layer.open({
+                                type: 2,
+                                anim: 5,
+                                title: '断点重跑',
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.execute.detail + data.exec_id + '/'
+                            });
                         }
                         // 重置
                         else if (event === 'reset') {

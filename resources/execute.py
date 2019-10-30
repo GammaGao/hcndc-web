@@ -71,6 +71,7 @@ class ExecuteDetail(Resource):
         return params
 
     @staticmethod
+    # @ExecuteOperation
     def post(exec_id):
         """断点续跑"""
         params = Response(exec_id=exec_id)

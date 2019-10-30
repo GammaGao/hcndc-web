@@ -18,6 +18,8 @@
             this.element_event();
             // 数据源ID渲染
             this.datasource_list_id();
+            // 树形菜单初始化
+            this.tree_index_init();
             // 表单搜索事件
             this.form_search();
             // 表格数据初始化
@@ -144,6 +146,49 @@
                 }
             })
         },
+        // 树形菜单初始化
+        tree_index_init: function () {
+            let that = this;
+            $.ajax({
+                url: BASE.uri.params_index.list_api,
+                type: 'get',
+                success: function (result) {
+                    layui.use('tree', function () {
+                        let tree = layui.tree;
+                        tree.render({
+                            elem: '#param_index_tree',
+                            data: [result.data],
+                            edit: true,
+                            onlyIconControl: true,
+                            accordion: true,
+                            click: function (item) {
+                                let index_id = item.data.id;
+                                that.table_data_load({index_id: index_id});
+                            },
+                            operate: function (obj) {
+                                console.log(obj);
+                                var type = obj.type; //得到操作类型：add、edit、del
+                                var data = obj.data; //得到当前节点的数据
+                                var elem = obj.elem; //得到当前节点元素
+
+                                //Ajax 操作
+                                // var id = data.id; //得到节点索引
+                                if (type === 'add') { //增加节点
+                                    //返回 key 值
+                                    console.log(elem.find('.layui-tree-txt').html());
+                                    return 123;
+                                } else if (type === 'update') { //修改节点
+                                    console.log(elem.find('.layui-tree-txt').html()); //得到修改后的内容
+                                }
+                                // } else if (type === 'del') { //删除节点
+                                //
+                                // }
+                            }
+                        })
+                    })
+                }
+            });
+        },
         // 表单搜索
         form_search: function () {
             let that = this;
@@ -182,7 +227,7 @@
                     }, {
                         field: "param_id",
                         title: "参数id",
-                        width: "5%",
+                        width: "8%",
                         sort: true
                     }, {
                         field: "param_type",
@@ -201,17 +246,16 @@
                         field: "param_value",
                         title: "参数值"
                     }, {
-                        field: "param_desc",
-                        title: "描述",
-                        width: "5%"
+                        field: "index_name",
+                        title: "参数目录"
                     }, {
                         field: "source_name",
                         title: "数据源名称",
                         templet: function (data) {
-                            if (data.source == null) {
+                            if (data.source_name === null) {
                                 return '-'
                             } else {
-                                return data.source
+                                return data.source_name;
                             }
                         }
                     }, {

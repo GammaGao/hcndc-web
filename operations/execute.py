@@ -172,3 +172,8 @@ class ExecuteOperation(object):
                 ), exc_info=True)
                 return Response(status=False)
         return Response(status=True)
+
+    @staticmethod
+    @make_decorator
+    def restart_execute_job(exec_id):
+        """断点续跑"""

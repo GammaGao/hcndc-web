@@ -1,7 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     {% include "util/style.html" %}
+    <title>参数列表</title>
+    <style>
+        .site-tree {
+            position: fixed;
+            width: 220px;
+        }
+        .site-content {
+            margin-left: 220px;
+        }
+    </style>
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
@@ -14,64 +24,19 @@
         <fieldset class="layui-elem-field layui-field-title">
             <legend>参数列表</legend>
         </fieldset>
-        <span class="layui-breadcrumb" style="margin-left: 20px">
-            <a><cite>参数列表</cite></a>
-        </span>
         <fieldset class="layui-elem-field layui-field-title">
         </fieldset>
-        <form class="layui-form">
-            <div class="layui-form-item">
-                <div class="layui-inline">
-                    <label class="layui-form-label">参数类型</label>
-                    <div class="layui-input-inline">
-                        <label>
-                            <select name="param_type" lay-verify="required">
-                                <option value="0">全部</option>
-                                <option value="1">静态参数</option>
-                                <option value="2">SQL参数</option>
-                            </select>
-                        </label>
-                    </div>
-                </div>
-                <div class="layui-inline">
-                    <label class="layui-form-label">参数名称</label>
-                    <div class="layui-input-inline">
-                        <div class="layui-input-inline">
-                            <input type="text" class="layui-input" name="param_name" placeholder="参数名称" autocomplete="off">
-                        </div>
-                    </div>
-                </div>
-                <div class="layui-inline">
-                    <label class="layui-form-label">数据源名称</label>
-                    <div class="layui-input-inline">
-                        <label>
-                            <select name="source_id" lay-verify="required"></select>
-                        </label>
-                    </div>
-                </div>
-                <div class="layui-inline">
-                    <label class="layui-form-label">是否删除</label>
-                    <div class="layui-input-inline">
-                        <label>
-                            <select name="is_deleted" lay-verify="required">
-                                <option value="0">全部</option>
-                                <option value="1">正常</option>
-                                <option value="2">删除</option>
-                            </select>
-                        </label>
-                    </div>
-                </div>
-                <div class="layui-inline">
-                    <div class="layui-input-inline">
-                        <button lay-submit class="layui-btn" lay-filter="params-search" type="button">
-                            <i class="layui-icon layui-icon-search icon-size">搜索</i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </form>
-        <!-- 参数列表 -->
-        <div id="params-list" lay-filter="params-list"></div>
+        <!-- 左侧树形菜单 -->
+        <div class="site-tree" style="border: 1px solid #ddd;overflow-x: scroll;overflow-y: hidden;">
+            <button type="button" class="layui-btn layui-btn-primary layui-btn-sm">
+                <i class="layui-icon">&#xe654;</i>新增参数菜单
+            </button>
+            <ul id="param_index_tree"></ul>
+        </div>
+        <div class="site-content">
+            <!-- 参数列表 -->
+            <div id="params-list" lay-filter="params-list"></div>
+        </div>
     </div>
 </div>
 
