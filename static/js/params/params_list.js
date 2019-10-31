@@ -110,7 +110,11 @@
             this.control({
                 '#user-info dl a': {
                     // 用户登出
-                    click: this.userLoginOut
+                    click: this.userLoginOut,
+                },
+                '#add_params_index': {
+                    // 新增参数菜单
+                    click: this.add_params_list
                 }
             })
         },
@@ -126,6 +130,21 @@
                     layer.alert(sprintf('退出登陆失败: %s', result.msg))
                 }
             })
+        },
+        // 新增参数菜单
+        add_params_list: function () {
+            let that = this;
+            layer.open({
+                type: 2,
+                anim: 5,
+                title: '新增参数菜单页面',
+                maxmin: true, //开启最大化最小化按钮
+                area: ['60%', '80%'],
+                content: BASE.uri.params_index.add,
+                end: function () {
+                    that.tree_index_init();
+                }
+            });
         },
         // 数据源ID渲染
         datasource_list_id: function () {
@@ -162,27 +181,65 @@
                             onlyIconControl: true,
                             accordion: true,
                             click: function (item) {
+                                // 加载该目录下参数
                                 let index_id = item.data.id;
                                 that.table_data_load({index_id: index_id});
                             },
                             operate: function (obj) {
-                                console.log(obj);
-                                var type = obj.type; //得到操作类型：add、edit、del
-                                var data = obj.data; //得到当前节点的数据
-                                var elem = obj.elem; //得到当前节点元素
-
-                                //Ajax 操作
-                                // var id = data.id; //得到节点索引
-                                if (type === 'add') { //增加节点
-                                    //返回 key 值
-                                    console.log(elem.find('.layui-tree-txt').html());
-                                    return 123;
-                                } else if (type === 'update') { //修改节点
-                                    console.log(elem.find('.layui-tree-txt').html()); //得到修改后的内容
+                                // 操作类型
+                                let type = obj.type;
+                                // 当前节点数据
+                                var data = obj.data;
+                                // 修改节点
+                                if (type === 'update') {
+                                    if (data.mark === 1) {
+                                        layer.alert('禁止修改', {icon: 5});
+                                        that.tree_index_init();
+                                        return
+                                    }
+                                    $.ajax({
+                                        url: BASE.uri.params_index.detail_api + data.id + '/',
+                                        contentType: "application/json; charset=utf-8",
+                                        type: 'put',
+                                        data: JSON.stringify({index_name: data.title}),
+                                        success: function (result) {
+                                            if (result.status === 200) {
+                                                layer.msg('修改成功', {icon: 6});
+                                            } else {
+                                                layer.alert('修改失败', {icon: 5});
+                                            }
+                                        },
+                                        error: function (error) {
+                                            let result = error.responseJSON;
+                                            layer.alert(sprintf('修改失败[%s]', result.msg), {icon: 5});
+                                        }
+                                    });
                                 }
-                                // } else if (type === 'del') { //删除节点
-                                //
-                                // }
+                                // 删除节点
+                                else if (type === 'del') {
+                                    if (data.mark === 1) {
+                                        layer.alert('禁止删除', {icon: 5});
+                                        that.tree_index_init();
+                                        return
+                                    }
+                                    $.ajax({
+                                        url: BASE.uri.params_index.detail_api + data.id + '/',
+                                        contentType: "application/json; charset=utf-8",
+                                        type: 'delete',
+                                        data: JSON.stringify({}),
+                                        success: function (result) {
+                                            if (result.status === 200) {
+                                                layer.msg('删除成功', {icon: 6});
+                                            } else {
+                                                layer.alert('删除失败', {icon: 5});
+                                            }
+                                        },
+                                        error: function (error) {
+                                            let result = error.responseJSON;
+                                            layer.alert(sprintf('删除失败[%s]', result.msg), {icon: 5});
+                                        }
+                                    });
+                                }
                             }
                         })
                     })

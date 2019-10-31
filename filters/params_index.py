@@ -52,3 +52,21 @@ class ParamsIndexFilter(object):
         # 添加根节点
         root_tree = {'title': '参数目录', 'id': 0, 'spread': True, 'mark': '0', 'children': result}
         return {'status': 200, 'msg': '成功', 'data': root_tree}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_add_data(index_id):
+        """新增参数菜单"""
+        return {'status': 200, 'msg': '成功', 'data': {'index_id': index_id}}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_update_data(index_id):
+        """修改参数菜单"""
+        return {'status': 200, 'msg': '成功', 'data': {'index_id': index_id}}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_delete_data(index_id):
+        """删除参数菜单"""
+        return {'status': 200, 'msg': '成功', 'data': {'index_id': index_id}}, 200

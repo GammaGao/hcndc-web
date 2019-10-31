@@ -133,6 +133,9 @@ let BASE = {
         },
         params_index: {
             'list_api': '/params_index/list/api/',
+            'add': '/params_index/add/',
+            'add_api': '/params_index/add/api/',
+            'detail_api': '/params_index/detail/api/'
         },
         flow_alert_detail_api: '/flow/alert/api/',
         flow_list_api: '/flow/list/api/',
