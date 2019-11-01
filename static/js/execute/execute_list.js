@@ -176,7 +176,7 @@
                     elem: "#execute-list",
                     page: true,
                     toolbar: true,
-                    limits: [10, 20, 30, 40, 50],
+                    limits: [10, 20, 30, 40, 50, 100],
                     title: '日志列表',
                     url: BASE.uri.execute.list_api,
                     where: data,

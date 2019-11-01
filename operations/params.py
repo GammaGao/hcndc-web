@@ -44,10 +44,10 @@ class ParamsOperation(object):
 
     @staticmethod
     @make_decorator
-    def add_params_detail(index_id, param_type, param_name, source_id, param_value, param_desc, user_id):
+    def add_params_detail(index_id, param_type, param_name, source_id, param_value, param_desc, param_mark, user_id):
         """新增参数"""
         param_id = ParamsModel.add_params_detail(db.etl_db, index_id, param_type, param_name, source_id, param_value,
-                                                 param_desc, user_id)
+                                                 param_desc, param_mark, user_id)
         return Response(param_id=param_id)
 
     @staticmethod
@@ -59,11 +59,11 @@ class ParamsOperation(object):
 
     @staticmethod
     @make_decorator
-    def update_params_detail(index_id, param_id, param_type, param_name, source_id, param_value, param_desc, is_deleted,
-                             user_id):
+    def update_params_detail(index_id, param_id, param_type, param_name, source_id, param_value, param_desc,
+                             param_mark, is_deleted, user_id):
         """修改参数详情"""
         ParamsModel.update_params_detail(db.etl_db, index_id, param_id, param_type, param_name, source_id, param_value,
-                                         param_desc, is_deleted, user_id)
+                                         param_desc, param_mark, is_deleted, user_id)
         return Response(param_id=param_id)
 
     @staticmethod

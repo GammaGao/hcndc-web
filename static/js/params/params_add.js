@@ -68,15 +68,15 @@
             layui.use('form', function () {
                 let form = layui.form;
                 form.on('select(param_type)', function (data) {
-                    // 数据源选择 && 数据源SQL测试
-                    if (Number(data.value) === 0) {
-                        $('select[name=source_id]').parent().parent().parent().css('display', 'none');
-                        $('button[lay-filter=param-test]').css('display', 'none');
-                        $('input[name=param_value]').attr('placeholder', '静态参数值')
-                    } else {
+                    //  数据源SQL测试
+                    if (Number(data.value) === 1) {
                         $('select[name=source_id]').parent().parent().parent().removeAttr('style');
                         $('button[lay-filter=param-test]').removeAttr('style');
                         $('input[name=param_value]').attr('placeholder', 'SQL参数')
+                    } else {
+                        $('select[name=source_id]').parent().parent().parent().css('display', 'none');
+                        $('button[lay-filter=param-test]').css('display', 'none');
+                        $('input[name=param_value]').attr('placeholder', '静态参数值')
                     }
                     form.render();
                 });

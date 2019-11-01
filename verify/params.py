@@ -22,7 +22,7 @@ class ParamsVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_add_param(index_id, param_type, param_name, source_id, param_value, param_desc, user_id):
+    def verify_add_param(index_id, param_type, param_name, source_id, param_value, param_desc, param_mark, user_id):
         """新增参数"""
         if index_id == 0:
             abort(400, **make_result(status=400, msg='参数目录错误'))
@@ -34,13 +34,19 @@ class ParamsVerify(object):
             abort(400, **make_result(status=400, msg='数据源不得为空'))
         if not param_value:
             abort(400, **make_result(status=400, msg='参数值不得为空'))
+        if param_mark < 0 or param_mark > 1:
+            abort(400, **make_result(status=400, msg='参数权限标识错误'))
+        if param_type != 2 and param_value.startswith('$'):
+            abort(400, **make_result(status=400, msg='非上下文参数[参数值]不能以$开头'))
+        if param_type == 2 and not param_value.startswith('$'):
+            abort(400, **make_result(status=400, msg='上下文参数[参数值]只能以$开头'))
         return Response(index_id=index_id, param_type=param_type, param_name=param_name, source_id=source_id,
-                        param_value=param_value, param_desc=param_desc, user_id=user_id)
+                        param_value=param_value, param_desc=param_desc, param_mark=param_mark, user_id=user_id)
 
     @staticmethod
     @make_decorator
     def verify_update_param(index_id, param_id, param_type, param_name, source_id, param_value, param_desc, is_deleted,
-                            user_id):
+                            param_mark, user_id):
         """修改参数"""
         if index_id == 0:
             abort(400, **make_result(status=400, msg='参数目录错误'))
@@ -54,9 +60,15 @@ class ParamsVerify(object):
             abort(400, **make_result(status=400, msg='参数值不得为空'))
         if is_deleted < 0 or is_deleted > 1:
             abort(400, **make_result(status=400, msg='状态参数错误'))
+        if param_mark < 0 or param_mark > 1:
+            abort(400, **make_result(status=400, msg='参数权限标识错误'))
+        if param_type != 2 and param_value.startswith('$'):
+            abort(400, **make_result(status=400, msg='非上下文参数[参数值]不能以$开头'))
+        if param_type == 2 and not param_value.startswith('$'):
+            abort(400, **make_result(status=400, msg='上下文参数[参数值]只能以$开头'))
         return Response(index_id=index_id, param_id=param_id, param_type=param_type, param_name=param_name,
                         source_id=source_id, param_value=param_value, param_desc=param_desc, is_deleted=is_deleted,
-                        user_id=user_id)
+                        param_mark=param_mark, user_id=user_id)
 
     @staticmethod
     @make_decorator

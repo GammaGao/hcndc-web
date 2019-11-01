@@ -14,7 +14,7 @@ class ParamsIndexVerify(object):
         """新增参数菜单"""
         if not index_name:
             abort(400, **make_result(status=400, msg='参数目录名称不得为空'))
-        if 0 > index_mark > 1:
+        if index_mark < 0 or index_mark > 1:
             abort(400, **make_result(status=400, msg='目录权限标识错误'))
         return Response(parent_id=parent_id, index_name=index_name, index_desc=index_desc, index_mark=index_mark,
                         user_id=user_id)

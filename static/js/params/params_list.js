@@ -189,7 +189,7 @@
                                 // 操作类型
                                 let type = obj.type;
                                 // 当前节点数据
-                                var data = obj.data;
+                                let data = obj.data;
                                 // 修改节点
                                 if (type === 'update') {
                                     if (data.mark === 1) {
@@ -292,8 +292,12 @@
                         templet: function (data) {
                             if (data.param_type === 0) {
                                 return '<span class="layui-badge layui-bg-green">静态参数</span>'
-                            } else {
+                            } else if (data.param_type === 1) {
                                 return '<span class="layui-badge layui-bg-blue">SQL参数</span>';
+                            } else if (data.param_type === 2) {
+                                return '<span class="layui-badge layui-bg-cyan">上下文参数</span>';
+                            } else {
+                                return '<span class="layui-badge layui-bg-gray">未知</span>';
                             }
                         }
                     }, {
@@ -333,13 +337,17 @@
                         templet: function (data) {
                             let html = [];
                             html.push('<div class="layui-btn-group">');
-                            if (data.is_deleted === 0) {
+                            // 修改权限
+                            if (data.param_mark === 0) {
                                 html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
-                                html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
-                            } else {
-                                html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
-                                html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">删除</button>');
+                                // 未删除
+                                if (data.is_deleted === 0) {
+                                    html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
+                                } else {
+                                    html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">删除</button>');
+                                }
                             }
+
                             html.push('</div>');
                             return html.join('');
                         }
@@ -411,6 +419,7 @@
                 table.on('toolbar(params-list)', function (obj) {
                     // 工具栏事件监听
                     let check_status = table.checkStatus(obj.config.id);
+                    console.log(check_status);
                     let check_data = check_status.data;
                     switch (obj.event) {
                         case 'add':
@@ -428,10 +437,16 @@
                             break;
                         case 'update':
                             if (check_data.length === 0) {
-                                layer.msg('请选择一行');
+                                layer.msg('请选择一行', {icon: 5});
                             } else if (check_data.length > 1) {
-                                layer.msg('只能同时编辑一个')
+                                layer.msg('只能同时编辑一个', {icon: 5})
                             } else {
+                                let data = check_data[0];
+                                // 判断可编辑状态
+                                if (data.param_mark === 1) {
+                                    layer.msg('该参数不可删改', {icon: 5});
+                                    return
+                                }
                                 layer.open({
                                     type: 2,
                                     anim: 5,
@@ -460,6 +475,11 @@
                     switch (event) {
                         // 修改
                         case 'update':
+                            // 判断可编辑状态
+                            if (data.param_mark === 1) {
+                                layer.msg('该参数不可删改', {icon: 5});
+                                return
+                            }
                             layer.open({
                                 type: 2,
                                 anim: 5,

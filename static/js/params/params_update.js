@@ -95,17 +95,18 @@
                     'source_id': data.source_id,
                     'param_value': data.param_value,
                     'param_desc': data.param_desc,
+                    'param_mark': data.param_mark,
                     'is_deleted': data.is_deleted === 1
                 });
                 // 数据源选择 && 数据源SQL测试
-                if (Number(data.param_type) === 0) {
-                    $('select[name=source_id]').parent().parent().parent().css('display', 'none');
-                    $('button[lay-filter=param-test]').css('display', 'none');
-                    $('input[name=param_value]').attr('placeholder', '静态参数值')
-                } else {
+                if (Number(data.param_type) === 1) {
                     $('select[name=source_id]').parent().parent().parent().removeAttr('style');
                     $('button[lay-filter=param-test]').removeAttr('style');
                     $('input[name=param_value]').attr('placeholder', 'SQL参数')
+                } else {
+                    $('select[name=source_id]').parent().parent().parent().css('display', 'none');
+                    $('button[lay-filter=param-test]').css('display', 'none');
+                    $('input[name=param_value]').attr('placeholder', '静态参数值')
                 }
                 form.render();
             });
@@ -115,16 +116,15 @@
             layui.use('form', function () {
                 let form = layui.form;
                 form.on('select(param_type)', function (data) {
-                    console.log(data.value);
                     // 数据源选择 && 数据源SQL测试
-                    if (Number(data.value) === 0) {
-                        $('select[name=source_id]').parent().parent().parent().css('display', 'none');
-                        $('button[lay-filter=param-test]').css('display', 'none');
-                        $('input[name=param_value]').attr('placeholder', '静态参数值')
-                    } else {
+                    if (Number(data.param_type) === 1) {
                         $('select[name=source_id]').parent().parent().parent().removeAttr('style');
                         $('button[lay-filter=param-test]').removeAttr('style');
                         $('input[name=param_value]').attr('placeholder', 'SQL参数')
+                    } else {
+                        $('select[name=source_id]').parent().parent().parent().css('display', 'none');
+                        $('button[lay-filter=param-test]').css('display', 'none');
+                        $('input[name=param_value]').attr('placeholder', '静态参数值')
                     }
                     form.render('select');
                 });

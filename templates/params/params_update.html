@@ -30,6 +30,7 @@
                         <select name="param_type" lay-filter="param_type" lay-verify="required">
                             <option value="0">静态参数</option>
                             <option value="1">SQL参数</option>
+                            <option value="2">上下文参数</option>
                         </select>
                     </label>
                 </div>
@@ -58,6 +59,17 @@
                 <label class="layui-form-label">描述</label>
                 <div class="layui-input-block">
                     <input type="text" class="layui-input" name="param_desc" placeholder="描述">
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">参数权限标识</label>
+                <div class="layui-input-inline">
+                    <label>
+                        <select name="param_mark" lay-filter="param_mark" lay-verify="required">
+                            <option value="0">全部操作</option>
+                            <option value="1">禁止改动</option>
+                        </select>
+                    </label>
                 </div>
             </div>
             <div class="layui-form-item">
