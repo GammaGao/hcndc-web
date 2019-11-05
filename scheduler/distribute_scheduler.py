@@ -5,13 +5,15 @@ import time
 
 from scheduler.generate_dag import generate_dag_by_dispatch_id
 from models.execute import ExecuteModel
+from models.schedule import ScheduleModel
 from configs import db
 from rpc.rpc_client import Connection
 from configs import config, log
 
 
 def get_dispatch_job(dispatch_id):
-    """获取调度任务"""
+    """执行调度主方法-获取调度任务"""
+    # 获取工作流参数
     result = generate_dag_by_dispatch_id(dispatch_id)
     source = result['source']
     # 工作流中任务为空, 则视调度已完成
@@ -28,8 +30,8 @@ def get_dispatch_job(dispatch_id):
     # rpc分发任务
     for job in source:
         if job['level'] == 0 and job['position'] == 1:
-            client = Connection(job['server_host'], config.exec.port)
             try:
+                client = Connection(job['server_host'], config.exec.port)
                 client.rpc.execute(
                     exec_id=exec_id,
                     job_id=job['id'],
@@ -42,6 +44,10 @@ def get_dispatch_job(dispatch_id):
                 log.info('分发任务: 执行id: %s, 任务id: %s' % (exec_id, job['id']))
             except:
                 log.error('rpc连接异常: host: %s, port: %s' % (job['server_host'], config.exec.port), exc_info=True)
+                # 修改执行状态
+                ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job['id'], 'failed')
+                ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
+                return
 
 
 def add_exec_record(dispatch_id, source):

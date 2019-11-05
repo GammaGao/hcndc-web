@@ -74,13 +74,14 @@ class JobModel(object):
     def get_job_detail(cursor, job_id):
         """获取任务详情"""
         command = '''
-        SELECT a.job_id, interface_id, job_name, job_desc, server_name,
+        SELECT a.job_id, a.interface_id, interface_name, run_time, job_name, job_desc, server_name,
         b.server_id, server_host, server_dir, server_script, return_code, a.is_deleted,
         GROUP_CONCAT(DISTINCT c.prep_id) AS prep_id, GROUP_CONCAT(d.param_id) AS param_id
         FROM tb_jobs AS a
         LEFT JOIN tb_exec_host AS b ON a.server_id = b.server_id AND b.is_deleted = 0
         LEFT JOIN tb_job_prep AS c ON a.job_id = c.job_id AND c.is_deleted = 0
         LEFT JOIN tb_job_param AS d ON a.job_id = d.job_id AND d.is_deleted = 0
+        LEFT JOIN tb_interface AS e ON a.interface_id = e.interface_id AND e.is_deleted = 0
         WHERE a.job_id = :job_id
         '''
 

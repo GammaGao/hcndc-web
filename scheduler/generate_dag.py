@@ -13,7 +13,7 @@ from server.status import make_result
 
 def generate_dag_by_dispatch_id(dispatch_id):
     """根据调度id生成dag模型"""
-    # 工作流属性
+    # 工作流预警
     dispatch_model = ScheduleModel.get_interface_detail(db.etl_db, dispatch_id)
     if not dispatch_model:
         return {}
@@ -30,7 +30,7 @@ def generate_dag_by_dispatch_id(dispatch_id):
             if item['param_type'] == 0:
                 params.append(item['param_value'])
             # SQL参数
-            else:
+            elif item['param_type'] == 1:
                 # 获取SQL参数
                 result = get_db_data_one(item['source_type'], item['source_host'], item['source_port'],
                                          item['source_user'], item['source_password'], item['source_database'],
@@ -39,6 +39,18 @@ def generate_dag_by_dispatch_id(dispatch_id):
                     params.append(result['result'])
                 else:
                     abort(400, **make_result(status=400, msg='获取任务SQL参数错误[ERROR: %s]' % result['msg']))
+            # 上下文参数
+            elif item['param_type'] == 2:
+                # 工作流名称
+                if item['param_value'] == '$flow_name':
+                    params.append(dispatch_model['interface_name'])
+                # 任务名称
+                elif item['param_value'] == '$job_name':
+                    params.append(job['job_name'])
+                # 数据日期
+                elif item['param_value'] == '$date':
+                    params.append(dispatch_model['run_time'].strftime('%Y-%m-%d'))
+
         nodes[job['job_id']] = {
             'id': job['job_id'],
             'in': [int(i) for i in job['prep_id'].split(',')] if job['prep_id'] else [],
@@ -90,15 +102,15 @@ def generate_dag_by_dispatch_id(dispatch_id):
             from_node = nodes[from_id]
             from_node['out'].append(node['id'])
     # 层级数组
-    nodeQueue = []
+    node_queue = []
     # 找出开始节点(外部节点亦为开始节点)
     for node in source:
         if not node['in']:
-            nodeQueue.append(node)
+            node_queue.append(node)
     # 计算层级
     index = 0
-    while index < len(nodeQueue):
-        node = nodeQueue[index]
+    while index < len(node_queue):
+        node = node_queue[index]
         if node['in']:
             level = 0
             for key in node['in']:
@@ -109,8 +121,8 @@ def generate_dag_by_dispatch_id(dispatch_id):
             node['level'] = 0
         # 添加出度
         for out_id in node['out']:
-            if out_id not in map(lambda x: x['id'], nodeQueue):
-                nodeQueue.append(nodes[out_id])
+            if out_id not in map(lambda x: x['id'], node_queue):
+                node_queue.append(nodes[out_id])
         index += 1
 
     # 按层级排序

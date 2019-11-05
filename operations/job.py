@@ -8,6 +8,7 @@ from server.decorators import make_decorator, Response
 from server.status import make_result
 from models.job import JobModel
 from models.execute import ExecuteModel
+from models.schedule import ScheduleModel
 from configs import db, config, log
 from rpc.rpc_client import Connection
 from util.db_util import get_db_data_one
@@ -175,7 +176,7 @@ class JobOperation(object):
         """立即执行任务"""
         # 获取任务
         job = JobModel.get_job_detail(db.etl_db, job_id)
-        if job.get('is_deleted', 1):
+        if job['is_deleted']:
             abort(400, **make_result(status=400, msg='任务已删除, 不能执行'))
         # 获取任务参数
         job_params = JobModel.get_job_params_by_job_id(db.etl_db, job_id)
@@ -185,7 +186,7 @@ class JobOperation(object):
             if item['param_type'] == 0:
                 params.append(item['param_value'])
             # SQL参数
-            else:
+            elif item['param_type'] == 1:
                 # 获取SQL参数
                 result = get_db_data_one(item['source_type'], item['source_host'], item['source_port'],
                                          item['source_user'], item['source_password'], item['source_database'],
@@ -194,6 +195,18 @@ class JobOperation(object):
                     params.append(result['result'])
                 else:
                     abort(400, **make_result(status=400, msg='获取任务SQL参数错误[ERROR: %s]' % result['msg']))
+            # 上下文参数
+            elif item['param_type'] == 2:
+                # 工作流名称
+                if item['param_value'] == '$flow_name':
+                    params.append(job['interface_name'])
+                # 任务名称
+                elif item['param_value'] == '$job_name':
+                    params.append(job['job_name'])
+                # 数据日期
+                elif item['param_value'] == '$date':
+                    params.append(job['run_time'].strftime('%Y-%m-%d'))
+
         # 添加执行表
         exec_id = ExecuteModel.add_execute(db.etl_db, 2, 0)
         # 添加执行详情表
@@ -214,9 +227,9 @@ class JobOperation(object):
             'update_time': int(time.time())
         }
         ExecuteModel.add_execute_detail(db.etl_db, data)
-        # rpc分发任务
-        client = Connection(job['server_host'], config.exec.port)
         try:
+            # rpc分发任务
+            client = Connection(job['server_host'], config.exec.port)
             client.rpc.execute(
                 exec_id=exec_id,
                 job_id=job['job_id'],
@@ -230,4 +243,7 @@ class JobOperation(object):
             return Response(status=True)
         except:
             log.error('rpc连接异常: host: %s, port: %s' % (job['server_host'], config.exec.port), exc_info=True)
+            # 修改执行状态
+            ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
+            ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
             return Response(status=False)

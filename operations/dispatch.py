@@ -12,6 +12,7 @@ from models.dispatch import DispatchModel, DispatchAlertModel
 from scheduler.handler import SchedulerHandler
 from server.decorators import make_decorator, Response
 from server.status import make_result
+from models.schedule import ScheduleModel
 
 
 class DispatchOperation(object):
@@ -127,8 +128,8 @@ class DispatchOperation(object):
     @make_decorator
     def run_dispatch(dispatch_id):
         """立即执行调度"""
+        run_id = 'scheduler_%s' % dispatch_id
         try:
-            run_id = 'scheduler_%s' % dispatch_id
             SchedulerHandler.run_job(run_id)
             return Response(dispatch_id=dispatch_id)
         except Exception as e:
