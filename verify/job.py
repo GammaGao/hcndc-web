@@ -46,7 +46,7 @@ class JobVerify(object):
         if not job_id:
             abort(400, **make_result(status=400, msg='任务id不存在'))
         if not interface_id:
-            abort(400, **make_result(status=400, msg='工作流id不存在'))
+            abort(400, **make_result(status=400, msg='任务流id不存在'))
         if not user_id:
             abort(400, **make_result(status=400, msg='用户不存在'))
         if not server_id:
@@ -68,7 +68,7 @@ class JobVerify(object):
         if not job_name:
             abort(400, **make_result(status=400, msg='任务名称不存在'))
         if not interface_id:
-            abort(400, **make_result(status=400, msg='工作流id不存在'))
+            abort(400, **make_result(status=400, msg='任务流id不存在'))
         if not server_id:
             abort(400, **make_result(status=400, msg='执行服务器id不存在'))
         if not server_script:

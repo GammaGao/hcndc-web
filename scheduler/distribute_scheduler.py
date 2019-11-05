@@ -13,15 +13,15 @@ from configs import config, log
 
 def get_dispatch_job(dispatch_id):
     """执行调度主方法-获取调度任务"""
-    # 获取工作流参数
+    # 获取任务流参数
     result = generate_dag_by_dispatch_id(dispatch_id)
     source = result['source']
-    # 工作流中任务为空, 则视调度已完成
+    # 任务流中任务为空, 则视调度已完成
     if not source:
         # 修改调度执行表账期
         run_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
         ExecuteModel.update_interface_account_by_dispatch_id(db.etl_db, dispatch_id, run_time)
-        log.info('工作流中任务为空: 调度id: %s' % dispatch_id)
+        log.info('任务流中任务为空: 调度id: %s' % dispatch_id)
         # 添加执行表-完成状态
         ExecuteModel.add_execute_success(db.etl_db, 1, dispatch_id)
         return
@@ -43,10 +43,14 @@ def get_dispatch_job(dispatch_id):
                 )
                 log.info('分发任务: 执行id: %s, 任务id: %s' % (exec_id, job['id']))
             except:
-                log.error('rpc连接异常: host: %s, port: %s' % (job['server_host'], config.exec.port), exc_info=True)
+                err_msg = 'rpc连接异常: host: %s, port: %s' % (job['server_host'], config.exec.port)
+                # 添加执行任务详情日志
+                ScheduleModel.add_exec_detail_job(db.etl_db, exec_id, job['id'], 'ERROR', job['server_dir'],
+                                                  job['server_script'], err_msg, 3)
                 # 修改执行状态
                 ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job['id'], 'failed')
                 ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
+                log.error(err_msg, exc_info=True)
                 return
 
 

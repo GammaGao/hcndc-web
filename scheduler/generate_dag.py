@@ -13,7 +13,7 @@ from server.status import make_result
 
 def generate_dag_by_dispatch_id(dispatch_id):
     """根据调度id生成dag模型"""
-    # 工作流预警
+    # 任务流预警
     dispatch_model = ScheduleModel.get_interface_detail(db.etl_db, dispatch_id)
     if not dispatch_model:
         return {}
@@ -41,7 +41,7 @@ def generate_dag_by_dispatch_id(dispatch_id):
                     abort(400, **make_result(status=400, msg='获取任务SQL参数错误[ERROR: %s]' % result['msg']))
             # 上下文参数
             elif item['param_type'] == 2:
-                # 工作流名称
+                # 任务流名称
                 if item['param_value'] == '$flow_name':
                     params.append(dispatch_model['interface_name'])
                 # 任务名称
@@ -134,6 +134,29 @@ def generate_dag_by_exec_id(exec_id):
     """根据执行id生成dag模型"""
     # 获取执行任务
     source = ExecuteModel.get_execute_jobs(db.etl_db, exec_id)
+    for job in source:
+        # 入度
+        if not job['in_degree']:
+            job['in_degree'] = []
+        else:
+            job['in_degree'] = [int(i) for i in job['in_degree'].split(',')]
+        # 出度
+        if not job['out_degree']:
+            job['out_degree'] = []
+        else:
+            job['out_degree'] = [int(i) for i in job['out_degree'].split(',')]
+    # 按层级排序
+    source.sort(key=lambda x: x['level'])
+    nodes = {}
+    for job in source:
+        nodes[job['job_id']] = job
+    return {'nodes': nodes, 'source': source}
+
+
+def get_failed_jobs_by_exec_id(exec_id):
+    """根据执行id生成dag模型-断点重跑"""
+    # 获取执行所有任务
+    source = ExecuteModel.get_execute_jobs_all(db.etl_db, exec_id)
     for job in source:
         # 入度
         if not job['in_degree']:

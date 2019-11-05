@@ -57,7 +57,7 @@ def JobUpload():
     # 异常类型
     err_type = {
         0: '第%s行[序号]参数不为整型',
-        1: '第%s行[所属工作流id]参数不为整型',
+        1: '第%s行[所属任务流id]参数不为整型',
         2: '第%s行[任务名称]参数不为字符串类型',
         3: '第%s行[任务描述]参数不为字符串类型',
         4: '第%s行[服务器id]参数不为整型',
@@ -99,7 +99,7 @@ def JobUpload():
                         data.append(line[:10])
         # 异常原因
         err_msg = []
-        # 工作流id列表
+        # 任务流id列表
         interface_result = InterfaceModel.get_interface_id_list(db.etl_db)
         interface_ids = [i['interface_id'] for i in interface_result]
         # 服务器id列表
@@ -148,10 +148,10 @@ def JobUpload():
                     # 添加依赖任务序号
                     if i == 0 and isinstance(row[i], int):
                         curr_job_num.append(row[i])
-                    # 校验工作流id是否存在
+                    # 校验任务流id是否存在
                     if i == 1 and isinstance(param, int):
                         if param not in interface_ids:
-                            err_msg.append('第%s行[所属工作流id]不存在' % row_num)
+                            err_msg.append('第%s行[所属任务流id]不存在' % row_num)
                     # 非空参数
                     if i == 2 and row[i] == '':
                         err_msg.append('第%s行[任务名称]参数不得为空' % row_num)

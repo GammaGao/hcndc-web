@@ -33,5 +33,5 @@ def ExecuteDetailLog(exec_id, job_id):
 def ExecuteRestart(exec_id):
     """断点重跑参数设置"""
     if session.get('login'):
-        return render_template('execute/execute_restart_config.html', exec_id=exec_id)
+        return render_template('execute/execute_restart.html', exec_id=exec_id)
     return redirect('login')

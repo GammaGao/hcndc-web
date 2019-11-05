@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from server.decorators import make_decorator, Response
-from scheduler.generate_dag import generate_dag_by_exec_id
+from scheduler.generate_dag import generate_dag_by_exec_id, get_failed_jobs_by_exec_id
 from rpc.rpc_client import Connection
 from configs import config, log, db
 from models.execute import ExecuteModel
@@ -51,11 +51,15 @@ class ExecuteOperation(object):
                         status=nodes[job_id]['status']
                     )
                 except:
-                    log.error('rpc连接异常: host: %s, port: %s' % (nodes[job_id]['server_host'], config.exec.port), exc_info=True)
+                    err_msg = 'rpc连接异常: host: %s, port: %s' % (nodes[job_id]['server_host'], config.exec.port)
+                    # 添加执行任务详情日志
+                    ScheduleModel.add_exec_detail_job(db.etl_db, exec_id, job_id, 'ERROR', nodes[job_id]['server_dir'],
+                                                      nodes[job_id]['server_script'], err_msg, 3)
                     # 修改执行状态
                     ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
                     ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
-                    return Response(distribute_job=distribute_job)
+                    log.error(err_msg, exc_info=True)
+                    return Response(distribute_job=distribute_job, msg=err_msg)
 
         # 查看调度执行表状态
         status_list = ExecuteModel.get_execute_detail_status(db.etl_db, exec_id)
@@ -97,7 +101,7 @@ class ExecuteOperation(object):
         # 修改调度执行表状态
         ExecuteModel.update_execute_status(db.etl_db, exec_id, exec_status)
 
-        return Response(distribute_job=distribute_job)
+        return Response(distribute_job=distribute_job, msg='成功')
 
     @staticmethod
     @make_decorator
@@ -184,5 +188,55 @@ class ExecuteOperation(object):
 
     @staticmethod
     @make_decorator
-    def restart_execute_job(exec_id):
+    def restart_execute_job(exec_id, prepose_rely):
         """断点续跑"""
+        # 修改调度表状态
+        ExecuteModel.update_execute_status(db.etl_db, exec_id, 1)
+        # 获取失败调度详情
+        result = get_failed_jobs_by_exec_id(exec_id)
+        nodes = result['nodes']
+        # 找出失败节点
+        failed_nodes = {job_id: nodes[job_id] for job_id in nodes if nodes[job_id]['status'] == 'failed'}
+        distribute_job = []
+        # 遍历所有失败节点
+        for job_id in failed_nodes:
+            # 考虑前置依赖
+            if prepose_rely:
+                # 不满足执行状态的前置任务
+                not_rely_list = [in_id for in_id in nodes[job_id]['in_degree'] if nodes[in_id]['status'] != 'succeeded']
+                if not not_rely_list:
+                    distribute_job.append(job_id)
+            # 不考虑前置依赖
+            else:
+                distribute_job.append(job_id)
+        # 去重, 分发任务
+        for job_id in set(distribute_job):
+            log.info('分发任务: 执行id: %s, 任务id: %s' % (exec_id, job_id))
+            # 修改执行状态为初始状态
+            ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'preparing')
+            try:
+                # rpc分发任务
+                client = Connection(nodes[job_id]['server_host'], config.exec.port)
+                log.info('rpc分发任务: 执行id: %s, 任务id: %s, host: %s, port: %s' %
+                         (exec_id, job_id, nodes[job_id]['server_host'], config.exec.port)
+                         )
+                client.rpc.execute(
+                    exec_id=exec_id,
+                    job_id=job_id,
+                    server_dir=nodes[job_id]['server_dir'],
+                    server_script=nodes[job_id]['server_script'],
+                    return_code=nodes[job_id]['return_code'],
+                    params=nodes[job_id]['params'],
+                    status=nodes[job_id]['status']
+                )
+            except:
+                err_msg = 'rpc连接异常: host: %s, port: %s' % (nodes[job_id]['server_host'], config.exec.port)
+                # 添加执行任务详情日志
+                ScheduleModel.add_exec_detail_job(db.etl_db, exec_id, job_id, 'ERROR', nodes[job_id]['server_dir'],
+                                                  nodes[job_id]['server_script'], err_msg, 3)
+                # 修改执行状态
+                ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
+                ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
+                log.error(err_msg, exc_info=True)
+                return Response(distribute_job=distribute_job, msg=err_msg)
+        return Response(distribute_job=distribute_job, msg='成功')

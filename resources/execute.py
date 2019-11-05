@@ -4,7 +4,7 @@
 from flask_restplus.resource import Resource
 from configs import log
 from server.decorators import Response
-from server.request import get_arg
+from server.request import get_arg, get_payload
 from filters.execute import ExecuteFilter
 from operations.execute import ExecuteOperation
 from verify.execute import ExecuteVerify
@@ -14,7 +14,7 @@ from document.execute import *
 class ExecuteCallBack(Resource):
     @staticmethod
     @callback_request
-    @ExecuteFilter.filter_callback(distribute_job=list)
+    @ExecuteFilter.filter_callback(distribute_job=list, msg=str)
     @ExecuteOperation.get_execute_job(exec_id=int, status=str)
     @ExecuteVerify.verify_callback(exec_id=int, status=str)
     def get():
@@ -71,10 +71,16 @@ class ExecuteDetail(Resource):
         return params
 
     @staticmethod
-    # @ExecuteOperation
+    @execute_restart_requests
+    @ExecuteFilter.filter_restart(distribute_job=list, msg=str)
+    @ExecuteOperation.restart_execute_job(exec_id=int, prepose_rely=int)
     def post(exec_id):
         """断点续跑"""
-        params = Response(exec_id=exec_id)
+        payload = get_payload()
+        params = Response(
+            exec_id=exec_id,
+            prepose_rely=int(payload.get('prepose_rely', 0))
+        )
         log.info('执行任务断点续跑[params: %s]' % str(params))
         return params
 

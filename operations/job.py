@@ -197,7 +197,7 @@ class JobOperation(object):
                     abort(400, **make_result(status=400, msg='获取任务SQL参数错误[ERROR: %s]' % result['msg']))
             # 上下文参数
             elif item['param_type'] == 2:
-                # 工作流名称
+                # 任务流名称
                 if item['param_value'] == '$flow_name':
                     params.append(job['interface_name'])
                 # 任务名称
@@ -240,10 +240,15 @@ class JobOperation(object):
                 status='preparing'
             )
             log.info('分发任务: 执行id: %s, 任务id: %s' % (exec_id, job['job_id']))
-            return Response(status=True)
+            return Response(status=True, msg='成功')
         except:
-            log.error('rpc连接异常: host: %s, port: %s' % (job['server_host'], config.exec.port), exc_info=True)
+            err_msg = 'rpc连接异常: host: %s, port: %s' % (job['server_host'], config.exec.port)
+
+            # 添加执行任务详情日志
+            ScheduleModel.add_exec_detail_job(db.etl_db, exec_id, job_id, 'ERROR', job['server_dir'],
+                                              job['server_script'], err_msg, 3)
             # 修改执行状态
             ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
             ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
-            return Response(status=False)
+            log.error(err_msg, exc_info=True)
+            return Response(status=False, msg=err_msg)

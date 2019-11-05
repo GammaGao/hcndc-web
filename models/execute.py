@@ -22,7 +22,7 @@ class ExecuteModel(object):
 
     @staticmethod
     def add_execute_success(cursor, exec_type, dispatch_id):
-        """添加执行表-工作流为空时成功状态"""
+        """添加执行表-任务流为空时成功状态"""
         command = '''
         INSERT INTO tb_execute(exec_type, dispatch_id, `status`, insert_time, update_time)
         VALUES (:exec_type, :dispatch_id, 0, :insert_time, :update_time)
@@ -115,6 +115,22 @@ class ExecuteModel(object):
         FROM tb_execute_detail AS a
         -- 执行主表状态为运行中
         INNER JOIN tb_execute AS b ON a.exec_id = b.exec_id AND b.status = 1
+        WHERE a.exec_id = :exec_id
+        '''
+        result = cursor.query(command, {
+            'exec_id': exec_id
+        })
+        return result if result else []
+
+    @staticmethod
+    def get_execute_jobs_all(cursor, exec_id):
+        """获取所有失败任务"""
+        command = '''
+        SELECT job_id, in_degree, out_degree, server_host, server_dir,
+        server_script, position, `level`, a.`status`, params, return_code
+        FROM tb_execute_detail AS a
+        -- 执行主表状态为运行中
+        INNER JOIN tb_execute AS b ON a.exec_id = b.exec_id
         WHERE a.exec_id = :exec_id
         '''
         result = cursor.query(command, {

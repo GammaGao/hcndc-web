@@ -320,10 +320,14 @@
                                 $.ajax({
                                     url: BASE.uri.datasource.detail_api + data.source_id + '/',
                                     type: 'delete',
-                                    success: function () {
-                                        layer.alert('删除成功');
-                                        tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
-                                        tr.find('td[data-field="run"] div').html('<button class="layui-btn layui-btn-disabled layui-btn-xs" disabled="disabled">立即执行</button>');
+                                    success: function (result) {
+                                        if (result.status === 200) {
+                                            layer.msg('删除成功', {icon: 6});
+                                            tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
+                                            tr.find('td[data-field="run"] div').html('<button class="layui-btn layui-btn-disabled layui-btn-xs" disabled="disabled">立即执行</button>');
+                                        } else {
+                                            layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5});
+                                        }
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;

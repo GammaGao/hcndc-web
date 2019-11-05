@@ -43,8 +43,8 @@ class DispatchOperation(object):
             SchedulerHandler.add_job(run_id, dispatch_id, minute, hour, day, month, week)
             return Response(dispatch_id=dispatch_id)
         except pymysql.err.IntegrityError as e:
-            log.error('请勿重复为工作流添加调度 [ERROR: %s]' % e, exc_info=True)
-            abort(400, **make_result(status=400, msg='请勿重复为工作流添加调度'))
+            log.error('请勿重复为任务流添加调度 [ERROR: %s]' % e, exc_info=True)
+            abort(400, **make_result(status=400, msg='请勿重复为任务流添加调度'))
 
     @staticmethod
     @make_decorator
@@ -121,8 +121,8 @@ class DispatchOperation(object):
 
             return Response(dispatch_id=dispatch_id)
         except pymysql.err.IntegrityError as e:
-            log.error('请勿重复为工作流添加调度 [ERROR: %s]' % e, exc_info=True)
-            abort(400, **make_result(status=400, msg='请勿重复为工作流添加调度'))
+            log.error('请勿重复为任务流添加调度 [ERROR: %s]' % e, exc_info=True)
+            abort(400, **make_result(status=400, msg='请勿重复为任务流添加调度'))
 
     @staticmethod
     @make_decorator

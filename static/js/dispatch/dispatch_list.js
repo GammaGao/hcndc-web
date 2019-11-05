@@ -16,7 +16,7 @@
             this.user_info();
             // 元素事件注册
             this.element_event();
-            // 工作流ID渲染
+            // 任务流ID渲染
             this.interface_list_id();
             // 表单搜索事件
             this.form_search();
@@ -127,7 +127,7 @@
                 }
             })
         },
-        // 工作流ID渲染
+        // 任务流ID渲染
         interface_list_id: function () {
             $.ajax({
                 url: BASE.uri.interface.id_list_api,
@@ -188,7 +188,7 @@
                         sort: true
                     }, {
                         field: "interface_id",
-                        title: "工作流id",
+                        title: "任务流id",
                         width: '5%'
                     }, {
                         field: "dispatch_name",
@@ -320,26 +320,30 @@
                                     url: BASE.uri.dispatch.detail_api + data.dispatch_id + '/',
                                     contentType: "application/json; charset=utf-8",
                                     type: 'post',
-                                    success: function () {
-                                        layer.open({
-                                            id: 'dispatch_run_success',
-                                            btn: ['跳转', '留在本页'],
-                                            title: '立即执行调度成功',
-                                            content: '是否跳转至执行日志?',
-                                            yes: function (index) {
-                                                layer.close(index);
-                                                window.location.href = BASE.uri.execute.list;
-                                            },
-                                            btn2: function (index) {
-                                                layer.close(index);
-                                                // 刷新页面
-                                                window.location.reload();
-                                            }
-                                        });
+                                    success: function (result) {
+                                        if (result.status === 200) {
+                                            layer.open({
+                                                id: 'dispatch_run_success',
+                                                btn: ['跳转', '留在本页'],
+                                                title: '立即执行调度成功',
+                                                content: '是否跳转至执行日志?',
+                                                yes: function (index) {
+                                                    layer.close(index);
+                                                    window.location.href = BASE.uri.execute.list;
+                                                },
+                                                btn2: function (index) {
+                                                    layer.close(index);
+                                                    // 刷新页面
+                                                    window.location.reload();
+                                                }
+                                            });
+                                        } else {
+                                            layer.alert(sprintf('立即执行调度失败: [%s]', result.msg), {icon: 5});
+                                        }
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
-                                        layer.msg(sprintf('立即执行任务失败[%s]', result.msg), {icon: 5});
+                                        layer.msg(sprintf('立即执行调度失败[%s]', result.msg), {icon: 5});
                                     }
                                 });
                             });
@@ -351,20 +355,24 @@
                                 contentType: "application/json; charset=utf-8",
                                 type: 'patch',
                                 data: JSON.stringify({'action': 1}),
-                                success: function () {
-                                    layer.open({
-                                        id: 'dispatch_pause_succeed',
-                                        title: '暂停调度成功',
-                                        content: '暂停调度id: ' + data.dispatch_id + '成功',
-                                        yes: function () {
-                                            // 刷新页面
-                                            window.location.reload();
-                                        },
-                                        cancel: function () {
-                                            // 刷新页面
-                                            window.location.reload();
-                                        }
-                                    });
+                                success: function (result) {
+                                    if (result.status === 200) {
+                                        layer.open({
+                                            id: 'dispatch_pause_succeed',
+                                            title: '暂停调度成功',
+                                            content: '暂停调度id: ' + data.dispatch_id + '成功',
+                                            yes: function () {
+                                                // 刷新页面
+                                                window.location.reload();
+                                            },
+                                            cancel: function () {
+                                                // 刷新页面
+                                                window.location.reload();
+                                            }
+                                        });
+                                    } else {
+                                        layer.alert(sprintf('暂停调度失败: [%s]', result.msg), {icon: 5});
+                                    }
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;
@@ -379,20 +387,24 @@
                                 contentType: "application/json; charset=utf-8",
                                 type: 'patch',
                                 data: JSON.stringify({'action': 2}),
-                                success: function () {
-                                    layer.open({
-                                        id: 'dispatch_resume_succeed',
-                                        title: '恢复调度成功',
-                                        content: '恢复调度id: ' + data.dispatch_id + '成功',
-                                        yes: function () {
-                                            // 刷新页面
-                                            window.location.reload();
-                                        },
-                                        cancel: function () {
-                                            // 刷新页面
-                                            window.location.reload();
-                                        }
-                                    });
+                                success: function (result) {
+                                    if (result.status === 200) {
+                                        layer.open({
+                                            id: 'dispatch_resume_succeed',
+                                            title: '恢复调度成功',
+                                            content: '恢复调度id: ' + data.dispatch_id + '成功',
+                                            yes: function () {
+                                                // 刷新页面
+                                                window.location.reload();
+                                            },
+                                            cancel: function () {
+                                                // 刷新页面
+                                                window.location.reload();
+                                            }
+                                        });
+                                    } else {
+                                        layer.alert(sprintf('恢复调度失败: [%s]', result.msg), {icon: 5});
+                                    }
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;
@@ -422,20 +434,25 @@
                                 $.ajax({
                                     url: BASE.uri.dispatch.detail_api + data.dispatch_id + '/',
                                     type: 'delete',
-                                    success: function () {
-                                        layer.open({
-                                            id: 'dispatch_delete_succeed',
-                                            title: '删除调度成功',
-                                            content: '删除调度id: ' + data.dispatch_id + '成功',
-                                            yes: function () {
-                                                // 刷新页面
-                                                window.location.reload();
-                                            },
-                                            cancel: function () {
-                                                // 刷新页面
-                                                window.location.reload();
-                                            }
-                                        });
+                                    success: function (result) {
+                                        if (result.status === 200) {
+                                            layer.open({
+                                                id: 'dispatch_delete_succeed',
+                                                title: '删除调度成功',
+                                                content: '删除调度id: ' + data.dispatch_id + '成功',
+                                                yes: function () {
+                                                    // 刷新页面
+                                                    window.location.reload();
+                                                },
+                                                cancel: function () {
+                                                    // 刷新页面
+                                                    window.location.reload();
+                                                }
+                                            });
+                                        } else {
+                                            layer.alert(sprintf('删除项目: [%s]', result.msg), {icon: 5});
+                                        }
+
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;

@@ -38,7 +38,7 @@
                     parseData: function (res) {
                         let fields = {
                             'job_id': '任务id',
-                            'interface_id': '工作流id',
+                            'interface_id': '任务流id',
                             'job_name': '任务名称',
                             'job_desc': '任务描述',
                             'server_id': '服务器id',

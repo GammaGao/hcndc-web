@@ -29,14 +29,14 @@
         init: function () {
             // 调度表单提交事件
             this.form_event();
-            // 工作流ID渲染
+            // 任务流ID渲染
             this.interface_list_id();
             // 调度预警事件注册
             this.dispatch_alert_event_init();
             // UI组件渲染
             this.restart('run_date');
         },
-        // 工作流ID渲染
+        // 任务流ID渲染
         interface_list_id: function () {
             $.ajax({
                 url: BASE.uri.interface.id_list_api,
@@ -75,7 +75,7 @@
                     data.week = $('input[name=cron-week]').val();
 
                     if (!data.interface_id) {
-                        layer.alert('工作流id不能为空');
+                        layer.alert('任务流id不能为空');
                         return
                     }
                     if (!data.dispatch_name) {

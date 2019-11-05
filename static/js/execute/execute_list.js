@@ -16,7 +16,7 @@
             this.user_info();
             // 元素事件注册
             this.element_event();
-            // 工作流ID渲染
+            // 任务流ID渲染
             this.interface_list_id();
             // 表单搜索事件
             this.form_search();
@@ -127,7 +127,7 @@
                 }
             })
         },
-        // 工作流ID渲染
+        // 任务流ID渲染
         interface_list_id: function () {
             $.ajax({
                 url: BASE.uri.interface.id_list_api,
@@ -187,7 +187,7 @@
                         sort: true
                     }, {
                         field: "interface_id",
-                        title: "工作流/任务id",
+                        title: "任务流/任务id",
                         width: '8%'
                     }, {
                         field: "exec_type",
@@ -331,7 +331,7 @@
                                 title: '断点重跑',
                                 maxmin: true,
                                 area: ['60%', '80%'],
-                                content: BASE.uri.execute.detail + data.exec_id + '/'
+                                content: BASE.uri.execute.restart + data.exec_id + '/'
                             });
                         }
                         // 重置

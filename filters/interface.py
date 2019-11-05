@@ -10,13 +10,13 @@ class InterfaceFilter(object):
     @staticmethod
     @make_decorator
     def filter_list_data(result, total):
-        """工作流列表"""
+        """任务流列表"""
         return {'status': 200, 'msg': '成功', 'total': total, 'data': result}, 200
 
     @staticmethod
     @make_decorator
     def filter_interface_graph_data(job_nodes):
-        """获取工作流拓扑结构"""
+        """获取任务流拓扑结构"""
         if not job_nodes:
             return {'status': 200, 'msg': '成功', 'data': {'nodes': [], 'links': [], 'categories': []}}, 200
         nodes = {}
@@ -167,12 +167,12 @@ class InterfaceFilter(object):
         # 按层级排序
         nodes = [j for i, j in nodes.items()]
         nodes.sort(key=lambda x: x['level'])
-        # 6.节点工作流分类
+        # 6.节点任务流分类
         interface_id = set(node['category'] for node in nodes)
         interface_dict = {}
         for index, value in enumerate(interface_id):
             interface_dict[value] = index
-        categories = [{'name': '工作流' + str(category) if category else '虚拟节点'} for category in interface_id]
+        categories = [{'name': '任务流' + str(category) if category else '虚拟节点'} for category in interface_id]
         for node in nodes:
             node['category'] = interface_dict[node['category']]
         return {'status': 200, 'msg': '成功', 'data': {'nodes': nodes, 'links': links, 'categories': categories}}, 200
@@ -180,29 +180,29 @@ class InterfaceFilter(object):
     @staticmethod
     @make_decorator
     def filter_interface_detail_data(detail):
-        """工作流详情"""
+        """任务流详情"""
         return {'status': 200, 'msg': '成功', 'data': {'detail': detail}}, 200
 
     @staticmethod
     @make_decorator
     def filter_update_interface_detail(interface_id):
-        """修改工作流详情"""
+        """修改任务流详情"""
         return {'status': 200, 'msg': '成功', 'data': {'id': interface_id}}, 200
 
     @staticmethod
     @make_decorator
     def filter_add_interface(interface_id):
-        """新增工作流"""
+        """新增任务流"""
         return {'status': 200, 'msg': '成功', 'data': {'id': interface_id}}, 200
 
     @staticmethod
     @make_decorator
     def filter_delete_interface(interface_id):
-        """删除工作流"""
+        """删除任务流"""
         return {'status': 200, 'msg': '成功', 'data': {'id': interface_id}}, 200
 
     @staticmethod
     @make_decorator
     def filter_get_interface_id_list(result):
-        """获取工作流id列表"""
+        """获取任务流id列表"""
         return {'status': 200, 'msg': '成功', 'data': result}, 200

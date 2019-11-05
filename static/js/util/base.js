@@ -92,7 +92,8 @@ let BASE = {
             'detail_api': '/execute/detail/api/',
             'log': '/execute/log/',
             'log_api': '/execute/log/api/',
-            'graph_api': '/execute/graph/api/'
+            'graph_api': '/execute/graph/api/',
+            'restart': '/execute/restart/'
         },
         base: {
             'exec_list': '/base/',
@@ -146,14 +147,14 @@ let BASE = {
         flow_job_api: '/flow/job/api/'
     },
     item: [{
-        'name': '工作流配置',
+        'name': '任务流配置',
         'icon': '',
         'children': [{
-            'name': ' 工作流列表',
+            'name': ' 任务流列表',
             'uri': '/interface/',
             'icon': 'layui-icon layui-icon-template-1'
         }, {
-            'name': ' 新增工作流',
+            'name': ' 新增任务流',
             'uri': '/interface/add/',
             'icon': 'layui-icon layui-icon-add-circle'
         }]

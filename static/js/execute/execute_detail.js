@@ -174,7 +174,7 @@
 
                     option = {
                         title: {
-                            text: '工作流中任务依赖',
+                            text: '任务流中任务依赖',
                             subtext: '默认布局',
                             top: 'top',
                             left: 'right'

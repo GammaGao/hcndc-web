@@ -6,7 +6,7 @@ import time
 class ScheduleModel(object):
     @staticmethod
     def get_interface_detail(cursor, dispatch_id):
-        """获取工作流预警详情"""
+        """获取任务流预警详情"""
         command = '''
         SELECT a.interface_id, b.interface_name, retry, b.run_time,
         c.config_id AS success_alert, d.config_id AS failed_alert
@@ -71,5 +71,25 @@ class ScheduleModel(object):
             'job_id': job_id,
             'status': status,
             'update_time': int(time.time())
+        })
+        return result
+
+    @staticmethod
+    def add_exec_detail_job(cursor, exec_id, job_id, level, server_dir, server_script, message, type):
+        """添加执行任务详情日志"""
+        command = '''
+        INSERT INTO tb_schedule_detail_logs(exec_id, job_id, `level`,
+        server_dir, server_script, `message`, `type`, insert_time)
+        VALUES (:exec_id, :job_id, :level, :server_dir, :server_script, :message, :type, :insert_time)
+        '''
+        result = cursor.insert(command, {
+            'exec_id': exec_id,
+            'job_id': job_id,
+            'level': level,
+            'server_dir': server_dir,
+            'server_script': server_script,
+            'message': message,
+            'type': type,
+            'insert_time': int(time.time())
         })
         return result

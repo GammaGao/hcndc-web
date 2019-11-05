@@ -308,10 +308,15 @@
                             $.ajax({
                                 url: BASE.uri.base.alert_detail_api + data.id + '/',
                                 type: 'delete',
-                                success: function () {
-                                    layer.alert('删除成功');
-                                    $(tr.find('td[data-field="operation"] div button')).addClass('layui-btn-disabled');
-                                    tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
+                                success: function (result) {
+                                    if (result.status === 200) {
+                                        layer.msg('删除成功', {icon: 6});
+                                        $(tr.find('td[data-field="operation"] div button')).addClass('layui-btn-disabled');
+                                        tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
+                                    } else {
+                                        layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5});
+                                    }
+
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;

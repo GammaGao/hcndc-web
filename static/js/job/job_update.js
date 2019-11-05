@@ -17,7 +17,7 @@
         all_ajax_request: function () {
             let that = this;
             $.when(
-                // 工作流名称请求
+                // 任务流名称请求
                 $.ajax({
                     url: BASE.uri.interface.id_list_api,
                     type: 'get'
@@ -52,10 +52,10 @@
                     that.job_detail_init(job_detail);
                 }
             ).fail(function () {
-                console.log("工作流请求出错")
+                console.log("任务流请求出错")
             })
         },
-        // 工作流名称初始化
+        // 任务流名称初始化
         interface_id_list_init: function (result) {
             let data = result[0].data;
             layui.use('form', function () {

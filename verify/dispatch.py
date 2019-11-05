@@ -13,7 +13,7 @@ class DispatchVerify(object):
     def verify_add_dispatch(interface_id, dispatch_name, dispatch_desc, minute, hour, day, month, week, user_id):
         """新增调度"""
         if not interface_id:
-            abort(400, **make_result(status=400, msg='工作流id不存在'))
+            abort(400, **make_result(status=400, msg='任务流id不存在'))
         if not dispatch_name:
             abort(400, **make_result(status=400, msg='调度名称不存在'))
         if not user_id:
@@ -53,7 +53,7 @@ class DispatchVerify(object):
         if not dispatch_id:
             abort(400, **make_result(status=400, msg='调度id不存在'))
         if not interface_id:
-            abort(400, **make_result(status=400, msg='工作流id不存在'))
+            abort(400, **make_result(status=400, msg='任务流id不存在'))
         if not dispatch_name:
             abort(400, **make_result(status=400, msg='调度名称不存在'))
         if not user_id:

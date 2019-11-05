@@ -51,8 +51,8 @@ class JobFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_execute_job(status):
+    def filter_execute_job(status, msg):
         """立即执行任务"""
         if status:
             return {'status': 200, 'msg': '成功', 'data': {'content': '已成功分发执行任务'}}, 200
-        return {'status': 200, 'msg': '失败', 'data': {'content': '分发执行任务失败'}}, 400
+        return {'status': 200, 'msg': msg, 'data': {'content': '分发执行任务失败'}}, 400

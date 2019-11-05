@@ -7,7 +7,7 @@ import time
 class InterfaceModel(object):
     @staticmethod
     def get_interface_list(cursor, condition, page=1, limit=10):
-        """获取工作流列表"""
+        """获取任务流列表"""
         command = '''
         SELECT interface_id, interface_name, interface_desc, retry, is_deleted
         FROM tb_interface
@@ -41,7 +41,7 @@ class InterfaceModel(object):
 
     @staticmethod
     def get_interface_detail(cursor, interface_id):
-        """获取工作流详情"""
+        """获取任务流详情"""
         command = '''
         SELECT interface_id, interface_name, interface_desc, retry, is_deleted
         FROM tb_interface
@@ -54,7 +54,7 @@ class InterfaceModel(object):
 
     @staticmethod
     def get_interface_graph(cursor, interface_id):
-        """获取工作流任务依赖"""
+        """获取任务流任务依赖"""
         command = '''
         SELECT a.interface_id, a.job_id, a.job_name,
         c.interface_id AS prep_interface_id, c.job_id AS prep_id, c.job_name AS prep_name
@@ -81,7 +81,7 @@ class InterfaceModel(object):
 
     @staticmethod
     def update_interface_detail(cursor, interface_id, interface_name, interface_desc, retry, user_id, is_deleted):
-        """修改工作流详情"""
+        """修改任务流详情"""
         command = '''
         UPDATE tb_interface
         SET interface_name = :interface_name, interface_desc = :interface_desc, retry = :retry,
@@ -101,7 +101,7 @@ class InterfaceModel(object):
 
     @staticmethod
     def add_interface(cursor, interface_name, interface_desc, retry, user_id):
-        """新增工作流"""
+        """新增任务流"""
         command = '''
         INSERT INTO tb_interface(interface_name, interface_desc,
         insert_time, update_time, retry, creator_id, updater_id)
@@ -120,7 +120,7 @@ class InterfaceModel(object):
 
     @staticmethod
     def get_job_prep_by_interface(cursor, interface_id):
-        """查询工作流下任务被依赖"""
+        """查询任务流下任务被依赖"""
         command = '''
         SELECT a.job_id, b.job_id AS out_id
         FROM tb_jobs AS a
@@ -135,7 +135,7 @@ class InterfaceModel(object):
 
     @staticmethod
     def delete_interface(cursor, interface_id, user_id):
-        """删除工作流"""
+        """删除任务流"""
         command = '''
         UPDATE tb_interface
         SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
@@ -151,7 +151,7 @@ class InterfaceModel(object):
 
     @staticmethod
     def get_interface_id_list(cursor):
-        """获取工作流id列表"""
+        """获取任务流id列表"""
         command = '''
         SELECT interface_id, interface_name
         FROM tb_interface
@@ -163,7 +163,7 @@ class InterfaceModel(object):
 
     @staticmethod
     def get_schedule_detail(cursor, interface_id):
-        """获取工作流是否被调度"""
+        """获取任务流是否被调度"""
         command = '''
         SELECT dispatch_id, interface_id, dispatch_name, dispatch_desc,
         `minute`, `hour`, `day`, `month`, `week`, `status`

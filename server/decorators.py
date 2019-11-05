@@ -4,7 +4,7 @@
 import functools
 
 
-# 工作流返回对象
+# 任务流返回对象
 class Response(dict):
     def __init__(self, *args, **kwargs):
         super(Response, self).__init__(*args, **kwargs)

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include "util/style.html" %}
+    <script type="text/javascript" src="/static/echarts/echarts.min.js"></script>
+    <title>断点重跑</title>
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+    <!-- 内容主体区域 -->
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>断点重跑参数配置</legend>
+    </fieldset>
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: auto;">检查任务流中任务前置依赖</label>
+            <div class="layui-input-inline">
+                <input type="checkbox" name="prepose_rely" lay-skin="switch" lay-text="是|否" value="1">
+            </div>
+        </div>
+        <div class="layui-input-block">
+            <div class="layui-input-inline">
+                <button lay-submit class="layui-btn" lay-filter="restart-save" type="button">提交</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    window.exec_id = {{ exec_id }};
+</script>
+<script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/layui-formSelects.js"></script>
+<script type="text/javascript" src="/static/js/execute/execute_restart.js"></script>
+</body>
+</html>

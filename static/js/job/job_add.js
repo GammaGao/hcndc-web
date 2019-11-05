@@ -8,7 +8,7 @@
 
     Controller.prototype = {
         init: function () {
-            // 工作流名称请求
+            // 任务流名称请求
             this.interface_list_id_req();
             // 服务器名称请求
             this.exec_host_req();
@@ -19,7 +19,7 @@
             // 任务表单事件注册
             this.form_event();
         },
-        // 工作流ID渲染
+        // 任务流ID渲染
         interface_list_id_req: function () {
             $.ajax({
                 url: BASE.uri.interface.id_list_api,
