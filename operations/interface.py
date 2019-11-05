@@ -13,7 +13,7 @@ class InterfaceOperation(object):
     @staticmethod
     @make_decorator
     def get_interface_list(interface_name, start_time, end_time, interface_type, is_deleted, page, limit):
-        """获取接口列表"""
+        """获取工作流列表"""
         condition = []
         if interface_name:
             condition.append('interface_name LIKE "%%%%%s%%%%"' % interface_name)
@@ -37,23 +37,23 @@ class InterfaceOperation(object):
     @staticmethod
     @make_decorator
     def get_interface_graph(interface_id):
-        """获取接口拓扑结构"""
-        # 接口任务依赖
+        """获取工作流拓扑结构"""
+        # 工作流任务依赖
         job_nodes = InterfaceModel.get_interface_graph(db.etl_db, interface_id)
         return Response(job_nodes=job_nodes)
 
     @staticmethod
     @make_decorator
     def get_interface_detail(interface_id):
-        """获取接口详情"""
-        # 接口详情
+        """获取工作流详情"""
+        # 工作流详情
         detail = InterfaceModel.get_interface_detail(db.etl_db, interface_id)
         return Response(detail=detail)
 
     @staticmethod
     @make_decorator
     def update_interface_detail(interface_id, interface_name, interface_desc, retry, user_id, is_deleted):
-        """修改接口详情"""
+        """修改工作流详情"""
         InterfaceModel.update_interface_detail(db.etl_db, interface_id, interface_name, interface_desc, retry, user_id,
                                                is_deleted)
         return Response(interface_id=interface_id)
@@ -61,14 +61,14 @@ class InterfaceOperation(object):
     @staticmethod
     @make_decorator
     def add_interface(interface_name, interface_desc, retry, user_id):
-        """新增接口"""
+        """新增工作流"""
         interface_id = InterfaceModel.add_interface(db.etl_db, interface_name, interface_desc, retry, user_id)
         return Response(interface_id=interface_id)
 
     @staticmethod
     @make_decorator
     def delete_interface(interface_id, user_id):
-        """删除接口"""
+        """删除工作流"""
         # 查询是否在调度内
         if InterfaceModel.get_schedule_detail(db.etl_db, interface_id):
             abort(400, **make_result(status=400, msg='调度任务运行中, 请停止调度任务后删除'))
@@ -82,14 +82,14 @@ class InterfaceOperation(object):
             if items['out_id']:
                 out_ids.append(items['out_id'])
         if set(out_ids) - set(job_ids):
-            abort(400, **make_result(status=400, msg='接口中任务作为其他任务依赖, 请停止依赖任务后删除'))
-        # 删除接口
+            abort(400, **make_result(status=400, msg='工作流中任务作为其他任务依赖, 请停止依赖任务后删除'))
+        # 删除工作流
         InterfaceModel.delete_interface(db.etl_db, interface_id, user_id)
         return Response(interface_id=interface_id)
 
     @staticmethod
     @make_decorator
     def get_interface_id_list():
-        """获取接口id列表"""
+        """获取工作流id列表"""
         result = InterfaceModel.get_interface_id_list(db.etl_db)
         return Response(result=result)

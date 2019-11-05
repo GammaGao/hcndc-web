@@ -10,7 +10,7 @@ job_list_request = api.doc(params={
     'job_name': '项目名称',
     'start_time': '开始创建时间',
     'end_time': '结束创建时间',
-    'interface_id': '接口id',
+    'interface_id': '工作流id',
     'is_deleted': '是否使用: 0全部, 1使用, 2失效',
     'page': '页码',
     'limit': '条数'
@@ -38,7 +38,7 @@ job_list_response_success = api.response(200, '成功', api.model('job_list_resp
 # 任务修改请求
 job_update_request = api.doc(body=api.model('job_update_request', {
     'job_name': fields.String(description='任务名称'),
-    'interface_id': fields.Integer(description='接口id'),
+    'interface_id': fields.Integer(description='工作流id'),
     'job_desc': fields.String(description='任务描述'),
     'server_id': fields.String(description='执行服务器id'),
     'server_dir': fields.String(description='服务器目录'),
@@ -54,7 +54,7 @@ job_update_request = api.doc(body=api.model('job_update_request', {
 # 任务新增请求
 job_add_request = api.doc(body=api.model('job_add_request', {
     'job_name': fields.String(description='任务名称'),
-    'interface_id': fields.Integer(description='接口id'),
+    'interface_id': fields.Integer(description='工作流id'),
     'job_desc': fields.String(description='任务描述'),
     'server_id': fields.Integer(description='执行服务器id'),
     'server_dir': fields.String(description='服务器目录'),
@@ -66,7 +66,7 @@ job_add_request = api.doc(body=api.model('job_add_request', {
 
 # 获取所有任务请求
 all_job_request = api.doc(params={
-    'interface_id': '接口id'
+    'interface_id': '工作流id'
 })
 
 # 立即执行任务请求

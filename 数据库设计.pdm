@@ -5644,13 +5644,13 @@ LABL 0 新宋体,8,N</a:FontList>
 </o:Column>
 <o:Column Id="o101">
 <a:ObjectID>A338C23F-D43C-4F08-9563-3BDC27C2DD7B</a:ObjectID>
-<a:Name>接口id</a:Name>
+<a:Name>工作流id</a:Name>
 <a:Code>interface_id</a:Code>
 <a:CreationDate>1547046268</a:CreationDate>
 <a:Creator>xpai</a:Creator>
 <a:ModificationDate>1547046289</a:ModificationDate>
 <a:Modifier>xpai</a:Modifier>
-<a:Comment>接口id</a:Comment>
+<a:Comment>工作流id</a:Comment>
 <a:DataType>int</a:DataType>
 <a:Column.Mandatory>1</a:Column.Mandatory>
 </o:Column>
@@ -6311,13 +6311,13 @@ LABL 0 新宋体,8,N</a:FontList>
 </o:Column>
 <o:Column Id="o149">
 <a:ObjectID>E0B8C760-8292-4FF6-8B47-D36DB5668F46</a:ObjectID>
-<a:Name>接口id</a:Name>
+<a:Name>工作流id</a:Name>
 <a:Code>interface_id</a:Code>
 <a:CreationDate>1547048373</a:CreationDate>
 <a:Creator>xpai</a:Creator>
 <a:ModificationDate>1547208536</a:ModificationDate>
 <a:Modifier>xpai</a:Modifier>
-<a:Comment>接口id</a:Comment>
+<a:Comment>工作流id</a:Comment>
 <a:DataType>int</a:DataType>
 <a:Column.Mandatory>1</a:Column.Mandatory>
 </o:Column>
@@ -6939,31 +6939,31 @@ LABL 0 新宋体,8,N</a:FontList>
 <a:Creator>xpai</a:Creator>
 <a:ModificationDate>1572336841</a:ModificationDate>
 <a:Modifier>xuex</a:Modifier>
-<a:Comment>接口表</a:Comment>
+<a:Comment>工作流表</a:Comment>
 <a:TotalSavingCurrency/>
 <c:Columns>
 <o:Column Id="o194">
 <a:ObjectID>FAAE87AE-D189-4141-9C4C-073DBDA06E21</a:ObjectID>
-<a:Name>接口id</a:Name>
+<a:Name>工作流id</a:Name>
 <a:Code>interface_id</a:Code>
 <a:CreationDate>1547045736</a:CreationDate>
 <a:Creator>xpai</a:Creator>
 <a:ModificationDate>1547046298</a:ModificationDate>
 <a:Modifier>xpai</a:Modifier>
-<a:Comment>接口id</a:Comment>
+<a:Comment>工作流id</a:Comment>
 <a:DataType>int</a:DataType>
 <a:Identity>1</a:Identity>
 <a:Column.Mandatory>1</a:Column.Mandatory>
 </o:Column>
 <o:Column Id="o195">
 <a:ObjectID>332C2FD8-615C-4CE8-95BC-9B5BB6BC02E8</a:ObjectID>
-<a:Name>接口名称</a:Name>
+<a:Name>工作流名称</a:Name>
 <a:Code>interface_name</a:Code>
 <a:CreationDate>1547045771</a:CreationDate>
 <a:Creator>xpai</a:Creator>
 <a:ModificationDate>1547198239</a:ModificationDate>
 <a:Modifier>xpai</a:Modifier>
-<a:Comment>接口名称</a:Comment>
+<a:Comment>工作流名称</a:Comment>
 <a:DefaultValue>&#39;&#39;</a:DefaultValue>
 <a:DataType>varchar(255)</a:DataType>
 <a:Length>255</a:Length>
@@ -6971,13 +6971,13 @@ LABL 0 新宋体,8,N</a:FontList>
 </o:Column>
 <o:Column Id="o196">
 <a:ObjectID>F0B08059-2270-4539-AE55-37A673791471</a:ObjectID>
-<a:Name>接口说明</a:Name>
+<a:Name>工作流说明</a:Name>
 <a:Code>interface_desc</a:Code>
 <a:CreationDate>1547045771</a:CreationDate>
 <a:Creator>xpai</a:Creator>
 <a:ModificationDate>1547045834</a:ModificationDate>
 <a:Modifier>xpai</a:Modifier>
-<a:Comment>接口说明</a:Comment>
+<a:Comment>工作流说明</a:Comment>
 <a:DefaultValue>&#39;&#39;</a:DefaultValue>
 <a:DataType>varchar(255)</a:DataType>
 <a:Length>255</a:Length>

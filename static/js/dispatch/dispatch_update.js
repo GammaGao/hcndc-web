@@ -40,11 +40,11 @@
             // 表单填充
             // this.form_filed_assign();
         },
-        // 接口ID渲染
+        // 工作流ID渲染
         dispatch_detail_request: function () {
             let that = this;
             $.when(
-                // 接口ID请求
+                // 工作流ID请求
                 $.ajax({
                     url: BASE.uri.interface.id_list_api,
                     type: 'get'
@@ -57,12 +57,12 @@
             ).done(function (interface_id_list, dispatch_detail) {
                 that.dispatch_detail_init(interface_id_list, dispatch_detail);
             }).fail(function () {
-                console.log("接口请求出错")
+                console.log("工作流请求出错")
             })
         },
         // 调度详情初始化
         dispatch_detail_init: function (interface_id_list, dispatch_detail) {
-            // 接口id列表初始化
+            // 工作流id列表初始化
             let interface_data = interface_id_list[0].data;
             layui.use('form', function () {
                 let form = layui.form;
@@ -238,7 +238,7 @@
                     data.old_status = window.old_status;
                     data.new_status = $('select[name=status]').val();
                     if (!data.interface_id) {
-                        layer.alert('接口id不能为空');
+                        layer.alert('工作流id不能为空');
                         return
                     }
                     if (!data.dispatch_name) {
@@ -308,7 +308,7 @@
                 // 预警表单初始化
                 that.alert_form_field_init(config_list, alert_detail);
             }).fail(function () {
-                console.log("接口请求出错")
+                console.log("工作流请求出错")
             })
         },
         // 预警表单初始化

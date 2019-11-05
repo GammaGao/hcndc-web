@@ -42,11 +42,11 @@
 ### 1.3 需求整理
 #### 1.3.1 kettle执行流程
 ![](/x_other/kettle_flow.jpg)
-原有流程以kettle为中心，根据优先级取作业，同接口下任务线性执行。
+原有流程以kettle为中心，根据优先级取作业，同工作流下任务线性执行。
 #### 1.3.2 kettle数据库
 ![](/x_other/etl_db.png)
 主要配置：
-任务配置：接口表、调度表、调度前置表等；
+任务配置：工作流表、调度表、调度前置表等；
 kettle配置：数据库配置表、数据传输表、文本配置表等；
 **注：该数据库设计调度和执行模块耦合过于紧密**
 #### 1.3.3 azkaban数据库
@@ -63,7 +63,7 @@ kettle配置：数据库配置表、数据传输表、文本配置表等；
 | 页面名称 | URI | 描述 |
 | ------------ | ------------ | ------------ |
 | 登录 | /login/ | 登入、登出 |
-| 接口 | /interface/ | 增改查，详情，列表 |
+| 工作流 | /interface/ | 增改查，详情，列表 |
 | 任务 | /job/ | 增改查，详情，列表 |
 | 调度 | /dispatch/ | 增改查，详情，列表，执行，暂停，恢复 |
 | 调度预警 | /dispatch/alert/ | 增改查，详情，列表 |
@@ -77,7 +77,7 @@ kettle配置：数据库配置表、数据传输表、文本配置表等；
 ![](/x_other/hcdnc_db.png)
 主要配置：
 用户配置：用户、角色、权限表；
-任务配置：接口、任务表；
+任务配置：工作流、任务表；
 调度配置：调度、持久化、调度预警表；
 执行配置：执行、详情表；
 
@@ -90,11 +90,11 @@ kettle配置：数据库配置表、数据传输表、文本配置表等；
 ```
 HCNDC-web
 ├─conn # 数据库连接类
-├─document # 接口文档类
-├─filters # 接口过滤类
+├─document # 工作流文档类
+├─filters # 工作流过滤类
 ├─models # 模型类
 ├─operations # 操作类
-├─resources # 接口入口类
+├─resources # 工作流入口类
 ├─route # 路由类
 ├─rpc # rpc客户端
 ├─scheduler # 调度线程类
@@ -156,7 +156,7 @@ azkaban序列化, 反序列化
 /home/xuexiang/azkaban-2.5.0/azkaban-executor-2.5.0/executions
 ProcessBuilder
 apscheduler持久化 防止宕机
-WSGI接口
+WSGI工作流
 rpc通信 封装tpc协议
 show global variables like 'wait_timeout';
 SELECT @@wait_timeout;

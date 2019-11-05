@@ -37,7 +37,7 @@ CREATE TABLE `schedule_table_1` (
 DROP TABLE IF EXISTS `tb_dispatch`;
 CREATE TABLE `tb_dispatch` (
   `dispatch_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '调度id',
-  `interface_id` int(11) NOT NULL COMMENT '接口id',
+  `interface_id` int(11) NOT NULL COMMENT '工作流id',
   `dispatch_name` varchar(255) NOT NULL COMMENT '调度名称',
   `dispatch_desc` varchar(255) NOT NULL COMMENT '调度描述',
   `minute` varchar(255) NOT NULL DEFAULT '*' COMMENT '分: 0-59',
@@ -304,9 +304,9 @@ CREATE TABLE `tb_exec_host_status` (
 -- ----------------------------
 DROP TABLE IF EXISTS `tb_interface`;
 CREATE TABLE `tb_interface` (
-  `interface_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '接口id',
-  `interface_name` varchar(255) NOT NULL DEFAULT '' COMMENT '接口名称',
-  `interface_desc` varchar(255) NOT NULL DEFAULT '' COMMENT '接口说明',
+  `interface_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '工作流id',
+  `interface_name` varchar(255) NOT NULL DEFAULT '' COMMENT '工作流名称',
+  `interface_desc` varchar(255) NOT NULL DEFAULT '' COMMENT '工作流说明',
   `retry` tinyint(4) NOT NULL DEFAULT '0' COMMENT '重试次数',
   `insert_time` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
   `update_time` int(11) NOT NULL DEFAULT '0' COMMENT '修改时间',
@@ -316,12 +316,12 @@ CREATE TABLE `tb_interface` (
   PRIMARY KEY (`interface_id`),
   KEY `Index_1` (`interface_name`),
   KEY `Index_2` (`insert_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='接口表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='工作流表';
 
 -- ----------------------------
 -- Records of tb_interface
 -- ----------------------------
-INSERT INTO `tb_interface` VALUES ('1', '测试接口1', '测试接口1描述信息', '3', '1561035494', '1561035494', '1', '1', '0');
+INSERT INTO `tb_interface` VALUES ('1', '测试工作流1', '测试工作流1描述信息', '3', '1561035494', '1561035494', '1', '1', '0');
 INSERT INTO `tb_interface` VALUES ('2', 'zxwd', 'zxwd模块依赖', '3', '1562827331', '1562827331', '1', '1', '0');
 
 -- ----------------------------
@@ -330,7 +330,7 @@ INSERT INTO `tb_interface` VALUES ('2', 'zxwd', 'zxwd模块依赖', '3', '156282
 DROP TABLE IF EXISTS `tb_jobs`;
 CREATE TABLE `tb_jobs` (
   `job_id` int(11) NOT NULL AUTO_INCREMENT COMMENT '任务id',
-  `interface_id` int(11) NOT NULL COMMENT '接口id',
+  `interface_id` int(11) NOT NULL COMMENT '工作流id',
   `job_name` varchar(255) NOT NULL COMMENT '任务名称',
   `job_desc` varchar(255) NOT NULL DEFAULT '' COMMENT '任务描述',
   `server_id` int(11) NOT NULL COMMENT '服务器id',
@@ -1553,10 +1553,10 @@ CREATE TABLE `tb_user_menu` (
 INSERT INTO `tb_user_menu` VALUES ('1', '任务总览', '0', '0', '/index/', '1', '', '1568777234', '1568777234', '0');
 INSERT INTO `tb_user_menu` VALUES ('2', '调度总览', '0', '1', '/dispatch/', '1', '', '1568777234', '1568777234', '0');
 INSERT INTO `tb_user_menu` VALUES ('3', '基础配置', '0', '2', '/base/', '1', '', '1568777234', '1568777234', '0');
-INSERT INTO `tb_user_menu` VALUES ('4', '接口配置', '1', '0', '', '2', '', '1568777234', '1568777234', '0');
+INSERT INTO `tb_user_menu` VALUES ('4', '工作流配置', '1', '0', '', '2', '', '1568777234', '1568777234', '0');
 INSERT INTO `tb_user_menu` VALUES ('5', '任务配置', '1', '1', '', '2', '', '1568777234', '1568777234', '0');
-INSERT INTO `tb_user_menu` VALUES ('6', '接口列表', '4', '0', '/interface/', '3', 'layui-icon layui-icon-template-1', '1568777234', '1568777234', '0');
-INSERT INTO `tb_user_menu` VALUES ('7', '新增接口', '4', '1', '/interface/add/', '3', 'layui-icon layui-icon-add-circle', '1568777234', '1568777234', '0');
+INSERT INTO `tb_user_menu` VALUES ('6', '工作流列表', '4', '0', '/interface/', '3', 'layui-icon layui-icon-template-1', '1568777234', '1568777234', '0');
+INSERT INTO `tb_user_menu` VALUES ('7', '新增工作流', '4', '1', '/interface/add/', '3', 'layui-icon layui-icon-add-circle', '1568777234', '1568777234', '0');
 INSERT INTO `tb_user_menu` VALUES ('8', '任务列表', '5', '0', '/job/', '3', 'layui-icon layui-icon-list', '1568777234', '1568777234', '0');
 INSERT INTO `tb_user_menu` VALUES ('9', '新增任务', '5', '1', '/job/add/', '3', 'layui-icon layui-icon-add-circle', '1568777234', '1568777234', '0');
 INSERT INTO `tb_user_menu` VALUES ('10', '调度配置', '2', '0', '', '2', '', '1568777234', '1568777234', '0');

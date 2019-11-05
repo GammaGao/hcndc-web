@@ -26,7 +26,7 @@
 
                     let option = {
                         title: {
-                            text: '接口任务依赖',
+                            text: '工作流任务依赖',
                             subtext: '默认布局',
                             top: 'top',
                             left: 'right'

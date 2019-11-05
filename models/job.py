@@ -155,7 +155,7 @@ class JobModel(object):
 
     @staticmethod
     def get_job_list_all_by_interface(cursor, interface_id):
-        """获取接口下所有任务列表"""
+        """获取工作流下所有任务列表"""
         command = '''
         SELECT job_id, job_name
         FROM tb_jobs

@@ -16,7 +16,7 @@
             this.user_info();
             // 元素事件注册
             this.element_event();
-            // 接口ID渲染
+            // 工作流ID渲染
             this.interface_list_id();
             // 表单搜索事件
             this.form_search();
@@ -127,7 +127,7 @@
                 }
             })
         },
-        // 接口ID渲染
+        // 工作流ID渲染
         interface_list_id: function () {
             $.ajax({
                 url: BASE.uri.interface.id_list_api,
@@ -187,7 +187,7 @@
                         sort: true
                     }, {
                         field: "interface_id",
-                        title: "接口/任务id",
+                        title: "工作流/任务id",
                         width: '8%'
                     }, {
                         field: "exec_type",

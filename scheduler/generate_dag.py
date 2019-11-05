@@ -13,7 +13,7 @@ from server.status import make_result
 
 def generate_dag_by_dispatch_id(dispatch_id):
     """根据调度id生成dag模型"""
-    # 接口属性
+    # 工作流属性
     dispatch_model = ScheduleModel.get_interface_detail(db.etl_db, dispatch_id)
     if not dispatch_model:
         return {}

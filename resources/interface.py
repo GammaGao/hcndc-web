@@ -22,7 +22,7 @@ class InterfaceList(Resource):
     @InterfaceVerify.verify_get_interface_list(interface_name=str, start_time=int, end_time=int, interface_type=int,
                                                is_deleted=int, page=int, limit=int)
     def get():
-        """获取接口列表"""
+        """获取工作流列表"""
         params = Response(
             interface_name=get_arg('interface_name', ''),
             start_time=int(get_arg('start_time', 0)),
@@ -32,7 +32,7 @@ class InterfaceList(Resource):
             page=int(get_arg('page', 1)),
             limit=int(get_arg('limit', 10))
         )
-        log.info('获取接口列表[params: %s]' % str(params))
+        log.info('获取工作流列表[params: %s]' % str(params))
         return params
 
 
@@ -42,9 +42,9 @@ class InterfaceGraph(Resource):
     @InterfaceOperation.get_interface_graph(interface_id=int)
     @InterfaceVerify.verify_get_interface_graph(interface_id=int)
     def get(interface_id):
-        """获取接口拓扑结构"""
+        """获取工作流拓扑结构"""
         params = Response(interface_id=interface_id)
-        log.info('获取接口拓扑结构[params: %s]' % str(params))
+        log.info('获取工作流拓扑结构[params: %s]' % str(params))
         return params
 
 
@@ -54,9 +54,9 @@ class InterfaceDetail(Resource):
     @InterfaceOperation.get_interface_detail(interface_id=int)
     @InterfaceVerify.verify_get_interface_detail(interface_id=int)
     def get(interface_id):
-        """获取接口详情"""
+        """获取工作流详情"""
         params = Response(interface_id=interface_id)
-        log.info('获取接口详情[params: %s]' % str(params))
+        log.info('获取工作流详情[params: %s]' % str(params))
         return params
 
     @staticmethod
@@ -69,7 +69,7 @@ class InterfaceDetail(Resource):
     @PermissionVerify.verify_write_permission(interface_id=int, interface_name=str, interface_desc=str, retry=int,
                                               is_deleted=int)
     def put(interface_id):
-        """修改接口详情"""
+        """修改工作流详情"""
         payload = get_payload()
         params = Response(
             interface_id=interface_id,
@@ -78,7 +78,7 @@ class InterfaceDetail(Resource):
             retry=int(payload.get('retry', 0)),
             is_deleted=int(payload.get('is_deleted', 0))
         )
-        log.info('修改接口详情[params: %s]' % str(params))
+        log.info('修改工作流详情[params: %s]' % str(params))
         return params
 
     @staticmethod
@@ -87,9 +87,9 @@ class InterfaceDetail(Resource):
     @InterfaceVerify.verify_delete_interface(interface_id=int, user_id=int)
     @PermissionVerify.verify_write_permission(interface_id=int)
     def delete(interface_id):
-        """删除接口"""
+        """删除工作流"""
         params = Response(interface_id=interface_id)
-        log.info('删除接口[params: %s]' % str(params))
+        log.info('删除工作流[params: %s]' % str(params))
         return params
 
 
@@ -101,14 +101,14 @@ class InterfaceAdd(Resource):
     @InterfaceVerify.verify_add_interface(interface_name=str, interface_desc=str, retry=int, user_id=int)
     @PermissionVerify.verify_write_permission(interface_name=str, interface_desc=str, retry=int)
     def post():
-        """新增接口"""
+        """新增工作流"""
         payload = get_payload()
         params = Response(
             interface_name=payload.get('interface_name', ''),
             interface_desc=payload.get('interface_desc', ''),
             retry=int(payload.get('retry', 0))
         )
-        log.info('新增接口[params: %s]' % str(params))
+        log.info('新增工作流[params: %s]' % str(params))
         return params
 
 
@@ -117,13 +117,13 @@ class InterfaceIDList(Resource):
     @InterfaceFilter.filter_get_interface_id_list(result=list)
     @InterfaceOperation.get_interface_id_list()
     def get():
-        """获取接口id列表"""
+        """获取工作流id列表"""
         params = Response()
-        log.info('获取接口id列表')
+        log.info('获取工作流id列表')
         return params
 
 
-ns = api.namespace('interface', description='接口')
+ns = api.namespace('interface', description='工作流')
 ns.add_resource(InterfaceList, '/list/api/')
 ns.add_resource(InterfaceGraph, '/graph/api/<int:interface_id>/')
 ns.add_resource(InterfaceDetail, '/detail/api/<int:interface_id>/')

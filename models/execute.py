@@ -22,7 +22,7 @@ class ExecuteModel(object):
 
     @staticmethod
     def add_execute_success(cursor, exec_type, dispatch_id):
-        """添加执行表-任务流为空时成功状态"""
+        """添加执行表-工作流为空时成功状态"""
         command = '''
         INSERT INTO tb_execute(exec_type, dispatch_id, `status`, insert_time, update_time)
         VALUES (:exec_type, :dispatch_id, 0, :insert_time, :update_time)

@@ -23,7 +23,7 @@ class ExecuteFilter(object):
             if item['exec_type'] == 2:
                 item['interface_id'] = '任务id: %s' % item.pop('job_id')
             else:
-                item['interface_id'] = '接口id: %s' % item['interface_id']
+                item['interface_id'] = '工作流id: %s' % item['interface_id']
             item['insert_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time']))
             item['update_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['update_time']))
             item['timedelta'] = seconds_format(item['timedelta'])
@@ -166,7 +166,7 @@ class ExecuteFilter(object):
         # 按层级排序
         nodes = [j for i, j in nodes.items()]
         nodes.sort(key=lambda x: x['level'])
-        # 6.节点接口分类
+        # 6.节点工作流分类
         categories = [
             {'name': '等待依赖任务完成'},
             {'name': '待运行'},

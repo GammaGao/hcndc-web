@@ -13,7 +13,7 @@ cron_request = api.doc(params={
 
 # 调度新增请求
 dispatch_add_request = api.doc(body=api.model('dispatch_add_request', {
-    'interface_id': fields.Integer(description='接口id'),
+    'interface_id': fields.Integer(description='工作流id'),
     'dispatch_name': fields.String(description='调度名称'),
     'dispatch_desc': fields.String(description='调度描述'),
     'minute': fields.String(description='分: 0-59'),
@@ -36,7 +36,7 @@ dispatch_alert_add_request = api.doc(body=api.model('dispatch_alert_add_request'
 
 # 调度列表请求
 dispatch_list_request = api.doc(params={
-    'interface_id': '接口id',
+    'interface_id': '工作流id',
     'dispatch_name': '调度名称',
     'status': '调度状态:0全部,1删除,2运行中,3暂停',
     'page': '页码',
@@ -46,7 +46,7 @@ dispatch_list_request = api.doc(params={
 # 调度修改请求
 dispatch_update_request = api.doc(body=api.model('dispatch_update_request', {
     'dispatch_id': fields.Integer(description='调度id'),
-    'interface_id': fields.Integer(description='接口id'),
+    'interface_id': fields.Integer(description='工作流id'),
     'dispatch_name': fields.String(description='调度名称'),
     'dispatch_desc': fields.String(description='调度描述'),
     'minute': fields.String(description='分: 0-59'),

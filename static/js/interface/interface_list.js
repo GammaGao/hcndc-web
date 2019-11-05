@@ -9,14 +9,14 @@
     Controller.prototype = {
         init: function () {
             // 菜单样式加载
-            menu_init('任务总览', '接口列表');
+            menu_init('任务总览', '工作流列表');
             // 侧边栏样式切换
             this.tree_toggle();
             // 用户数据渲染
             this.user_info();
             // 元素事件注册
             this.element_event();
-            // 接口查询事件注册
+            // 工作流查询事件注册
             this.form_event();
             // 表格数据初始化
             this.table_data_load({});
@@ -152,8 +152,8 @@
             // 自定义左侧工具栏
             let toolbar_div = [
                 '<div class="layui-table-tool-temp">',
-                '<div class="layui-inline" lay-event="add" title="添加接口"><i class="layui-icon layui-icon-add-1"></i></div>',
-                '<div class="layui-inline" lay-event="update" title="修改接口"><i class="layui-icon layui-icon-edit"></i></div>',
+                '<div class="layui-inline" lay-event="add" title="添加工作流"><i class="layui-icon layui-icon-add-1"></i></div>',
+                '<div class="layui-inline" lay-event="update" title="修改工作流"><i class="layui-icon layui-icon-edit"></i></div>',
                 '</div>'
             ].join('');
             // 表格渲染
@@ -171,14 +171,14 @@
                         type: 'radio'
                     }, {
                         field: "interface_id",
-                        title: "接口id",
+                        title: "工作流id",
                         sort: true
                     }, {
                         field: "interface_name",
-                        title: "接口名称"
+                        title: "工作流名称"
                     }, {
                         field: "interface_desc",
-                        title: "接口描述"
+                        title: "工作流描述"
                     }, {
                         field: "retry",
                         title: "重试次数"
@@ -235,7 +235,7 @@
                             layer.open({
                                 type: 2,
                                 anim: 5,
-                                title: '新增接口',
+                                title: '新增工作流',
                                 maxmin: true,
                                 area: ['60%', '80%'],
                                 content: BASE.uri.interface.add,
@@ -253,7 +253,7 @@
                                 layer.open({
                                     type: 2,
                                     anim: 5,
-                                    title: '修改接口',
+                                    title: '修改工作流',
                                     maxmin: true,
                                     area: ['60%', '80%'],
                                     content: BASE.uri.interface.update + check_data[0].interface_id + '/',
@@ -289,7 +289,7 @@
                         layer.open({
                             type: 2,
                             anim: 5,
-                            title: '修改接口',
+                            title: '修改工作流',
                             maxmin: true,
                             area: ['60%', '80%'],
                             content: BASE.uri.interface.update + data.interface_id + '/',
@@ -315,7 +315,7 @@
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;
-                                    layer.alert(sprintf('删除接口%s失败: %s', data.interface_id, result.msg))
+                                    layer.alert(sprintf('删除工作流%s失败: %s', data.interface_id, result.msg))
                                 }
                             });
                         })

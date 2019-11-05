@@ -5,7 +5,7 @@
 class ScheduleModel(object):
     @staticmethod
     def get_interface_detail(cursor, dispatch_id):
-        """获取接口详情"""
+        """获取工作流详情"""
         command = '''
         SELECT a.interface_id, retry, c.config_id AS success_alert, d.config_id AS failed_alert
         FROM tb_dispatch AS a
