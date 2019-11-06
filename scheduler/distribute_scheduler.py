@@ -66,12 +66,12 @@ def add_exec_record(dispatch_id, source):
             'out_degree': ','.join(str(j) for j in i['out']),
             'server_host': i.get('server_host', ''),
             'server_dir': i.get('server_dir', ''),
-            'params': ','.join(i['params']),
+            'params': ','.join(i.get('params', [])),
             'server_script': i.get('server_script', ''),
             'position': i['position'],
-            'return_code': i['return_code'],
-            'level': i['level'],
-            'status': i['status'],
+            'return_code': i.get('return_code', 0),
+            'level': i.get('level', 0),
+            'status': i.get('status', 'preparing'),
             'insert_time': int(time.time()),
             'update_time': int(time.time())
         })

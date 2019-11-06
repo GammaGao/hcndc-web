@@ -193,3 +193,15 @@ class ExecuteFilter(object):
     def filter_restart(distribute_job, msg):
         """执行服务任务回调"""
         return {'status': 200, 'msg': msg, 'data': distribute_job}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_reset(exec_id):
+        """重置执行任务"""
+        return {'status': 200, 'msg': '成功', 'data': {'exec_id': exec_id}}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_start(exec_id):
+        """启动执行任务"""
+        return {'status': 200, 'msg': '成功', 'data': {'exec_id': exec_id}}, 200

@@ -8,6 +8,7 @@ from server.request import get_arg, get_payload
 from filters.execute import ExecuteFilter
 from operations.execute import ExecuteOperation
 from verify.execute import ExecuteVerify
+from verify.permission import PermissionVerify
 from document.execute import *
 
 
@@ -63,7 +64,8 @@ class ExecuteDetail(Resource):
 
     @staticmethod
     @ExecuteFilter.filter_stop_execute_job(status=bool)
-    @ExecuteOperation.stop_execute_job(exec_id=int)
+    @ExecuteOperation.stop_execute_job(exec_id=int, user_id=int)
+    @PermissionVerify.verify_execute_permission(exec_id=int)
     def delete(exec_id):
         """中止执行任务"""
         params = Response(exec_id=exec_id)
@@ -73,7 +75,8 @@ class ExecuteDetail(Resource):
     @staticmethod
     @execute_restart_requests
     @ExecuteFilter.filter_restart(distribute_job=list, msg=str)
-    @ExecuteOperation.restart_execute_job(exec_id=int, prepose_rely=int)
+    @ExecuteOperation.restart_execute_job(exec_id=int, prepose_rely=int, user_id=int)
+    @PermissionVerify.verify_execute_permission(exec_id=int, prepose_rely=int)
     def post(exec_id):
         """断点续跑"""
         payload = get_payload()
@@ -85,10 +88,23 @@ class ExecuteDetail(Resource):
         return params
 
     @staticmethod
+    @ExecuteFilter.filter_reset(exec_id=int)
+    @ExecuteOperation.reset_execute_job(exec_id=int, user_id=int)
+    @PermissionVerify.verify_execute_permission(exec_id=int)
     def put(exec_id):
         """重置执行任务"""
         params = Response(exec_id=exec_id)
         log.info('重置执行任务[params: %s]' % str(params))
+        return params
+
+    @staticmethod
+    @ExecuteFilter.filter_start(exec_id=int)
+    @ExecuteOperation.start_execute_job(exec_id=int, user_id=int)
+    @PermissionVerify.verify_execute_permission(exec_id=int)
+    def patch(exec_id):
+        """启动执行任务(重置任务后)"""
+        params = Response(exec_id=exec_id)
+        log.info('启动执行任务[params: %s]' % str(params))
         return params
 
 

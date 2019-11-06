@@ -231,7 +231,7 @@
                                 return '<span class="layui-badge layui-bg-blue">运行中</span>';
                             } else if (data.status === 3) {
                                 return '<span class="layui-badge-rim">就绪</span>';
-                            }else {
+                            } else {
                                 return '<span class="layui-badge">失败</span>';
                             }
                         }
@@ -336,7 +336,47 @@
                         }
                         // 重置
                         else if (event === 'reset') {
-
+                            $.ajax({
+                                url: BASE.uri.execute.detail_api + data.exec_id + '/',
+                                type: 'put',
+                                success: function (result) {
+                                    if (result.status === 200) {
+                                        layer.msg('重置成功', {icon: 6});
+                                        // 关闭自身iframe窗口
+                                        setTimeout(function () {
+                                            window.location.reload();
+                                        }, 2000);
+                                    } else {
+                                        layer.msg(sprintf('重置失败[%s]', result.msg), {icon: 5});
+                                    }
+                                },
+                                error: function (error) {
+                                    let result = error.responseJSON;
+                                    layer.alert(sprintf('重置失败: %s', result.msg))
+                                }
+                            })
+                        }
+                        // 启动
+                        else if (event === 'start') {
+                            $.ajax({
+                                url: BASE.uri.execute.detail_api + data.exec_id + '/',
+                                type: 'patch',
+                                success: function (result) {
+                                    if (result.status === 200) {
+                                        layer.msg('启动成功', {icon: 6});
+                                        // 关闭自身iframe窗口
+                                        setTimeout(function () {
+                                            window.location.reload();
+                                        }, 2000);
+                                    } else {
+                                        layer.msg(sprintf('启动失败[%s]', result.msg), {icon: 5});
+                                    }
+                                },
+                                error: function (error) {
+                                    let result = error.responseJSON;
+                                    layer.alert(sprintf('启动失败: %s', result.msg))
+                                }
+                            })
                         }
                     }
                 )

@@ -20,7 +20,7 @@ class ExecuteOperation(object):
         distribute_job = []
         if status == 'succeeded':
             # 推进流程
-            result = generate_dag_by_exec_id(exec_id)
+            result = generate_dag_by_exec_id(exec_id, 1)
             nodes = result['nodes']
             # 遍历所有节点
             for job_id in nodes:
@@ -162,7 +162,7 @@ class ExecuteOperation(object):
 
     @staticmethod
     @make_decorator
-    def stop_execute_job(exec_id):
+    def stop_execute_job(exec_id, user_id):
         """中止执行任务"""
         # 修改调度主表状态为失败
         ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
@@ -188,7 +188,7 @@ class ExecuteOperation(object):
 
     @staticmethod
     @make_decorator
-    def restart_execute_job(exec_id, prepose_rely):
+    def restart_execute_job(exec_id, prepose_rely, user_id):
         """断点续跑"""
         # 修改调度表状态
         ExecuteModel.update_execute_status(db.etl_db, exec_id, 1)
@@ -240,3 +240,60 @@ class ExecuteOperation(object):
                 log.error(err_msg, exc_info=True)
                 return Response(distribute_job=distribute_job, msg=err_msg)
         return Response(distribute_job=distribute_job, msg='成功')
+
+    @staticmethod
+    @make_decorator
+    def reset_execute_job(exec_id, user_id):
+        """重置执行任务"""
+        ExecuteModel.update_execute_status(db.etl_db, exec_id, 3)
+        # 修改执行状态为初始状态
+        ScheduleModel.update_exec_job_status_all(db.etl_db, exec_id, 'preparing')
+        return Response(exec_id=exec_id)
+
+    @staticmethod
+    @make_decorator
+    def start_execute_job(exec_id, user_id):
+        """启动执行任务"""
+        # 推进流程
+        result = generate_dag_by_exec_id(exec_id, 3)
+        nodes = result['nodes']
+        # 修改执行表状态
+        ExecuteModel.update_execute_status(db.etl_db, exec_id, 1)
+        dispatch = ExecuteModel.get_exec_dispatch_id(db.etl_db, exec_id)
+        # 任务流中任务为空, 则视调度已完成
+        if not nodes:
+            ExecuteModel.update_execute_status(db.etl_db, exec_id, 0)
+            # 修改调度执行表账期
+            if dispatch['exec_type'] == 1 and dispatch['dispatch_id']:
+                run_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+                ExecuteModel.update_interface_account_by_dispatch_id(db.etl_db, dispatch['dispatch_id'], run_time)
+            log.info('任务流中任务为空: 调度id: %s' % dispatch['dispatch_id'])
+            return Response(exec_id=exec_id)
+
+        # 遍历所有节点
+        for job_id in nodes:
+            job = nodes[job_id]
+            if job['level'] == 0 and job['position'] == 1:
+                try:
+                    client = Connection(job['server_host'], config.exec.port)
+                    client.rpc.execute(
+                        exec_id=exec_id,
+                        job_id=job_id,
+                        server_dir=job['server_dir'],
+                        server_script=job['server_script'],
+                        return_code=job['return_code'],
+                        params=job['params'],
+                        status=job['status']
+                    )
+                    log.info('分发任务: 执行id: %s, 任务id: %s' % (exec_id, job_id))
+                except:
+                    err_msg = 'rpc连接异常: host: %s, port: %s' % (job['server_host'], config.exec.port)
+                    # 添加执行任务详情日志
+                    ScheduleModel.add_exec_detail_job(db.etl_db, exec_id, job_id, 'ERROR', job['server_dir'],
+                                                      job['server_script'], err_msg, 3)
+                    # 修改执行状态
+                    ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
+                    ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
+                    log.error(err_msg, exc_info=True)
+
+        return Response(exec_id=exec_id)

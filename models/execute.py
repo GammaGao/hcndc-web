@@ -107,18 +107,19 @@ class ExecuteModel(object):
         return result
 
     @staticmethod
-    def get_execute_jobs(cursor, exec_id):
+    def get_execute_jobs(cursor, exec_id, status):
         """获取所有执行任务"""
         command = '''
         SELECT job_id, in_degree, out_degree, server_host, server_dir,
         server_script, position, `level`, a.`status`, params, return_code
         FROM tb_execute_detail AS a
         -- 执行主表状态为运行中
-        INNER JOIN tb_execute AS b ON a.exec_id = b.exec_id AND b.status = 1
+        INNER JOIN tb_execute AS b ON a.exec_id = b.exec_id AND b.status = :status
         WHERE a.exec_id = :exec_id
         '''
         result = cursor.query(command, {
-            'exec_id': exec_id
+            'exec_id': exec_id,
+            'status': status
         })
         return result if result else []
 
@@ -280,5 +281,18 @@ class ExecuteModel(object):
         result = cursor.update(command, {
             'exec_id': exec_id,
             'update_time': int(time.time())
+        })
+        return result
+
+    @staticmethod
+    def get_exec_dispatch_id(cursor, exec_id):
+        """获取执行表中调度id"""
+        command = '''
+        SELECT exec_type, dispatch_id
+        FROM tb_execute AS a
+        WHERE a.exec_id = :exec_id
+        '''
+        result = cursor.query_one(command, {
+            'exec_id': exec_id
         })
         return result

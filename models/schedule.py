@@ -62,13 +62,28 @@ class ScheduleModel(object):
     def update_exec_job_status(cursor, exec_id, job_id, status):
         """修改执行任务状态"""
         command = '''
-            UPDATE tb_execute_detail
-            SET status = :status, update_time = :update_time, pid = 0
-            WHERE exec_id = :exec_id AND job_id = :job_id
-            '''
+        UPDATE tb_execute_detail
+        SET status = :status, update_time = :update_time, pid = 0
+        WHERE exec_id = :exec_id AND job_id = :job_id
+        '''
         result = cursor.update(command, {
             'exec_id': exec_id,
             'job_id': job_id,
+            'status': status,
+            'update_time': int(time.time())
+        })
+        return result
+
+    @staticmethod
+    def update_exec_job_status_all(cursor, exec_id, status):
+        """修改执行任务状态"""
+        command = '''
+        UPDATE tb_execute_detail
+        SET status = :status, update_time = :update_time, pid = 0
+        WHERE exec_id = :exec_id
+        '''
+        result = cursor.update(command, {
+            'exec_id': exec_id,
             'status': status,
             'update_time': int(time.time())
         })
