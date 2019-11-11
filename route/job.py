@@ -87,7 +87,7 @@ def JobUpload():
             data = []
             for i in range(1, sheet.nrows):
                 # 取前10列
-                data.append(sheet.row_values(i)[:10])
+                data.append(sheet.row_values(i)[:11])
         # csv文件
         else:
             data = []
@@ -96,7 +96,7 @@ def JobUpload():
                 for index, line in enumerate(reader):
                     if index > 0:
                         # 取前10列
-                        data.append(line[:10])
+                        data.append(line[:11])
         # 异常原因
         err_msg = []
         # 任务流id列表
@@ -127,7 +127,7 @@ def JobUpload():
                 for i, param in enumerate(row):
                     try:
                         # int类型参数
-                        if i in [0, 1, 4]:
+                        if i in [0, 1, 4, 10]:
                             row[i] = int(param)
                         # 字符串类型参数
                         elif i in [2, 3, 5, 6]:
@@ -197,7 +197,7 @@ def JobUpload():
             # 新增任务详情
             for line in data:
                 job_id = JobModel.add_job_detail(db.etl_db, line[2], line[1], line[3], line[4], line[5], line[6],
-                                                 user_id)
+                                                 line[10], user_id)
                 job_map[line[0]] = job_id
                 # 表格数据中新增任务id字段
                 line.append(job_id)
@@ -236,6 +236,8 @@ def JobUpload():
                     })
             if job_params:
                 JobModel.add_job_param(db.etl_db, job_params)
+            # 删除文件
+            os.remove(file_path)
             return jsonify({'status': 200, 'msg': '成功', 'data': {}})
     else:
         return jsonify({'status': 400, 'msg': '文件类型错误', 'data': {}})
