@@ -20,7 +20,7 @@ class ExecuteOperation(object):
         distribute_job = []
         if status == 'succeeded':
             # 推进流程
-            result = generate_dag_by_exec_id(exec_id, 1)
+            result = generate_dag_by_exec_id(exec_id)
             nodes = result['nodes']
             # 遍历所有节点
             for job_id in nodes:

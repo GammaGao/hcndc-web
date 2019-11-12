@@ -130,10 +130,10 @@ def generate_dag_by_dispatch_id(dispatch_id):
     return {'nodes': nodes, 'source': source}
 
 
-def generate_dag_by_exec_id(exec_id, status):
+def generate_dag_by_exec_id(exec_id):
     """根据执行id生成dag模型"""
     # 获取执行任务
-    source = ExecuteModel.get_execute_jobs(db.etl_db, exec_id, status)
+    source = ExecuteModel.get_execute_jobs(db.etl_db, exec_id)
     for job in source:
         # 入度
         if not job['in_degree']:
