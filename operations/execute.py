@@ -47,7 +47,7 @@ class ExecuteOperation(object):
                         server_dir=nodes[job_id]['server_dir'],
                         server_script=nodes[job_id]['server_script'],
                         return_code=nodes[job_id]['return_code'],
-                        params=nodes[job_id]['params'],
+                        params=nodes[job_id]['params'].split(','),
                         status=nodes[job_id]['status']
                     )
                 except:
@@ -226,8 +226,8 @@ class ExecuteOperation(object):
                     server_dir=nodes[job_id]['server_dir'],
                     server_script=nodes[job_id]['server_script'],
                     return_code=nodes[job_id]['return_code'],
-                    params=nodes[job_id]['params'],
-                    status=nodes[job_id]['status']
+                    params=nodes[job_id]['params'].split(','),
+                    status='preparing'
                 )
             except:
                 err_msg = 'rpc连接异常: host: %s, port: %s' % (nodes[job_id]['server_host'], config.exec.port)
@@ -255,7 +255,7 @@ class ExecuteOperation(object):
     def start_execute_job(exec_id, user_id):
         """启动执行任务"""
         # 推进流程
-        result = generate_dag_by_exec_id(exec_id, 3)
+        result = generate_dag_by_exec_id(exec_id)
         nodes = result['nodes']
         # 修改执行表状态
         ExecuteModel.update_execute_status(db.etl_db, exec_id, 1)
@@ -282,7 +282,7 @@ class ExecuteOperation(object):
                         server_dir=job['server_dir'],
                         server_script=job['server_script'],
                         return_code=job['return_code'],
-                        params=job['params'],
+                        params=job['params'].split(','),
                         status=job['status']
                     )
                     log.info('分发任务: 执行id: %s, 任务id: %s' % (exec_id, job_id))
