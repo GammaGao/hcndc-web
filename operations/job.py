@@ -55,6 +55,7 @@ class JobOperation(object):
     def get_job_detail(job_id):
         """获取任务详情"""
         result = JobModel.get_job_detail(db.etl_db, job_id)
+        result['run_time'] = str(result['run_time'])
         return Response(result=result)
 
     @staticmethod
@@ -179,34 +180,7 @@ class JobOperation(object):
         if job['is_deleted']:
             abort(400, **make_result(status=400, msg='任务已删除, 不能执行'))
         # 获取任务参数
-        job_params = JobModel.get_job_params_by_job_id(db.etl_db, job_id)
-        params = []
-        for item in job_params:
-            # 静态参数
-            if item['param_type'] == 0:
-                params.append(item['param_value'])
-            # SQL参数
-            elif item['param_type'] == 1:
-                # 获取SQL参数
-                result = get_db_data_one(item['source_type'], item['source_host'], item['source_port'],
-                                         item['source_user'], item['source_password'], item['source_database'],
-                                         item['auth_type'], item['param_value'])
-                if result['flag'] == 0:
-                    params.append(result['result'])
-                else:
-                    abort(400, **make_result(status=400, msg='获取任务SQL参数错误[ERROR: %s]' % result['msg']))
-            # 上下文参数
-            elif item['param_type'] == 2:
-                # 任务流名称
-                if item['param_value'] == '$flow_name':
-                    params.append(job['interface_name'])
-                # 任务名称
-                elif item['param_value'] == '$job_name':
-                    params.append(job['job_name'])
-                # 数据日期
-                elif item['param_value'] == '$date':
-                    params.append(job['run_time'].strftime('%Y-%m-%d'))
-
+        params = JobOperation.get_job_params(db.etl_db, job_id)
         # 添加执行表
         exec_id = ExecuteModel.add_execute(db.etl_db, 2, 0)
         # 添加执行详情表
@@ -252,3 +226,40 @@ class JobOperation(object):
             ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
             log.error(err_msg, exc_info=True)
             return Response(status=False, msg=err_msg)
+
+    @staticmethod
+    def get_job_params(cursor, job_id):
+        """获取任务参数"""
+        # 获取任务
+        job = JobModel.get_job_detail(cursor, job_id)
+        if job['is_deleted']:
+            abort(400, **make_result(status=400, msg='任务已删除, 不能执行'))
+        # 获取任务参数
+        job_params = JobModel.get_job_params_by_job_id(db.etl_db, job_id)
+        params = []
+        for item in job_params:
+            # 静态参数
+            if item['param_type'] == 0:
+                params.append(item['param_value'])
+            # SQL参数
+            elif item['param_type'] == 1:
+                # 获取SQL参数
+                result = get_db_data_one(item['source_type'], item['source_host'], item['source_port'],
+                                         item['source_user'], item['source_password'], item['source_database'],
+                                         item['auth_type'], item['param_value'])
+                if result['flag'] == 0:
+                    params.append(result['result'])
+                else:
+                    abort(400, **make_result(status=400, msg='获取任务SQL参数错误[ERROR: %s]' % result['msg']))
+            # 上下文参数
+            elif item['param_type'] == 2:
+                # 任务流名称
+                if item['param_value'] == '$flow_name':
+                    params.append(job['interface_name'])
+                # 任务名称
+                elif item['param_value'] == '$job_name':
+                    params.append(job['job_name'])
+                # 数据日期
+                elif item['param_value'] == '$date':
+                    params.append(job['run_time'].strftime('%Y-%m-%d'))
+        return params

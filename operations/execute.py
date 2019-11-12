@@ -8,6 +8,7 @@ from configs import config, log, db
 from models.execute import ExecuteModel
 from models.schedule import ScheduleModel
 from util.msg_push import send_mail, send_dingtalk
+from operations.job import JobOperation
 
 import time
 
@@ -98,8 +99,10 @@ class ExecuteOperation(object):
             run_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
             ExecuteModel.update_interface_account_by_execute_id(db.etl_db, exec_id, run_time)
 
-        # 修改调度执行表状态
-        ExecuteModel.update_execute_status(db.etl_db, exec_id, exec_status)
+        master_status = ExecuteModel.get_execute_status(db.etl_db, exec_id)
+        # 非中断条件下修改调度执行表状态
+        if master_status != 2:
+            ExecuteModel.update_execute_status(db.etl_db, exec_id, exec_status)
 
         return Response(distribute_job=distribute_job, msg='成功')
 
@@ -121,11 +124,14 @@ class ExecuteOperation(object):
             # 运行中
             elif run_status == 2:
                 condition.append('a.`status` = 1')
-            # 失败
+            # 中断
             elif run_status == 3:
+                condition.append('a.`status` = 2')
+            # 失败
+            elif run_status == 4:
                 condition.append('a.`status` = -1')
             # 就绪
-            elif run_status == 4:
+            elif run_status == 5:
                 condition.append('a.`status` = 3')
         if exec_type:
             condition.append('exec_type = %s' % exec_type)
@@ -164,8 +170,8 @@ class ExecuteOperation(object):
     @make_decorator
     def stop_execute_job(exec_id, user_id):
         """中止执行任务"""
-        # 修改调度主表状态为失败
-        ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
+        # 修改调度主表状态为中断
+        ExecuteModel.update_execute_status(db.etl_db, exec_id, 2)
         # 获取正在执行任务
         result = ExecuteModel.get_execute_detail_by_status(db.etl_db, exec_id, 'running')
         for execute in result:
@@ -212,21 +218,22 @@ class ExecuteOperation(object):
         # 去重, 分发任务
         for job_id in set(distribute_job):
             log.info('分发任务: 执行id: %s, 任务id: %s' % (exec_id, job_id))
+            # 获取任务参数
+            params = JobOperation.get_job_params(db.etl_db, job_id)
             # 修改执行状态为初始状态
-            ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'preparing')
+            ScheduleModel.update_exec_job_reset(db.etl_db, exec_id, job_id, 'preparing', ','.join(params))
             try:
                 # rpc分发任务
                 client = Connection(nodes[job_id]['server_host'], config.exec.port)
                 log.info('rpc分发任务: 执行id: %s, 任务id: %s, host: %s, port: %s' %
-                         (exec_id, job_id, nodes[job_id]['server_host'], config.exec.port)
-                         )
+                         (exec_id, job_id, nodes[job_id]['server_host'], config.exec.port))
                 client.rpc.execute(
                     exec_id=exec_id,
                     job_id=job_id,
                     server_dir=nodes[job_id]['server_dir'],
                     server_script=nodes[job_id]['server_script'],
                     return_code=nodes[job_id]['return_code'],
-                    params=nodes[job_id]['params'].split(','),
+                    params=params,
                     status='preparing'
                 )
             except:

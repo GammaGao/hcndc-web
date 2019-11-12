@@ -229,6 +229,8 @@
                                 return '<span class="layui-badge layui-bg-green">成功</span>';
                             } else if (data.status === 1) {
                                 return '<span class="layui-badge layui-bg-blue">运行中</span>';
+                            } else if (data.status === 2) {
+                                return '<span class="layui-badge layui-bg-orange">中断</span>';
                             } else if (data.status === 3) {
                                 return '<span class="layui-badge-rim">就绪</span>';
                             } else {

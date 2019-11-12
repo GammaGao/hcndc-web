@@ -95,6 +95,19 @@ class ExecuteModel(object):
         return [i['status'] for i in result] if result else []
 
     @staticmethod
+    def get_execute_status(cursor, exec_id):
+        """获取执行表任务撞他"""
+        command = '''
+        SELECT `status`
+        FROM tb_execute
+        WHERE exec_id = :exec_id
+        '''
+        result = cursor.query_one(command, {
+            'exec_id': exec_id
+        })
+        return result['status'] if result else None
+
+    @staticmethod
     def add_execute_detail(cursor, data):
         """添加执行详情表"""
         command = '''
@@ -113,6 +126,8 @@ class ExecuteModel(object):
         SELECT job_id, in_degree, out_degree, server_host, server_dir,
         server_script, position, `level`, a.`status`, params, return_code
         FROM tb_execute_detail AS a
+        -- 主表状态为运行中,失败(执行中存在错误),就绪
+        INNER JOIN tb_execute AS b ON a.exec_id = b.exec_id AND b.`status` IN (1, -1, 3)
         WHERE a.exec_id = :exec_id
         '''
         result = cursor.query(command, {
