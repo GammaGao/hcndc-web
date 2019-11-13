@@ -16,6 +16,8 @@
             this.user_info();
             // 元素事件注册
             this.element_event();
+            // 任务流目录数据初始化
+            this.interface_index_init();
             // 任务流查询事件注册
             this.form_event();
             // 表格数据初始化
@@ -125,6 +127,26 @@
                 }
             })
         },
+        // 任务流目录数据初始化
+        interface_index_init: function () {
+            $.ajax({
+                url: BASE.uri.interface.index_api,
+                type: 'get',
+                success: function (result) {
+                    layui.use('form', function () {
+                        let form = layui.form;
+                        let html = [];
+                        html.push('<option value="">全部</option>');
+                        for (let i = 0; i < result.data.length; i++) {
+                            let item = result.data[i];
+                            html.push('<option value="' + item.interface_index + '">' + item.interface_index + '</option>')
+                        }
+                        $('select[name=interface_index]').append(html.join(''));
+                        form.render('select');
+                    })
+                }
+            });
+        },
         form_event: function () {
             let that = this;
             layui.use('form', function () {
@@ -179,6 +201,9 @@
                     }, {
                         field: "interface_desc",
                         title: "任务流描述"
+                    }, {
+                        field: "interface_index",
+                        title: "任务流目录"
                     }, {
                         field: "retry",
                         title: "重试次数"

@@ -9,7 +9,7 @@ class JobModel(object):
     def get_job_list(cursor, condition, page=1, limit=10):
         """获取任务列表"""
         command = '''
-        SELECT job_id, interface_id, job_name, job_desc, server_id,
+        SELECT job_id, interface_id, job_name, job_desc, job_index, server_id,
         server_dir, server_script, is_deleted
         FROM tb_jobs
         %s
@@ -56,7 +56,7 @@ class JobModel(object):
 
     @staticmethod
     def delete_job(cursor, job_id, user_id):
-        """删除项目"""
+        """删除任务"""
         command = '''
         UPDATE tb_jobs
         SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
@@ -74,7 +74,7 @@ class JobModel(object):
     def get_job_detail(cursor, job_id):
         """获取任务详情"""
         command = '''
-        SELECT a.job_id, a.interface_id, interface_name, run_time, job_name, job_desc, server_name,
+        SELECT a.job_id, a.interface_id, interface_name, run_time, job_name, job_desc, job_index, server_name,
         b.server_id, server_host, server_dir, server_script, return_code, a.is_deleted,
         GROUP_CONCAT(DISTINCT c.prep_id) AS prep_id, GROUP_CONCAT(d.param_id) AS param_id
         FROM tb_jobs AS a
@@ -91,13 +91,13 @@ class JobModel(object):
         return result if result else {}
 
     @staticmethod
-    def update_job_detail(cursor, job_id, interface_id, job_name, job_desc, server_id, server_dir, server_script,
-                          return_code, user_id, is_deleted):
+    def update_job_detail(cursor, job_id, interface_id, job_name, job_desc, job_index, server_id, server_dir,
+                          server_script, return_code, user_id, is_deleted):
         """修改任务详情"""
         command = '''
         UPDATE tb_jobs
-        SET job_name = :job_name, interface_id = :interface_id, job_desc = :job_desc, server_id = :server_id,
-        server_dir = :server_dir, server_script = :server_script, return_code = :return_code,
+        SET job_name = :job_name, interface_id = :interface_id, job_desc = :job_desc, job_index = :job_index,
+        server_id = :server_id, server_dir = :server_dir, server_script = :server_script, return_code = :return_code,
         update_time = :update_time, updater_id = :user_id, is_deleted = :is_deleted
         WHERE job_id = :job_id
         '''
@@ -107,6 +107,7 @@ class JobModel(object):
             'interface_id': interface_id,
             'job_name': job_name,
             'job_desc': job_desc,
+            'job_index': job_index,
             'server_id': server_id,
             'server_dir': server_dir,
             'server_script': server_script,
@@ -118,13 +119,13 @@ class JobModel(object):
         return result
 
     @staticmethod
-    def add_job_detail(cursor, job_name, interface_id, job_desc, server_id, server_dir, server_script, return_code,
-                       user_id):
+    def add_job_detail(cursor, job_name, interface_id, job_desc, job_index, server_id, server_dir, server_script,
+                       return_code, user_id):
         """新增任务详情"""
         command = '''
-        INSERT INTO tb_jobs(interface_id, job_name, job_desc, server_id, server_dir, server_script, return_code,
-        insert_time, update_time, creator_id, updater_id)
-        VALUES (:interface_id, :job_name, :job_desc, :server_id, :server_dir, :server_script, :return_code,
+        INSERT INTO tb_jobs(interface_id, job_name, job_desc, job_index, server_id, server_dir, server_script,
+        return_code, insert_time, update_time, creator_id, updater_id)
+        VALUES (:interface_id, :job_name, :job_desc, :job_index, :server_id, :server_dir, :server_script, :return_code,
         :insert_time, :update_time, :user_id, :user_id)
         '''
 
@@ -132,6 +133,7 @@ class JobModel(object):
             'job_name': job_name,
             'interface_id': interface_id,
             'job_desc': job_desc,
+            'job_index': job_index,
             'server_id': server_id,
             'server_dir': server_dir,
             'server_script': server_script,
@@ -225,4 +227,15 @@ class JobModel(object):
         result = cursor.query(command, {
             'job_id': job_id
         })
+        return result if result else []
+
+    @staticmethod
+    def get_job_index(cursor):
+        """获取所有任务目录"""
+        command = '''
+        SELECT DISTINCT job_index
+        FROM tb_jobs
+        WHERE is_deleted = 0
+        '''
+        result = cursor.query(command)
         return result if result else []

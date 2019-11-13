@@ -206,3 +206,9 @@ class InterfaceFilter(object):
     def filter_get_interface_id_list(result):
         """获取任务流id列表"""
         return {'status': 200, 'msg': '成功', 'data': result}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_get_interface_index(result):
+        """获取所有任务流目录"""
+        return {'status': 200, 'msg': '成功', 'data': result}, 200

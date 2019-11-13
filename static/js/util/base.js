@@ -59,7 +59,8 @@ let BASE = {
             'add': '/interface/add/',
             'add_api': '/interface/add/api/',
             'id_list_api': '/interface/id/list/api/',
-            'graph_api': '/interface/graph/api/'
+            'graph_api': '/interface/graph/api/',
+            'index_api': '/interface/index/api/'
         },
         job: {
             'list': '/job/',
@@ -71,6 +72,7 @@ let BASE = {
             'add_api': '/job/add/api/',
             'id_list_api': '/job/list/all/api/',
             'run_api': '/job/run/api/',
+            'index_api': '/job/index/api/'
         },
         dispatch: {
             'list': '/dispatch/',

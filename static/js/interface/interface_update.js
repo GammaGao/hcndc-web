@@ -56,6 +56,7 @@
                         form.val('interface_detail', {
                             'interface_name': data.interface_name,
                             'interface_desc': data.interface_desc,
+                            'interface_index': data.interface_index,
                             'retry': data.retry,
                             'is_deleted': data.is_deleted === 1
                         });

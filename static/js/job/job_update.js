@@ -136,6 +136,7 @@
                     'interface_id': data.interface_id,
                     'job_name': data.job_name,
                     'job_desc': data.job_desc,
+                    'job_index': data.job_index,
                     'server_id': data.server_id,
                     'server_dir': data.server_dir,
                     'server_script': data.server_script,

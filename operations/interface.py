@@ -12,17 +12,17 @@ from configs import db
 class InterfaceOperation(object):
     @staticmethod
     @make_decorator
-    def get_interface_list(interface_name, start_time, end_time, interface_type, is_deleted, page, limit):
+    def get_interface_list(interface_name, interface_index, start_time, end_time, is_deleted, page, limit):
         """获取任务流列表"""
         condition = []
         if interface_name:
             condition.append('interface_name LIKE "%%%%%s%%%%"' % interface_name)
+        if interface_index:
+            condition.append('interface_index = "%s"' % interface_index)
         if start_time:
             condition.append('insert_time >= %s' % start_time)
         if end_time:
             condition.append('insert_time <= %s' % end_time)
-        if interface_type:
-            condition.append('interface_type = %s' % interface_type)
         if is_deleted == 1:
             condition.append('is_deleted = 0')
         elif is_deleted == 2:
@@ -52,17 +52,19 @@ class InterfaceOperation(object):
 
     @staticmethod
     @make_decorator
-    def update_interface_detail(interface_id, interface_name, interface_desc, retry, user_id, is_deleted):
+    def update_interface_detail(interface_id, interface_name, interface_desc, interface_index, retry, user_id,
+                                is_deleted):
         """修改任务流详情"""
-        InterfaceModel.update_interface_detail(db.etl_db, interface_id, interface_name, interface_desc, retry, user_id,
-                                               is_deleted)
+        InterfaceModel.update_interface_detail(db.etl_db, interface_id, interface_name, interface_desc, interface_index,
+                                               retry, user_id, is_deleted)
         return Response(interface_id=interface_id)
 
     @staticmethod
     @make_decorator
-    def add_interface(interface_name, interface_desc, retry, user_id):
+    def add_interface(interface_name, interface_desc, interface_index, retry, user_id):
         """新增任务流"""
-        interface_id = InterfaceModel.add_interface(db.etl_db, interface_name, interface_desc, retry, user_id)
+        interface_id = InterfaceModel.add_interface(db.etl_db, interface_name, interface_desc, interface_index, retry,
+                                                    user_id)
         return Response(interface_id=interface_id)
 
     @staticmethod
@@ -92,4 +94,11 @@ class InterfaceOperation(object):
     def get_interface_id_list():
         """获取任务流id列表"""
         result = InterfaceModel.get_interface_id_list(db.etl_db)
+        return Response(result=result)
+
+    @staticmethod
+    @make_decorator
+    def get_interface_index():
+        """获取所有任务流目录"""
+        result = InterfaceModel.get_interface_index(db.etl_db)
         return Response(result=result)

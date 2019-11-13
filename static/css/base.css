@@ -105,6 +105,17 @@
     margin-left: 0;
 }
 
+/* body内左侧边栏 */
+.site-tree {
+    position: fixed;
+    width: 220px;
+    height: -webkit-fill-available;
+}
+
+.site-content {
+    margin-left: 220px;
+}
+
 /* 日志详情时间线样式 */
 .flow-progress {
     background-color: #f5f5f5;
@@ -118,32 +129,33 @@
     height: 100%;
     border-radius: 5px;
 }
+
 /* 日志运行状态颜色 */
 .READY {
-    background-color: #FFB800!important;
+    background-color: #FFB800 !important;
 }
 
 .PREPARING {
-    background-color: #F19153!important;
+    background-color: #F19153 !important;
 }
 
 .RUNNING {
-    background-color: #3398CC!important;
+    background-color: #3398CC !important;
 }
 
 .SUCCEEDED {
-    background-color: #5CB85C!important;
+    background-color: #5CB85C !important;
 }
 
 .FAILED {
-    background-color: #D9534F!important;
+    background-color: #D9534F !important;
 }
 
 /* 日志时间线颜色 */
 .INFO {
-    color: #5FB878!important;
+    color: #5FB878 !important;
 }
 
 .ERROR {
-    color: #D9534F!important;
+    color: #D9534F !important;
 }

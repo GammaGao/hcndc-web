@@ -17,17 +17,17 @@ class InterfaceList(Resource):
     @interface_list_request
     @interface_list_response_success
     @InterfaceFilter.filter_list_data(result=list, total=int)
-    @InterfaceOperation.get_interface_list(interface_name=str, start_time=int, end_time=int, interface_type=int,
+    @InterfaceOperation.get_interface_list(interface_name=str, interface_index=str, start_time=int, end_time=int,
                                            is_deleted=int, page=int, limit=int)
-    @InterfaceVerify.verify_get_interface_list(interface_name=str, start_time=int, end_time=int, interface_type=int,
+    @InterfaceVerify.verify_get_interface_list(interface_name=str, interface_index=str, start_time=int, end_time=int,
                                                is_deleted=int, page=int, limit=int)
     def get():
         """获取任务流列表"""
         params = Response(
             interface_name=get_arg('interface_name', ''),
+            interface_index=get_arg('interface_index', ''),
             start_time=int(get_arg('start_time', 0)),
             end_time=int(get_arg('end_time', 0)),
-            interface_type=int(get_arg('interface_type', 0)),
             is_deleted=int(get_arg('is_deleted', 0)),
             page=int(get_arg('page', 1)),
             limit=int(get_arg('limit', 10))
@@ -62,12 +62,12 @@ class InterfaceDetail(Resource):
     @staticmethod
     @interface_update_request
     @InterfaceFilter.filter_update_interface_detail(interface_id=int)
-    @InterfaceOperation.update_interface_detail(interface_id=int, interface_name=str, interface_desc=str, retry=int,
-                                                user_id=int, is_deleted=int)
-    @InterfaceVerify.verify_update_interface_detail(interface_id=int, interface_name=str, interface_desc=str, retry=int,
-                                                    user_id=int, is_deleted=int)
-    @PermissionVerify.verify_write_permission(interface_id=int, interface_name=str, interface_desc=str, retry=int,
-                                              is_deleted=int)
+    @InterfaceOperation.update_interface_detail(interface_id=int, interface_name=str, interface_desc=str,
+                                                interface_index=str, retry=int, user_id=int, is_deleted=int)
+    @InterfaceVerify.verify_update_interface_detail(interface_id=int, interface_name=str, interface_desc=str,
+                                                    interface_index=str, retry=int, user_id=int, is_deleted=int)
+    @PermissionVerify.verify_write_permission(interface_id=int, interface_name=str, interface_desc=str,
+                                              interface_index=str, retry=int, is_deleted=int)
     def put(interface_id):
         """修改任务流详情"""
         payload = get_payload()
@@ -75,6 +75,7 @@ class InterfaceDetail(Resource):
             interface_id=interface_id,
             interface_name=payload.get('interface_name', ''),
             interface_desc=payload.get('interface_desc', ''),
+            interface_index=payload.get('interface_index', ''),
             retry=int(payload.get('retry', 0)),
             is_deleted=int(payload.get('is_deleted', 0))
         )
@@ -97,15 +98,18 @@ class InterfaceAdd(Resource):
     @staticmethod
     @interface_add_request
     @InterfaceFilter.filter_add_interface(interface_id=int)
-    @InterfaceOperation.add_interface(interface_name=str, interface_desc=str, retry=int, user_id=int)
-    @InterfaceVerify.verify_add_interface(interface_name=str, interface_desc=str, retry=int, user_id=int)
-    @PermissionVerify.verify_write_permission(interface_name=str, interface_desc=str, retry=int)
+    @InterfaceOperation.add_interface(interface_name=str, interface_desc=str, interface_index=str, retry=int,
+                                      user_id=int)
+    @InterfaceVerify.verify_add_interface(interface_name=str, interface_desc=str, interface_index=str, retry=int,
+                                          user_id=int)
+    @PermissionVerify.verify_write_permission(interface_name=str, interface_desc=str, interface_index=str, retry=int)
     def post():
         """新增任务流"""
         payload = get_payload()
         params = Response(
             interface_name=payload.get('interface_name', ''),
             interface_desc=payload.get('interface_desc', ''),
+            interface_index=payload.get('interface_index', ''),
             retry=int(payload.get('retry', 0))
         )
         log.info('新增任务流[params: %s]' % str(params))
@@ -123,9 +127,21 @@ class InterfaceIDList(Resource):
         return params
 
 
+class InterfaceIndex(Resource):
+    @staticmethod
+    @InterfaceFilter.filter_get_interface_index(result=list)
+    @InterfaceOperation.get_interface_index()
+    def get():
+        """获取所有任务流目录"""
+        params = Response()
+        log.info('获取所有任务流目录')
+        return params
+
+
 ns = api.namespace('interface', description='任务流')
 ns.add_resource(InterfaceList, '/list/api/')
 ns.add_resource(InterfaceGraph, '/graph/api/<int:interface_id>/')
 ns.add_resource(InterfaceDetail, '/detail/api/<int:interface_id>/')
 ns.add_resource(InterfaceAdd, '/add/api/')
 ns.add_resource(InterfaceIDList, '/id/list/api/')
+ns.add_resource(InterfaceIndex, '/index/api/')

@@ -16,6 +16,8 @@
             this.user_info();
             // 元素事件注册
             this.element_event();
+            // 任务目录渲染
+            this.job_index_init();
             // 任务流ID渲染
             this.interface_list_id();
             // 表单搜索事件
@@ -127,6 +129,26 @@
                 }
             })
         },
+        // 任务流目录数据初始化
+        job_index_init: function () {
+            $.ajax({
+                url: BASE.uri.job.index_api,
+                type: 'get',
+                success: function (result) {
+                    layui.use('form', function () {
+                        let form = layui.form;
+                        let html = [];
+                        html.push('<option value="">全部</option>');
+                        for (let i = 0; i < result.data.length; i++) {
+                            let item = result.data[i];
+                            html.push('<option value="' + item.job_index + '">' + item.job_index + '</option>')
+                        }
+                        $('select[name=job_index]').append(html.join(''));
+                        form.render('select');
+                    })
+                }
+            });
+        },
         // 任务流ID渲染
         interface_list_id: function () {
             $.ajax({
@@ -152,17 +174,17 @@
             layui.use('form', function () {
                 let form = layui.form;
                 form.on('submit(job-search)', function (data) {
-                    let job_date_list = data.field.job_date.split(' - ');
-                    if (job_date_list.length === 2) {
-                        let start_time = job_date_list[0] + ' 00:00:00';
-                        data.field.start_time = new Date(start_time).getTime() / 1000;
-                        let end_time = job_date_list[1] + ' 23:59:59';
-                        data.field.end_time = new Date(end_time).getTime() / 1000;
-                    } else {
-                        data.field.start_time = 0;
-                        data.field.end_time = 0;
-                    }
-                    delete data.field.job_date;
+                    // let job_date_list = data.field.job_date.split(' - ');
+                    // if (job_date_list.length === 2) {
+                    //     let start_time = job_date_list[0] + ' 00:00:00';
+                    //     data.field.start_time = new Date(start_time).getTime() / 1000;
+                    //     let end_time = job_date_list[1] + ' 23:59:59';
+                    //     data.field.end_time = new Date(end_time).getTime() / 1000;
+                    // } else {
+                    //     data.field.start_time = 0;
+                    //     data.field.end_time = 0;
+                    // }
+                    // delete data.field.job_date;
                     that.table_data_load(data.field);
                 });
             });
@@ -203,17 +225,24 @@
                         width: "5%"
                     }, {
                         field: "job_name",
-                        title: "任务名称"
+                        title: "任务名称",
+                        width: "8%",
                     }, {
                         field: "job_desc",
-                        title: "任务描述"
+                        title: "任务描述",
+                        width: "8%",
+                    }, {
+                        field: "job_index",
+                        title: "任务目录",
+                        width: "8%",
                     }, {
                         field: "server_id",
                         title: "服务器id",
                         width: "5%"
                     }, {
                         field: "server_dir",
-                        title: "脚本目录"
+                        title: "脚本目录",
+                        width: "8%",
                     }, {
                         field: "server_script",
                         title: "脚本命令"

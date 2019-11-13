@@ -17,12 +17,19 @@
         </fieldset>
         <fieldset class="layui-elem-field layui-field-title">
         </fieldset>
-        <form class="layui-form">
+        <form class="layui-form" lay-filter="interface_list">
             <div class="layui-form-item">
                 <div class="layui-inline">
                     <label class="layui-form-label">任务流名称</label>
                     <div class="layui-input-inline">
                         <input type="text" class="layui-input" name="interface_name" placeholder="任务流名称" autocomplete="off">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">任务流目录</label>
+                    <div class="layui-input-inline">
+                        <select name="interface_index" lay-search>
+                        </select>
                     </div>
                 </div>
                 <div class="layui-inline">

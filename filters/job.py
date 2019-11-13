@@ -56,3 +56,9 @@ class JobFilter(object):
         if status:
             return {'status': 200, 'msg': '成功', 'data': {'content': '已成功分发执行任务'}}, 200
         return {'status': 200, 'msg': msg, 'data': {'content': '分发执行任务失败'}}, 400
+
+    @staticmethod
+    @make_decorator
+    def filter_job_index(result):
+        """获取所有任务目录"""
+        return {'status': 200, 'msg': '成功', 'data': result}, 200

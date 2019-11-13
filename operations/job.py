@@ -18,11 +18,13 @@ from conn.mysql_lock import MysqlLock
 class JobOperation(object):
     @staticmethod
     @make_decorator
-    def get_job_list(job_name, start_time, end_time, interface_id, is_deleted, page, limit):
+    def get_job_list(job_name, job_index, start_time, end_time, interface_id, is_deleted, page, limit):
         """获取任务列表"""
         condition = []
         if job_name:
             condition.append('job_name LIKE "%%%%%s%%%%"' % job_name)
+        if job_index:
+            condition.append('job_index = "%s"' % job_index)
         if start_time:
             condition.append('insert_time >= %s' % start_time)
         if end_time:
@@ -61,11 +63,12 @@ class JobOperation(object):
 
     @staticmethod
     @make_decorator
-    def update_job_detail(job_id, interface_id, job_name, job_desc, server_id, server_dir, server_script,
+    def update_job_detail(job_id, interface_id, job_name, job_desc, job_index, server_id, server_dir, server_script,
                           return_code, old_prep, job_prep, user_id, old_params, job_params, is_deleted):
         """修改任务详情"""
         # 修改详情
-        JobModel.update_job_detail(db.etl_db, job_id, interface_id, job_name, job_desc, server_id, server_dir,
+        JobModel.update_job_detail(db.etl_db, job_id, interface_id, job_name, job_desc, job_index, server_id,
+                                   server_dir,
                                    server_script, return_code, user_id, is_deleted)
         # 修改任务依赖
         old_prep = set() if not old_prep else set(int(i) for i in old_prep.split(','))
@@ -130,11 +133,11 @@ class JobOperation(object):
 
     @staticmethod
     @make_decorator
-    def add_job_detail(job_name, interface_id, job_desc, server_id, server_dir, job_prep, job_params, server_script,
-                       user_id, return_code):
+    def add_job_detail(job_name, interface_id, job_desc, job_index, server_id, server_dir, job_prep, job_params,
+                       server_script, user_id, return_code):
         """新增任务详情"""
         # 新增任务详情
-        job_id = JobModel.add_job_detail(db.etl_db, job_name, interface_id, job_desc, server_id, server_dir,
+        job_id = JobModel.add_job_detail(db.etl_db, job_name, interface_id, job_desc, job_index, server_id, server_dir,
                                          server_script, return_code, user_id)
         # 新增任务依赖
         if job_prep:
@@ -267,3 +270,10 @@ class JobOperation(object):
                 elif item['param_value'] == '$date':
                     params.append(job['run_time'].strftime('%Y-%m-%d'))
         return params
+
+    @staticmethod
+    @make_decorator
+    def get_job_index():
+        """获取所有任务目录"""
+        result = JobModel.get_job_index(db.etl_db)
+        return Response(result=result)

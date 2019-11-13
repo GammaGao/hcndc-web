@@ -7,7 +7,8 @@ from flask_restplus import fields
 
 # 任务列表请求值
 job_list_request = api.doc(params={
-    'job_name': '项目名称',
+    'job_name': '任务名称',
+    'job_index': '任务目录',
     'start_time': '开始创建时间',
     'end_time': '结束创建时间',
     'interface_id': '任务流id',
@@ -40,6 +41,7 @@ job_update_request = api.doc(body=api.model('job_update_request', {
     'job_name': fields.String(description='任务名称'),
     'interface_id': fields.Integer(description='任务流id'),
     'job_desc': fields.String(description='任务描述'),
+    'job_index': fields.String(description='任务目录'),
     'server_id': fields.String(description='执行服务器id'),
     'server_dir': fields.String(description='服务器目录'),
     'server_script': fields.String(description='脚本命令'),
@@ -56,6 +58,7 @@ job_add_request = api.doc(body=api.model('job_add_request', {
     'job_name': fields.String(description='任务名称'),
     'interface_id': fields.Integer(description='任务流id'),
     'job_desc': fields.String(description='任务描述'),
+    'job_index': fields.String(description='任务目录'),
     'server_id': fields.Integer(description='执行服务器id'),
     'server_dir': fields.String(description='服务器目录'),
     'server_script': fields.String(description='脚本命令'),
