@@ -16,12 +16,13 @@ class ExecuteCallBack(Resource):
     @staticmethod
     @callback_request
     @ExecuteFilter.filter_callback(distribute_job=list, msg=str)
-    @ExecuteOperation.get_execute_job(exec_id=int, status=str)
-    @ExecuteVerify.verify_callback(exec_id=int, status=str)
+    @ExecuteOperation.get_execute_job(exec_id=int, job_id=int, status=str)
+    @ExecuteVerify.verify_callback(exec_id=int, job_id=int, status=str)
     def get():
         """执行服务任务回调"""
         params = Response(
             exec_id=int(get_arg('exec_id', 0)),
+            job_id=int(get_arg('job_id', 0)),
             status=get_arg('status', '')
         )
         log.info('获取执行服务任务回调[params: %s]' % str(params))
@@ -74,7 +75,7 @@ class ExecuteDetail(Resource):
 
     @staticmethod
     @execute_restart_requests
-    @ExecuteFilter.filter_restart(distribute_job=list, msg=str)
+    @ExecuteFilter.filter_restart(msg=str)
     @ExecuteOperation.restart_execute_job(exec_id=int, prepose_rely=int, user_id=int)
     @PermissionVerify.verify_execute_permission(exec_id=int, prepose_rely=int)
     def post(exec_id):

@@ -190,9 +190,9 @@ class ExecuteFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_restart(distribute_job, msg):
+    def filter_restart(msg):
         """执行服务任务回调"""
-        return {'status': 200, 'msg': msg, 'data': distribute_job}, 200
+        return {'status': 200, 'msg': msg, 'data': {}}, 200
 
     @staticmethod
     @make_decorator

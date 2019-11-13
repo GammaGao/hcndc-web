@@ -12,6 +12,7 @@ from models.schedule import ScheduleModel
 from configs import db, config, log
 from rpc.rpc_client import Connection
 from util.db_util import get_db_data_one
+from conn.mysql_lock import MysqlLock
 
 
 class JobOperation(object):
@@ -221,9 +222,12 @@ class JobOperation(object):
             # 添加执行任务详情日志
             ScheduleModel.add_exec_detail_job(db.etl_db, exec_id, job_id, 'ERROR', job['server_dir'],
                                               job['server_script'], err_msg, 3)
-            # 修改执行状态
-            ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
-            ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
+            # 修改数据库, 分布式锁
+            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                # 修改执行详情状态[失败]
+                ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
+                # 修改执行主表状态[失败]
+                ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
             log.error(err_msg, exc_info=True)
             return Response(status=False, msg=err_msg)
 

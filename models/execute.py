@@ -137,12 +137,11 @@ class ExecuteModel(object):
 
     @staticmethod
     def get_execute_jobs_all(cursor, exec_id):
-        """获取所有失败任务"""
+        """获取所有任务详情"""
         command = '''
         SELECT job_id, in_degree, out_degree, server_host, server_dir,
         server_script, position, `level`, a.`status`, params, return_code
         FROM tb_execute_detail AS a
-        -- 执行主表状态为运行中
         INNER JOIN tb_execute AS b ON a.exec_id = b.exec_id
         WHERE a.exec_id = :exec_id
         '''

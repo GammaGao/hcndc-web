@@ -122,8 +122,8 @@ def generate_dag_by_exec_id(exec_id):
     return {'nodes': nodes, 'source': source}
 
 
-def get_failed_jobs_by_exec_id(exec_id):
-    """根据执行id生成dag模型-断点重跑"""
+def get_all_jobs_by_exec_id(exec_id):
+    """根据执行id生成dag模型-所有任务详情"""
     # 获取执行所有任务
     source = ExecuteModel.get_execute_jobs_all(db.etl_db, exec_id)
     for job in source:

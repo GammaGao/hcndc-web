@@ -257,7 +257,7 @@
                             if (data.status === 1) {
                                 html.push('<a class="layui-btn layui-btn-sm layui-btn-warm" lay-event="stop">中止</a>');
                             }
-                            // 失败或中止
+                            // 失败或中断
                             else if (data.status === 2 || data.status === -1) {
                                 html.push('<a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="restart">断点重跑</a>');
                                 html.push('<a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="reset">重置</a>');

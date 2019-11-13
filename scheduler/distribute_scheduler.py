@@ -9,6 +9,7 @@ from models.schedule import ScheduleModel
 from configs import db
 from rpc.rpc_client import Connection
 from configs import config, log
+from conn.mysql_lock import MysqlLock
 
 
 def get_dispatch_job(dispatch_id):
@@ -25,7 +26,7 @@ def get_dispatch_job(dispatch_id):
         # 添加执行表-完成状态
         ExecuteModel.add_execute_success(db.etl_db, 1, dispatch_id)
         return
-    # 添加相关信息至数据库
+    # 添加执行主表和详情表至数据库
     exec_id = add_exec_record(dispatch_id, source)
     # rpc分发任务
     for job in source:
@@ -47,9 +48,12 @@ def get_dispatch_job(dispatch_id):
                 # 添加执行任务详情日志
                 ScheduleModel.add_exec_detail_job(db.etl_db, exec_id, job['id'], 'ERROR', job['server_dir'],
                                                   job['server_script'], err_msg, 3)
-                # 修改执行状态
-                ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job['id'], 'failed')
-                ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
+                # 修改数据库, 分布式锁
+                with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                    # 修改执行详情表状态[失败]
+                    ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job['id'], 'failed')
+                    # 修改执行主表状态[失败]
+                    ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
                 log.error(err_msg, exc_info=True)
                 return
 

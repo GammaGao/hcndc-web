@@ -2,13 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from server.decorators import make_decorator, Response
-from scheduler.generate_dag import generate_dag_by_exec_id, get_failed_jobs_by_exec_id
+from scheduler.generate_dag import generate_dag_by_exec_id, get_all_jobs_by_exec_id
 from rpc.rpc_client import Connection
 from configs import config, log, db
 from models.execute import ExecuteModel
 from models.schedule import ScheduleModel
 from util.msg_push import send_mail, send_dingtalk
 from operations.job import JobOperation
+from conn.mysql_lock import MysqlLock
 
 import time
 
@@ -16,8 +17,12 @@ import time
 class ExecuteOperation(object):
     @staticmethod
     @make_decorator
-    def get_execute_job(exec_id, status):
+    def get_execute_job(exec_id, job_id, status):
         """获取执行任务-推进执行流程"""
+        # 修改数据库, 分布式锁
+        with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+            # 修改详情表执行状态
+            ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, status)
         distribute_job = []
         if status == 'succeeded':
             # 推进流程
@@ -34,6 +39,7 @@ class ExecuteOperation(object):
                         if nodes[in_id]['position'] == 1 and nodes[in_id]['status'] != 'succeeded':
                             flag = False
                             break
+                    # 获取所有层级可执行任务
                     if flag and nodes[out_id]['position'] == 1 and nodes[out_id]['status'] in ('preparing', 'ready'):
                         distribute_job.append(out_id)
             # 去重, 分发任务
@@ -56,9 +62,11 @@ class ExecuteOperation(object):
                     # 添加执行任务详情日志
                     ScheduleModel.add_exec_detail_job(db.etl_db, exec_id, job_id, 'ERROR', nodes[job_id]['server_dir'],
                                                       nodes[job_id]['server_script'], err_msg, 3)
-                    # 修改执行状态
-                    ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
-                    ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
+                    # 修改数据库, 分布式锁
+                    with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                        # 修改执行状态
+                        ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
+                        ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
                     log.error(err_msg, exc_info=True)
                     return Response(distribute_job=distribute_job, msg=err_msg)
 
@@ -98,11 +106,13 @@ class ExecuteOperation(object):
             # 修改调度执行表账期
             run_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
             ExecuteModel.update_interface_account_by_execute_id(db.etl_db, exec_id, run_time)
-
+        # 查询执行主表当前状态
         master_status = ExecuteModel.get_execute_status(db.etl_db, exec_id)
         # 非中断条件下修改调度执行表状态
         if master_status != 2:
-            ExecuteModel.update_execute_status(db.etl_db, exec_id, exec_status)
+            # 修改数据库, 分布式锁
+            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                ExecuteModel.update_execute_status(db.etl_db, exec_id, exec_status)
 
         return Response(distribute_job=distribute_job, msg='成功')
 
@@ -170,8 +180,10 @@ class ExecuteOperation(object):
     @make_decorator
     def stop_execute_job(exec_id, user_id):
         """中止执行任务"""
-        # 修改调度主表状态为中断
-        ExecuteModel.update_execute_status(db.etl_db, exec_id, 2)
+        # 修改数据库, 分布式锁
+        with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+            # 修改调度主表状态为[中断]
+            ExecuteModel.update_execute_status(db.etl_db, exec_id, 2)
         # 获取正在执行任务
         result = ExecuteModel.get_execute_detail_by_status(db.etl_db, exec_id, 'running')
         for execute in result:
@@ -181,6 +193,10 @@ class ExecuteOperation(object):
                     # rpc分发-停止任务
                     client = Connection(execute['server_host'], config.exec.port)
                     client.rpc.stop(exec_id=exec_id, job_id=execute['job_id'], pid=execute['pid'])
+                    # 修改数据库, 分布式锁
+                    with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                        # 修改执行详情表为[失败]
+                        ScheduleModel.update_exec_job_status(db.etl_db, exec_id, execute['job_id'], 'failed')
                     log.info('rpc分发-停止任务: 执行id: %s, 任务id: %s' % (exec_id, execute['job_id']))
             except:
                 log.error('rpc分发-停止任务异常: host: %s, port: %s, 执行id: %s, 任务id: %s' % (
@@ -196,65 +212,102 @@ class ExecuteOperation(object):
     @make_decorator
     def restart_execute_job(exec_id, prepose_rely, user_id):
         """断点续跑"""
-        # 修改调度表状态
-        ExecuteModel.update_execute_status(db.etl_db, exec_id, 1)
-        # 获取失败调度详情
-        result = get_failed_jobs_by_exec_id(exec_id)
+        # 修改数据库, 分布式锁
+        with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+            # 修改调度表状态为[运行中]
+            ExecuteModel.update_execute_status(db.etl_db, exec_id, 1)
+        # 获取调度详情
+        result = get_all_jobs_by_exec_id(exec_id)
         nodes = result['nodes']
         # 找出失败节点
         failed_nodes = {job_id: nodes[job_id] for job_id in nodes if nodes[job_id]['status'] == 'failed'}
-        distribute_job = []
-        # 遍历所有失败节点
-        for job_id in failed_nodes:
-            # 考虑前置依赖
-            if prepose_rely:
-                # 不满足执行状态的前置任务
-                not_rely_list = [in_id for in_id in nodes[job_id]['in_degree'] if nodes[in_id]['status'] != 'succeeded']
-                if not not_rely_list:
-                    distribute_job.append(job_id)
-            # 不考虑前置依赖
-            else:
-                distribute_job.append(job_id)
-        # 去重, 分发任务
-        for job_id in set(distribute_job):
-            log.info('分发任务: 执行id: %s, 任务id: %s' % (exec_id, job_id))
+        # 重置失败节点参数
+        for job_id in set(failed_nodes):
+            log.info('重置失败节点参数: 执行id: %s, 任务id: %s' % (exec_id, job_id))
             # 获取任务参数
             params = JobOperation.get_job_params(db.etl_db, job_id)
-            # 修改执行状态为初始状态
-            ScheduleModel.update_exec_job_reset(db.etl_db, exec_id, job_id, 'preparing', ','.join(params))
+            # 修改数据库, 分布式锁
+            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                # 修改执行详情表状态为[待运行]
+                ScheduleModel.update_exec_job_reset(db.etl_db, exec_id, job_id, 'preparing', ','.join(params))
+        # 重新获取调度详情
+        result = get_all_jobs_by_exec_id(exec_id)
+        nodes = result['nodes']
+        # 找到[待运行]节点
+        preparing_nodes = {job_id: nodes[job_id] for job_id in nodes if nodes[job_id]['status'] == 'preparing'}
+        rerun_job = []
+        for job_id in preparing_nodes:
+            flag = True
+            # 入度
+            for in_id in nodes[job_id]['in_degree']:
+                # 节点的入度是否全部成功
+                if nodes[in_id]['position'] == 1 and nodes[in_id]['status'] != 'succeeded':
+                    flag = False
+                    break
+            if flag:
+                rerun_job.append(job_id)
+            # TODO 考虑前置依赖(现在必须考虑)
+            # if prepose_rely:
+            #     flag = True
+            #     # 入度
+            #     for in_id in nodes[job_id]['in_degree']:
+            #         # 节点的入度是否全部成功
+            #         if nodes[in_id]['position'] == 1 and nodes[in_id]['status'] != 'succeeded':
+            #             flag = False
+            #             break
+            #     if flag:
+            #         rerun_job.append(job_id)
+            # # 不考虑前置依赖
+            # else:
+            #     rerun_job.append(job_id)
+        # 去重, 分发任务
+        for job_id in set(rerun_job):
+            log.info('分发任务: 执行id: %s, 任务id: %s' % (exec_id, job_id))
             try:
                 # rpc分发任务
                 client = Connection(nodes[job_id]['server_host'], config.exec.port)
-                log.info('rpc分发任务: 执行id: %s, 任务id: %s, host: %s, port: %s' %
-                         (exec_id, job_id, nodes[job_id]['server_host'], config.exec.port))
                 client.rpc.execute(
                     exec_id=exec_id,
                     job_id=job_id,
                     server_dir=nodes[job_id]['server_dir'],
                     server_script=nodes[job_id]['server_script'],
                     return_code=nodes[job_id]['return_code'],
-                    params=params,
-                    status='preparing'
+                    params=nodes[job_id]['params'].split(','),
+                    status=nodes[job_id]['status']
                 )
             except:
                 err_msg = 'rpc连接异常: host: %s, port: %s' % (nodes[job_id]['server_host'], config.exec.port)
                 # 添加执行任务详情日志
                 ScheduleModel.add_exec_detail_job(db.etl_db, exec_id, job_id, 'ERROR', nodes[job_id]['server_dir'],
                                                   nodes[job_id]['server_script'], err_msg, 3)
-                # 修改执行状态
-                ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
-                ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
+                # 修改数据库, 分布式锁
+                with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                    # 修改执行详情表状态[失败]
+                    ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
+                    # 修改执行主表状态[失败]
+                    ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
                 log.error(err_msg, exc_info=True)
-                return Response(distribute_job=distribute_job, msg=err_msg)
-        return Response(distribute_job=distribute_job, msg='成功')
+                return Response(msg=err_msg)
+        return Response(msg='成功')
 
     @staticmethod
     @make_decorator
     def reset_execute_job(exec_id, user_id):
         """重置执行任务"""
-        ExecuteModel.update_execute_status(db.etl_db, exec_id, 3)
-        # 修改执行状态为初始状态
-        ScheduleModel.update_exec_job_status_all(db.etl_db, exec_id, 'preparing')
+        # 获取调度详情
+        result = get_all_jobs_by_exec_id(exec_id)
+        nodes = result['nodes']
+        # 重置节点参数
+        for job_id in nodes:
+            log.info('重置节点参数: 执行id: %s, 任务id: %s' % (exec_id, job_id))
+            # 获取任务参数
+            params = JobOperation.get_job_params(db.etl_db, job_id)
+            # 修改数据库, 分布式锁
+            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                # 修改执行主表状态为[就绪]
+                ExecuteModel.update_execute_status(db.etl_db, exec_id, 3)
+                # 修改执行详情表状态为[待运行]
+                ScheduleModel.update_exec_job_reset(db.etl_db, exec_id, job_id, 'preparing', ','.join(params))
         return Response(exec_id=exec_id)
 
     @staticmethod
@@ -264,12 +317,17 @@ class ExecuteOperation(object):
         # 推进流程
         result = generate_dag_by_exec_id(exec_id)
         nodes = result['nodes']
-        # 修改执行表状态
-        ExecuteModel.update_execute_status(db.etl_db, exec_id, 1)
+        # 修改数据库, 分布式锁
+        with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+            # 修改执行主表状态为[运行中]
+            ExecuteModel.update_execute_status(db.etl_db, exec_id, 1)
         dispatch = ExecuteModel.get_exec_dispatch_id(db.etl_db, exec_id)
         # 任务流中任务为空, 则视调度已完成
         if not nodes:
-            ExecuteModel.update_execute_status(db.etl_db, exec_id, 0)
+            # 修改数据库, 分布式锁
+            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                # 修改执行主表状态为[成功]
+                ExecuteModel.update_execute_status(db.etl_db, exec_id, 0)
             # 修改调度执行表账期
             if dispatch['exec_type'] == 1 and dispatch['dispatch_id']:
                 run_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
@@ -280,6 +338,7 @@ class ExecuteOperation(object):
         # 遍历所有节点
         for job_id in nodes:
             job = nodes[job_id]
+            # 获取初始层级可执行任务
             if job['level'] == 0 and job['position'] == 1:
                 try:
                     client = Connection(job['server_host'], config.exec.port)
@@ -298,9 +357,12 @@ class ExecuteOperation(object):
                     # 添加执行任务详情日志
                     ScheduleModel.add_exec_detail_job(db.etl_db, exec_id, job_id, 'ERROR', job['server_dir'],
                                                       job['server_script'], err_msg, 3)
-                    # 修改执行状态
-                    ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
-                    ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
+                    # 修改数据库, 分布式锁
+                    with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                        # 修改执行详情表状态[失败]
+                        ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
+                        # 修改执行主表状态[失败]
+                        ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
                     log.error(err_msg, exc_info=True)
 
         return Response(exec_id=exec_id)

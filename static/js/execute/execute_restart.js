@@ -8,8 +8,19 @@
 
     Controller.prototype = {
         init: function () {
+            // 表单初始化赋值
+            this.form_init();
             // 表单提交
             this.form_event();
+        },
+        // 表单初始化赋值
+        form_init: function () {
+            layui.use('form', function () {
+                let form = layui.form;
+                form.val('exec_restart', {
+                    'prepose_rely': 1
+                });
+            })
         },
         // 表单提交
         form_event: function () {
@@ -28,7 +39,8 @@
                                 layer.msg('重跑成功', {icon: 6});
                                 // 关闭自身iframe窗口
                                 setTimeout(function () {
-                                    window.location.reload();
+                                    let index = parent.layer.getFrameIndex(window.name);
+                                    parent.layer.close(index);
                                 }, 2000);
                             } else {
                                 layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5});
