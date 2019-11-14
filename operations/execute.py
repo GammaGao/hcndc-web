@@ -104,7 +104,7 @@ class ExecuteOperation(object):
         # 成功时修改账期
         if exec_status == 0:
             # 修改调度执行表账期
-            run_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+            run_time = time.strftime('%Y-%m-%d', time.localtime())
             ExecuteModel.update_interface_account_by_execute_id(db.etl_db, exec_id, run_time)
         # 查询执行主表当前状态
         master_status = ExecuteModel.get_execute_status(db.etl_db, exec_id)
@@ -118,8 +118,8 @@ class ExecuteOperation(object):
 
     @staticmethod
     @make_decorator
-    def get_execute_list(interface_id, start_time, end_time, run_status, exec_type, page, limit):
-        """获取执行列表"""
+    def get_execute_list(interface_id, start_time, end_time, run_status, page, limit):
+        """获取任务流日志"""
         condition = []
         if interface_id:
             condition.append('interface_id = %s' % interface_id)
@@ -143,12 +143,12 @@ class ExecuteOperation(object):
             # 就绪
             elif run_status == 5:
                 condition.append('a.`status` = 3')
-        if exec_type:
-            condition.append('exec_type = %s' % exec_type)
 
         condition = 'WHERE ' + ' AND '.join(condition) if condition else ''
 
         result = ExecuteModel.get_execute_list(db.etl_db, condition, page, limit)
+        for item in result:
+            item['run_time'] = str(item['run_time'])
         total = ExecuteModel.get_execute_count(db.etl_db, condition)
         return Response(result=result, total=total)
 
@@ -161,13 +161,15 @@ class ExecuteOperation(object):
 
     @staticmethod
     @make_decorator
-    def get_execute_log(exec_id, job_id):
+    def get_execute_log(exec_id, job_id, page, limit):
         """获取执行日志"""
         if job_id:
-            result = ExecuteModel.get_execute_log_by_job(db.etl_db, exec_id, job_id)
+            result = ExecuteModel.get_execute_log_by_job(db.etl_db, exec_id, job_id, page, limit)
+            total = ExecuteModel.get_execute_log_by_job_count(db.etl_db, exec_id, job_id)
         else:
-            result = ExecuteModel.get_execute_log(db.etl_db, exec_id)
-        return Response(result=result)
+            result = ExecuteModel.get_execute_log(db.etl_db, exec_id, page, limit)
+            total = ExecuteModel.get_execute_log_count(db.etl_db, exec_id)
+        return Response(result=result, total=total)
 
     @staticmethod
     @make_decorator
@@ -330,7 +332,7 @@ class ExecuteOperation(object):
                 ExecuteModel.update_execute_status(db.etl_db, exec_id, 0)
             # 修改调度执行表账期
             if dispatch['exec_type'] == 1 and dispatch['dispatch_id']:
-                run_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+                run_time = time.strftime('%Y-%m-%d', time.localtime())
                 ExecuteModel.update_interface_account_by_dispatch_id(db.etl_db, dispatch['dispatch_id'], run_time)
             log.info('任务流中任务为空: 调度id: %s' % dispatch['dispatch_id'])
             return Response(exec_id=exec_id)

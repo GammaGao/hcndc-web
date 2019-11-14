@@ -22,17 +22,15 @@ class ExecuteVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_get_execute_list(interface_id, start_time, end_time, run_status, exec_type, page, limit):
-        """获取执行列表"""
+    def verify_get_execute_list(interface_id, start_time, end_time, run_status, page, limit):
+        """获取任务流日志"""
         if start_time and end_time and start_time >= end_time:
             abort(400, **make_result(status=400, msg='创建开始时间大于创建结束时间'))
         if run_status < 0 or run_status > 5:
             abort(400, **make_result(status=400, msg='运行状态错误'))
-        if exec_type < 0 or exec_type > 2:
-            abort(400, **make_result(status=400, msg='执行类型错误'))
 
         return Response(interface_id=interface_id, start_time=start_time, end_time=end_time, run_status=run_status,
-                        exec_type=exec_type, page=page, limit=limit)
+                        page=page, limit=limit)
 
     @staticmethod
     @make_decorator
@@ -44,11 +42,11 @@ class ExecuteVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_get_execute_log(exec_id, job_id):
+    def verify_get_execute_log(exec_id, job_id, page, limit):
         """获取执行日志"""
         if not exec_id:
             abort(400, **make_result(status=400, msg='执行id不得为空'))
-        return Response(exec_id=exec_id, job_id=job_id)
+        return Response(exec_id=exec_id, job_id=job_id, page=page, limit=limit)
 
     @staticmethod
     @make_decorator

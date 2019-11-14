@@ -9,7 +9,7 @@
     Controller.prototype = {
         init: function () {
             // 菜单样式加载
-            menu_init('调度总览', '执行列表');
+            menu_init('调度总览', '任务流日志');
             // 侧边栏样式切换
             this.tree_toggle();
             // 用户数据渲染
@@ -187,19 +187,8 @@
                         sort: true
                     }, {
                         field: "interface_id",
-                        title: "任务流/任务id",
+                        title: "任务流id",
                         width: '8%'
-                    }, {
-                        field: "exec_type",
-                        title: "执行类型",
-                        width: '6%',
-                        templet: function (data) {
-                            if (data.exec_type === 1) {
-                                return '<span class="layui-badge layui-bg-green">调度</span>';
-                            } else {
-                                return '<span class="layui-badge layui-bg-blue">手动</span>';
-                            }
-                        }
                     }, {
                         field: "dispatch_name",
                         title: "调度名称",
@@ -237,6 +226,9 @@
                                 return '<span class="layui-badge">失败</span>';
                             }
                         }
+                    }, {
+                        field: "run_time",
+                        title: "数据日期"
                     }, {
                         field: "insert_time",
                         title: "开始时间"

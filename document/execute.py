@@ -11,13 +11,12 @@ callback_request = api.doc(params={
     'status': '任务状态'
 })
 
-# 执行列表请求值
+# 任务流日志请求值
 execute_list_request = api.doc(params={
     'interface_id': '任务流id',
     'start_time': '开始运行时间',
     'end_time': '结束运行时间',
     'run_status': '运行状态: 0.全部, 1.成功, 2.运行中, 3.中断, 4.失败, 5.就绪',
-    'exec_type': '执行类型: 0.全部, 1.调度, 2.手动',
     'page': '页码',
     'limit': '条数'
 })

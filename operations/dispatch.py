@@ -77,14 +77,15 @@ class DispatchOperation(object):
     @make_decorator
     def delete_dispatch_detail(dispatch_id, user_id):
         """删除调度详情"""
-        try:
-            run_id = 'scheduler_%s' % dispatch_id
-            DispatchModel.update_dispatch_status(db.etl_db, dispatch_id, 0, user_id)
-            SchedulerHandler.remove_job(run_id)
-            return Response(dispatch_id=dispatch_id)
-        except Exception as e:
-            log.error('删除调度异常[ERROR: %s]' % e, exc_info=True)
-            abort(400, **make_result(status=400, msg='删除调度异常'))
+        for item in dispatch_id:
+            try:
+                run_id = 'scheduler_%s' % item
+                DispatchModel.update_dispatch_status(db.etl_db, item, 0, user_id)
+                SchedulerHandler.remove_job(run_id)
+            except Exception as e:
+                log.error('删除调度异常[ERROR: %s]' % e, exc_info=True)
+                abort(400, **make_result(status=400, msg='删除调度异常'))
+        return Response(dispatch_id=dispatch_id)
 
     @staticmethod
     @make_decorator
@@ -128,32 +129,34 @@ class DispatchOperation(object):
     @make_decorator
     def run_dispatch(dispatch_id):
         """立即执行调度"""
-        run_id = 'scheduler_%s' % dispatch_id
-        try:
-            SchedulerHandler.run_job(run_id)
-            return Response(dispatch_id=dispatch_id)
-        except Exception as e:
-            log.error('立即执行调度异常 [ERROR: %s]' % e, exc_info=True)
-            abort(400, **make_result(status=400, msg='立即执行调度异常'))
+        for item in dispatch_id:
+            run_id = 'scheduler_%s' % item
+            try:
+                SchedulerHandler.run_job(run_id)
+            except Exception as e:
+                log.error('立即执行调度异常 [ERROR: %s]' % e, exc_info=True)
+                abort(400, **make_result(status=400, msg='立即执行调度异常'))
+        return Response(dispatch_id=dispatch_id)
 
     @staticmethod
     @make_decorator
     def action_dispatch(dispatch_id, action, user_id):
         """暂停/恢复调度任务"""
-        try:
-            run_id = 'scheduler_%s' % dispatch_id
-            # 暂停调度任务
-            if action == 1:
-                DispatchModel.update_dispatch_status(db.etl_db, dispatch_id, 2, user_id)
-                SchedulerHandler.pause_job(run_id)
-            # 恢复调度任务
-            elif action == 2:
-                DispatchModel.update_dispatch_status(db.etl_db, dispatch_id, 1, user_id)
-                SchedulerHandler.resume_job(run_id)
-            return Response(dispatch_id=dispatch_id)
-        except Exception as e:
-            log.error('暂停/恢复调度异常 [ERROR: %s]' % e, exc_info=True)
-            abort(400, **make_result(status=400, msg='暂停/恢复调度任务异常'))
+        for item in dispatch_id:
+            try:
+                run_id = 'scheduler_%s' % item
+                # 暂停调度任务
+                if action == 1:
+                    DispatchModel.update_dispatch_status(db.etl_db, item, 2, user_id)
+                    SchedulerHandler.pause_job(run_id)
+                # 恢复调度任务
+                elif action == 2:
+                    DispatchModel.update_dispatch_status(db.etl_db, item, 1, user_id)
+                    SchedulerHandler.resume_job(run_id)
+            except Exception as e:
+                log.error('暂停/恢复调度异常 [ERROR: %s]' % e, exc_info=True)
+                abort(400, **make_result(status=400, msg='暂停/恢复调度任务异常'))
+        return Response(dispatch_id=dispatch_id)
 
 
 class DispatchAlertOperation(object):

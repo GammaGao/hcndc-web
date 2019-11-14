@@ -89,41 +89,45 @@ class DispatchDetail(Resource):
         log.info('修改调度详情[params: %s]' % str(params))
         return params
 
+
+class DispatchAction(Resource):
     @staticmethod
-    @DispatchFilter.filter_run_dispatch(dispatch_id=int)
-    @DispatchOperation.run_dispatch(dispatch_id=int)
-    @DispatchVerify.verify_run_dispatch(dispatch_id=int)
-    @PermissionVerify.verify_execute_permission(dispatch_id=int)
-    def post(dispatch_id):
+    @DispatchFilter.filter_run_dispatch(dispatch_id=list)
+    @DispatchOperation.run_dispatch(dispatch_id=list)
+    @DispatchVerify.verify_run_dispatch(dispatch_id=list)
+    @PermissionVerify.verify_execute_permission(dispatch_id=list)
+    def post():
         """立即执行调度任务"""
-        params = Response(dispatch_id=dispatch_id)
+        payload = get_payload()
+        params = Response(dispatch_id=payload.get('dispatch_id', []))
         log.info('立即执行调度任务[params: %s]' % str(params))
         return params
 
     @staticmethod
     @dispatch_action_request
-    @DispatchFilter.filter_action_dispatch(dispatch_id=int)
-    @DispatchOperation.action_dispatch(dispatch_id=int, action=int, user_id=int)
-    @DispatchVerify.verify_action_dispatch(dispatch_id=int, action=int, user_id=int)
-    @PermissionVerify.verify_execute_permission(dispatch_id=int, action=int)
-    def patch(dispatch_id):
+    @DispatchFilter.filter_action_dispatch(dispatch_id=list)
+    @DispatchOperation.action_dispatch(dispatch_id=list, action=int, user_id=int)
+    @DispatchVerify.verify_action_dispatch(dispatch_id=list, action=int, user_id=int)
+    @PermissionVerify.verify_execute_permission(dispatch_id=list, action=int)
+    def patch():
         """暂停/恢复调度任务"""
         payload = get_payload()
         params = Response(
-            dispatch_id=dispatch_id,
+            dispatch_id=payload.get('dispatch_id', []),
             action=int(payload.get('action', 0))
         )
         log.info('暂停/恢复调度任务[params: %s]' % str(params))
         return params
 
     @staticmethod
-    @DispatchFilter.filter_delete_dispatch_detail(dispatch_id=int)
-    @DispatchOperation.delete_dispatch_detail(dispatch_id=int, user_id=int)
-    @DispatchVerify.verify_delete_dispatch_detail(dispatch_id=int, user_id=int)
-    @PermissionVerify.verify_schedule_permission(dispatch_id=int)
-    def delete(dispatch_id):
+    @DispatchFilter.filter_delete_dispatch_detail(dispatch_id=list)
+    @DispatchOperation.delete_dispatch_detail(dispatch_id=list, user_id=int)
+    @DispatchVerify.verify_delete_dispatch_detail(dispatch_id=list, user_id=int)
+    @PermissionVerify.verify_schedule_permission(dispatch_id=list)
+    def delete():
         """删除调度详情"""
-        params = Response(dispatch_id=dispatch_id)
+        payload = get_payload()
+        params = Response(dispatch_id=payload.get('dispatch_id', []))
         log.info('删除调度详情[params: %s]' % str(params))
         return params
 
@@ -226,6 +230,7 @@ ns = api.namespace('dispatch', description='调度')
 ns.add_resource(CrontabSearch, '/search/')
 ns.add_resource(DispatchList, '/list/api/')
 ns.add_resource(DispatchDetail, '/detail/api/<int:dispatch_id>/')
+ns.add_resource(DispatchAction, '/action/api/')
 ns.add_resource(DispatchAdd, '/add/api/')
 ns.add_resource(DispatchAlertAdd, '/alert/add/api/')
 ns.add_resource(DispatchAlertDetail, '/alert/detail/api/<int:dispatch_id>/')

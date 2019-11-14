@@ -80,6 +80,7 @@ let BASE = {
             'list_api': '/dispatch/list/api/',
             'detail': '/dispatch/detail/',
             'detail_api': '/dispatch/detail/api/',
+            'action_api': '/dispatch/action/api/',
             'update': '/dispatch/update/',
             'add': '/dispatch/add/',
             'add_api': '/dispatch/add/api/',
@@ -189,7 +190,7 @@ let BASE = {
         'name': '运行日志',
         'icon': '',
         'children': [{
-            'name': ' 执行列表',
+            'name': ' 任务流日志',
             'uri': '/execute/list/',
             'icon': 'layui-icon layui-icon-file'
         }]

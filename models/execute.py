@@ -152,13 +152,14 @@ class ExecuteModel(object):
 
     @staticmethod
     def get_execute_list(cursor, condition, page=1, limit=10):
-        """获取执行列表"""
+        """获取任务流日志"""
         command = '''
-        SELECT a.exec_id, interface_id, dispatch_name, dispatch_desc, exec_type, a.`status`,
-        a.insert_time, a.update_time, a.update_time - a.insert_time AS timedelta, c.job_id
+        SELECT a.exec_id, b.interface_id, dispatch_name, dispatch_desc, exec_type, a.`status`,
+        a.insert_time, a.update_time, a.update_time - a.insert_time AS timedelta, c.job_id, d.run_time
         FROM tb_execute AS a
         LEFT JOIN tb_dispatch AS b ON a.dispatch_id = b.dispatch_id AND a.exec_type = 1
         LEFT JOIN tb_execute_detail AS c ON a.exec_id = c.exec_id AND a.exec_type = 2
+        left JOIN tb_interface AS d ON b.interface_id = d.interface_id
         %s
         ORDER BY exec_id DESC
         LIMIT :limit OFFSET :offset
@@ -174,7 +175,7 @@ class ExecuteModel(object):
 
     @staticmethod
     def get_execute_count(cursor, condition):
-        """获取执行列表条数"""
+        """获取任务流日志条数"""
         command = '''
         SELECT COUNT(*) AS count
         FROM tb_execute AS a
@@ -221,31 +222,64 @@ class ExecuteModel(object):
         return result if result else []
 
     @staticmethod
-    def get_execute_log_by_job(cursor, exec_id, job_id):
+    def get_execute_log_by_job(cursor, exec_id, job_id, page, limit):
         """获取任务执行日志"""
         command = '''
         SELECT `level`, message, insert_time
         FROM tb_schedule_detail_logs
         WHERE exec_id = :exec_id AND job_id = :job_id
+        LIMIT :limit OFFSET :offset
         '''
         result = cursor.query(command, {
             'exec_id': exec_id,
-            'job_id': job_id
+            'job_id': job_id,
+            'limit': limit,
+            'offset': (page - 1) * limit
         })
         return result if result else []
 
     @staticmethod
-    def get_execute_log(cursor, exec_id):
+    def get_execute_log_by_job_count(cursor, exec_id, job_id):
+        """获取任务执行日志总数"""
+        command = '''
+        SELECT COUNT(*) AS count
+        FROM tb_schedule_detail_logs
+        WHERE exec_id = :exec_id AND job_id = :job_id
+        '''
+        result = cursor.query_one(command, {
+            'exec_id': exec_id,
+            'job_id': job_id
+        })
+        return result['count'] if result else 0
+
+    @staticmethod
+    def get_execute_log(cursor, exec_id, page, limit):
         """获取执行日志"""
         command = '''
         SELECT `level`, message, insert_time
         FROM tb_schedule_detail_logs
         WHERE exec_id = :exec_id
+        LIMIT :limit OFFSET :offset
         '''
         result = cursor.query(command, {
-            'exec_id': exec_id
+            'exec_id': exec_id,
+            'limit': limit,
+            'offset': (page - 1) * limit
         })
         return result if result else []
+
+    @staticmethod
+    def get_execute_log_count(cursor, exec_id):
+        """获取执行日志总数"""
+        command = '''
+        SELECT COUNT(*) AS count
+        FROM tb_schedule_detail_logs
+        WHERE exec_id = :exec_id
+        '''
+        result = cursor.query_one(command, {
+            'exec_id': exec_id
+        })
+        return result['count'] if result else 0
 
     @staticmethod
     def get_execute_graph(cursor, exec_id):

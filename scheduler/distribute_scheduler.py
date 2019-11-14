@@ -20,7 +20,7 @@ def get_dispatch_job(dispatch_id):
     # 任务流中任务为空, 则视调度已完成
     if not source:
         # 修改调度执行表账期
-        run_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime())
+        run_time = time.strftime('%Y-%m-%d', time.localtime())
         ExecuteModel.update_interface_account_by_dispatch_id(db.etl_db, dispatch_id, run_time)
         log.info('任务流中任务为空: 调度id: %s' % dispatch_id)
         # 添加执行表-完成状态

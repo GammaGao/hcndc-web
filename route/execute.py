@@ -7,7 +7,7 @@ from flask import render_template, session, redirect
 
 @app.route('/execute/list/')
 def ExecuteList():
-    """执行列表"""
+    """任务流日志"""
     if session.get('login'):
         return render_template('execute/execute_list.html')
     return redirect('/login/')

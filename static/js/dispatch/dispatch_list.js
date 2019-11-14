@@ -165,6 +165,10 @@
                 '<div class="layui-table-tool-temp">',
                 '<div class="layui-inline" lay-event="add" title="添加调度"><i class="layui-icon layui-icon-add-1"></i></div>',
                 '<div class="layui-inline" lay-event="update" title="修改调度"><i class="layui-icon layui-icon-edit"></i></div>',
+                '<div class="layui-inline" lay-event="run" title="立即执行"><i class="layui-icon layui-icon-play"></i></div>',
+                '<div class="layui-inline" lay-event="pause" title="暂停"><i class="layui-icon layui-icon-pause"></i></div>',
+                '<div class="layui-inline" lay-event="resume" title="恢复"><i class="layui-icon layui-icon-refresh"></i></div>',
+                '<div class="layui-inline" lay-event="delete" title="删除"><i class="layui-icon layui-icon-delete"></i></div>',
                 '</div>'
             ].join('');
             // 表格渲染
@@ -180,7 +184,7 @@
                     url: BASE.uri.dispatch.list_api,
                     where: data,
                     cols: [[{
-                        type: 'radio'
+                        type: 'checkbox'
                     }, {
                         field: "dispatch_id",
                         title: "调度id",
@@ -228,14 +232,16 @@
                                 html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">暂停</button>');
                                 html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
                                 html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">删除</button>');
-                                // 运行中
-                            } else if (data.status === 1) {
+                            }
+                            // 运行中
+                            else if (data.status === 1) {
                                 html.push('<button class="layui-btn layui-btn-sm" lay-event="run">立即执行</button>');
                                 html.push('<button class="layui-btn PREPARING layui-btn-sm" lay-event="pause">暂停</button>');
                                 html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
                                 html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
-                                // 暂停中
-                            } else if (data.status === 2) {
+                            }
+                            // 暂停中
+                            else if (data.status === 2) {
                                 html.push('<button class="layui-btn layui-btn-sm" lay-event="run">立即执行</button>');
                                 html.push('<button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="resume">恢复</button>');
                                 html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
@@ -267,6 +273,7 @@
                     let check_status = table.checkStatus(obj.config.id);
                     let check_data = check_status.data;
                     switch (obj.event) {
+                        // 新增
                         case 'add':
                             layer.open({
                                 type: 2,
@@ -280,11 +287,12 @@
                                 }
                             });
                             break;
+                        // 修改
                         case 'update':
                             if (check_data.length === 0) {
-                                layer.msg('请选择一行');
+                                layer.msg('请选择一行', {icon: 5});
                             } else if (check_data.length > 1) {
-                                layer.msg('只能同时编辑一个')
+                                layer.msg('只能同时编辑一个', {icon: 5})
                             } else {
                                 layer.open({
                                     type: 2,
@@ -296,6 +304,175 @@
                                     end: function () {
                                         window.location.reload();
                                     }
+                                });
+                            }
+                            break;
+                        // 立即执行
+                        case 'run':
+                            let delete_status = check_data.filter(item => item.status === 0);
+                            if (delete_status.length > 0) {
+                                layer.msg('存在已删除调度, 不能执行', {icon: 5});
+                                break
+                            } else {
+                                let dispatch_id_arr = [];
+                                check_data.forEach(item => dispatch_id_arr.push(item.dispatch_id));
+                                layer.confirm('确定立即执行?', function (index) {
+                                    layer.close(index);
+                                    $.ajax({
+                                        url: BASE.uri.dispatch.action_api,
+                                        data: JSON.stringify({dispatch_id: dispatch_id_arr}),
+                                        contentType: "application/json; charset=utf-8",
+                                        type: 'post',
+                                        success: function (result) {
+                                            if (result.status === 200) {
+                                                layer.open({
+                                                    id: 'dispatch_run_success',
+                                                    btn: ['跳转', '留在本页'],
+                                                    title: '立即执行调度成功',
+                                                    content: '是否跳转至执行日志?',
+                                                    yes: function (index) {
+                                                        layer.close(index);
+                                                        window.location.href = BASE.uri.execute.list;
+                                                    },
+                                                    btn2: function (index) {
+                                                        layer.close(index);
+                                                        // 刷新页面
+                                                        window.location.reload();
+                                                    }
+                                                });
+                                            } else {
+                                                layer.alert(sprintf('立即执行调度失败: [%s]', result.msg), {icon: 5});
+                                            }
+                                        },
+                                        error: function (error) {
+                                            let result = error.responseJSON;
+                                            layer.msg(sprintf('立即执行调度失败[%s]', result.msg), {icon: 5});
+                                        }
+                                    });
+                                });
+                            }
+                            break;
+                        // 暂停
+                        case 'pause':
+                            let pause_status = check_data.filter(item => item.status !== 1);
+                            if (pause_status.length > 0) {
+                                layer.msg('存在已删除或暂停中调度, 不能执行', {icon: 5});
+                                break
+                            } else {
+                                let dispatch_id_arr = [];
+                                check_data.forEach(item => dispatch_id_arr.push(item.dispatch_id));
+                                $.ajax({
+                                    url: BASE.uri.dispatch.action_api,
+                                    contentType: "application/json; charset=utf-8",
+                                    type: 'patch',
+                                    data: JSON.stringify({dispatch_id: dispatch_id_arr, 'action': 1}),
+                                    success: function (result) {
+                                        if (result.status === 200) {
+                                            layer.open({
+                                                id: 'dispatch_pause_succeed',
+                                                title: '暂停调度成功',
+                                                content: '暂停调度成功',
+                                                yes: function () {
+                                                    // 刷新页面
+                                                    window.location.reload();
+                                                },
+                                                cancel: function () {
+                                                    // 刷新页面
+                                                    window.location.reload();
+                                                }
+                                            });
+                                        } else {
+                                            layer.alert(sprintf('暂停调度失败: [%s]', result.msg), {icon: 5});
+                                        }
+                                    },
+                                    error: function (error) {
+                                        let result = error.responseJSON;
+                                        layer.msg(sprintf('暂停调度失败[%s]', result.msg), {icon: 5});
+                                    }
+                                });
+                            }
+                            break;
+                        // 恢复
+                        case 'resume':
+                            let resume_status = check_data.filter(item => item.status !== 2);
+                            if (resume_status.length > 0) {
+                                layer.msg('存在已删除或运行中调度, 不能执行', {icon: 5});
+                                break
+                            } else {
+                                let dispatch_id_arr = [];
+                                check_data.forEach(item => dispatch_id_arr.push(item.dispatch_id));
+                                $.ajax({
+                                    url: BASE.uri.dispatch.action_api,
+                                    contentType: "application/json; charset=utf-8",
+                                    type: 'patch',
+                                    data: JSON.stringify({dispatch_id: dispatch_id_arr, 'action': 2}),
+                                    success: function (result) {
+                                        if (result.status === 200) {
+                                            layer.open({
+                                                id: 'dispatch_resume_succeed',
+                                                title: '恢复调度成功',
+                                                content: '恢复调度成功',
+                                                yes: function () {
+                                                    // 刷新页面
+                                                    window.location.reload();
+                                                },
+                                                cancel: function () {
+                                                    // 刷新页面
+                                                    window.location.reload();
+                                                }
+                                            });
+                                        } else {
+                                            layer.alert(sprintf('恢复调度失败: [%s]', result.msg), {icon: 5});
+                                        }
+                                    },
+                                    error: function (error) {
+                                        let result = error.responseJSON;
+                                        layer.msg(sprintf('恢复调度失败[%s]', result.msg), {icon: 5});
+                                    }
+                                });
+                            }
+                            break;
+                        // 删除
+                        case 'delete':
+                            let deleted_status = check_data.filter(item => item.status === 0);
+                            if (deleted_status.length > 0) {
+                                layer.msg('存在已删除调度, 不能执行', {icon: 5});
+                                break
+                            } else {
+                                let dispatch_id_arr = [];
+                                check_data.forEach(item => dispatch_id_arr.push(item.dispatch_id));
+                                layer.confirm('确定删除?', function (index) {
+                                    // 关闭弹窗
+                                    layer.close(index);
+                                    $.ajax({
+                                        url: BASE.uri.dispatch.action_api,
+                                        data: JSON.stringify({dispatch_id: dispatch_id_arr}),
+                                        contentType: "application/json; charset=utf-8",
+                                        type: 'delete',
+                                        success: function (result) {
+                                            if (result.status === 200) {
+                                                layer.open({
+                                                    id: 'dispatch_delete_succeed',
+                                                    title: '删除调度成功',
+                                                    content: '删除调度成功',
+                                                    yes: function () {
+                                                        // 刷新页面
+                                                        window.location.reload();
+                                                    },
+                                                    cancel: function () {
+                                                        // 刷新页面
+                                                        window.location.reload();
+                                                    }
+                                                });
+                                            } else {
+                                                layer.alert(sprintf('删除项目: [%s]', result.msg), {icon: 5});
+                                            }
+                                        },
+                                        error: function (error) {
+                                            let result = error.responseJSON;
+                                            layer.alert(sprintf('删除项目失败: %s', result.msg))
+                                        }
+                                    });
                                 });
                             }
                             break;
@@ -315,11 +492,11 @@
                         case 'run':
                             layer.confirm('确定立即执行?', function (index) {
                                 layer.close(index);
-                                console.log(data);
                                 $.ajax({
-                                    url: BASE.uri.dispatch.detail_api + data.dispatch_id + '/',
+                                    url: BASE.uri.dispatch.action_api,
                                     contentType: "application/json; charset=utf-8",
                                     type: 'post',
+                                    data: JSON.stringify({dispatch_id: [data.dispatch_id]}),
                                     success: function (result) {
                                         if (result.status === 200) {
                                             layer.open({
@@ -351,10 +528,10 @@
                         // 暂停
                         case 'pause':
                             $.ajax({
-                                url: BASE.uri.dispatch.detail_api + data.dispatch_id + '/',
+                                url: BASE.uri.dispatch.action_api,
                                 contentType: "application/json; charset=utf-8",
                                 type: 'patch',
-                                data: JSON.stringify({'action': 1}),
+                                data: JSON.stringify({dispatch_id: [data.dispatch_id], 'action': 1}),
                                 success: function (result) {
                                     if (result.status === 200) {
                                         layer.open({
@@ -383,10 +560,10 @@
                         // 恢复
                         case 'resume':
                             $.ajax({
-                                url: BASE.uri.dispatch.detail_api + data.dispatch_id + '/',
+                                url: BASE.uri.dispatch.action_api,
                                 contentType: "application/json; charset=utf-8",
                                 type: 'patch',
-                                data: JSON.stringify({'action': 2}),
+                                data: JSON.stringify({dispatch_id: [data.dispatch_id], 'action': 2}),
                                 success: function (result) {
                                     if (result.status === 200) {
                                         layer.open({
@@ -432,7 +609,8 @@
                                 // 关闭弹窗
                                 layer.close(index);
                                 $.ajax({
-                                    url: BASE.uri.dispatch.detail_api + data.dispatch_id + '/',
+                                    url: BASE.uri.dispatch.action_api,
+                                    data: JSON.stringify({dispatch_id: [data.dispatch_id]}),
                                     type: 'delete',
                                     success: function (result) {
                                         if (result.status === 200) {

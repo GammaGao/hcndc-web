@@ -224,35 +224,32 @@
         },
         // 日志数据渲染
         log_data_load: function () {
-            $.ajax({
-                url: BASE.uri.execute.log_api,
-                type: 'get',
-                data: {'exec_id': window.exec_id},
-                success: function (res) {
-                    let data = res.data;
-                    let $exec_log = $('#exec-log');
-                    for (let i = 0; i < data.length; i++) {
-                        let html = [];
-                        html.push('<li class="layui-timeline-item">');
-                        if (data[i].level === 'INFO') {
-                            html.push('<i class="layui-icon layui-timeline-axis INFO">&#xe63f;</i>');
-                        } else if (data[i].level === 'ERROR') {
-                            html.push('<i class="layui-icon layui-timeline-axis ERROR">&#xe63f;</i>');
-                        } else {
-                            html.push('<i class="layui-icon layui-timeline-axis">&#xe63f;</i>');
-                        }
-                        html.push('<div class="layui-timeline-content layui-text">');
-                        html.push('<div class="layui-timeline-title">');
-                        // html.push(data[i].time + ' - ' + data[i].message);
-                        html.push(data[i].message);
-                        html.push('</div></div></li>');
-                        $exec_log.append(html.join(''));
+            // 日志数据请求
+            layui.use('table', function () {
+                let table = layui.table;
+                table.render({
+                    elem: "#exec-log",
+                    page: true,
+                    toolbar: true,
+                    limit: 100,
+                    limits: [100, 200, 300, 400, 500],
+                    title: '日志内容',
+                    url: BASE.uri.execute.log_api,
+                    where: {'exec_id': window.exec_id},
+                    cols: [[{
+                        field: "level",
+                        title: "日志级别",
+                        width: '8%'
+                    }, {
+                        field: "message",
+                        title: "日志信息"
+                    }]],
+                    response: {
+                        statusName: 'status',
+                        statusCode: 200,
+                        countName: 'total'
                     }
-                },
-                error: function (error) {
-                    let result = error.responseJSON;
-                    layer.alert(sprintf('退出登陆失败: %s', result.msg))
-                }
+                });
             })
         },
         element_init: function () {

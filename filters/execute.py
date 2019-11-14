@@ -20,10 +20,6 @@ class ExecuteFilter(object):
     def filter_get_execute_list(result, total):
         """任务列表"""
         for item in result:
-            if item['exec_type'] == 2:
-                item['interface_id'] = '任务id: %s' % item.pop('job_id')
-            else:
-                item['interface_id'] = '任务流id: %s' % item['interface_id']
             item['insert_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time']))
             item['update_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['update_time']))
             item['timedelta'] = seconds_format(item['timedelta'])
@@ -48,11 +44,11 @@ class ExecuteFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_get_execute_log(result):
+    def filter_get_execute_log(result, total):
         """获取执行日志"""
         # for item in result:
         #     item['time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time']))
-        return {'stauts': 200, 'msg': '成功', 'data': result}, 200
+        return {'status': 200, 'msg': '成功', 'data': result, 'total': total}, 200
 
     @staticmethod
     @make_decorator
