@@ -18,17 +18,13 @@ from conn.mysql_lock import MysqlLock
 class JobOperation(object):
     @staticmethod
     @make_decorator
-    def get_job_list(job_name, job_index, start_time, end_time, interface_id, is_deleted, page, limit):
+    def get_job_list(job_name, job_index, interface_id, is_deleted, page, limit):
         """获取任务列表"""
         condition = []
         if job_name:
             condition.append('job_name LIKE "%%%%%s%%%%"' % job_name)
         if job_index:
-            condition.append('job_index = "%s"' % job_index)
-        if start_time:
-            condition.append('insert_time >= %s' % start_time)
-        if end_time:
-            condition.append('insert_time <= %s' % end_time)
+            condition.append('job_index IN (%s)' % ','.join('"%s"' % item for item in job_index))
         if interface_id:
             condition.append('interface_id = %s' % interface_id)
         if is_deleted == 1:

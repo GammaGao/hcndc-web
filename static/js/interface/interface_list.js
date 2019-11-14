@@ -133,25 +133,25 @@
                 url: BASE.uri.interface.index_api,
                 type: 'get',
                 success: function (result) {
-                    layui.use('form', function () {
-                        let form = layui.form;
-                        let html = [];
-                        html.push('<option value="">全部</option>');
-                        for (let i = 0; i < result.data.length; i++) {
-                            let item = result.data[i];
-                            html.push('<option value="' + item.interface_index + '">' + item.interface_index + '</option>')
-                        }
-                        $('select[name=interface_index]').append(html.join(''));
-                        form.render('select');
-                    })
+                    let formSelects = layui.formSelects;
+                    let html = [];
+                    html.push('<option value="">全部</option>');
+                    for (let i = 0; i < result.data.length; i++) {
+                        let item = result.data[i];
+                        html.push('<option value="' + item.interface_index + '">' + item.interface_index + '</option>')
+                    }
+                    $('select[xm-select=interface_index]').append(html.join(''));
+                    formSelects.render('interface_index');
                 }
             });
         },
+        // 任务流查询事件注册
         form_event: function () {
             let that = this;
             layui.use('form', function () {
                 let form = layui.form;
                 form.on('submit(interface-search)', function (data) {
+                    // 创建时间字段
                     let interface_date_list = data.field.interface_date.split(' - ');
                     if (interface_date_list.length === 2) {
                         let start_time = interface_date_list[0] + ' 00:00:00';
@@ -197,10 +197,21 @@
                         sort: true
                     }, {
                         field: "interface_name",
-                        title: "任务流名称"
+                        title: "任务流名称",
+                        sort: true
                     }, {
                         field: "interface_desc",
                         title: "任务流描述"
+                    }, {
+                        field: "run_time",
+                        title: "数据日期",
+                        templet: function (data) {
+                            if (data.run_time) {
+                                return data.run_time
+                            } else {
+                                return '-'
+                            }
+                        }
                     }, {
                         field: "interface_index",
                         title: "任务流目录"

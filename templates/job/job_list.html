@@ -3,6 +3,7 @@
 <head>
     {% include "util/style.html" %}
     <title>任务列表</title>
+    <link rel="stylesheet" href="/static/css/layui-formSelects.css">
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
@@ -20,7 +21,7 @@
         <form class="layui-form">
             <div class="layui-form-item">
                 <div class="layui-inline">
-                    <label class="layui-form-label">任务流ID</label>
+                    <label class="layui-form-label">任务流名称</label>
                     <div class="layui-input-inline">
                         <label>
                             <select name="interface_id" lay-verify="required"></select>
@@ -36,7 +37,7 @@
                 <div class="layui-inline">
                     <label class="layui-form-label">任务目录</label>
                     <div class="layui-input-inline">
-                        <select name="job_index" lay-search>
+                        <select name="job_index" xm-select="job_index">
                         </select>
                     </div>
                 </div>
@@ -57,6 +58,7 @@
                         <button lay-submit class="layui-btn" lay-filter="job-search" type="button">
                             <i class="layui-icon layui-icon-search icon-size">搜索</i>
                         </button>
+                        <button type="reset" class="layui-btn layui-btn-primary">清空</button>
                     </div>
                 </div>
             </div>
@@ -67,6 +69,7 @@
 </div>
 
 <script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/layui-formSelects.js"></script>
 <script type="text/javascript" src="/static/js/job/job_list.js"></script>
 </body>
 </html>

@@ -135,17 +135,15 @@
                 url: BASE.uri.job.index_api,
                 type: 'get',
                 success: function (result) {
-                    layui.use('form', function () {
-                        let form = layui.form;
-                        let html = [];
-                        html.push('<option value="">全部</option>');
-                        for (let i = 0; i < result.data.length; i++) {
-                            let item = result.data[i];
-                            html.push('<option value="' + item.job_index + '">' + item.job_index + '</option>')
-                        }
-                        $('select[name=job_index]').append(html.join(''));
-                        form.render('select');
-                    })
+                    let formSelects = layui.formSelects;
+                    let html = [];
+                    html.push('<option value="">全部</option>');
+                    for (let i = 0; i < result.data.length; i++) {
+                        let item = result.data[i];
+                        html.push('<option value="' + item.job_index + '">' + item.job_index + '</option>')
+                    }
+                    $('select[xm-select=job_index]').append(html.join(''));
+                    formSelects.render('job_index');
                 }
             });
         },

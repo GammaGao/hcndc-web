@@ -10,15 +10,14 @@ from server.status import make_result
 class JobVerify(object):
     @staticmethod
     @make_decorator
-    def verify_get_job_list(job_name, job_index, start_time, end_time, interface_id, is_deleted, page, limit):
+    def verify_get_job_list(job_name, job_index, interface_id, is_deleted, page, limit):
         """获取任务列表"""
-        if start_time and end_time and start_time >= end_time:
-            abort(400, **make_result(status=400, msg='创建开始时间大于创建结束时间'))
+        # 任务目录
+        job_index = job_index.split(',') if job_index else []
         if is_deleted < 0 or is_deleted > 1:
             abort(400, **make_result(status=400, msg='状态参数错误'))
-
-        return Response(job_name=job_name, job_index=job_index, start_time=start_time, end_time=end_time,
-                        interface_id=interface_id, is_deleted=is_deleted, page=page, limit=limit)
+        return Response(job_name=job_name, job_index=job_index, interface_id=interface_id, is_deleted=is_deleted,
+                        page=page, limit=limit)
 
     @staticmethod
     @make_decorator

@@ -91,6 +91,7 @@ let BASE = {
         execute: {
             'list': '/execute/list/',
             'list_api': '/execute/list/api/',
+            'flow_api': '/execute/flow/api/',
             'detail': '/execute/detail/',
             'detail_api': '/execute/detail/api/',
             'log': '/execute/log/',

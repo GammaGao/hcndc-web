@@ -3,6 +3,7 @@
 <head>
     {% include "util/style.html" %}
     <title>任务流列表</title>
+    <link rel="stylesheet" href="/static/css/layui-formSelects.css">
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
@@ -28,7 +29,7 @@
                 <div class="layui-inline">
                     <label class="layui-form-label">任务流目录</label>
                     <div class="layui-input-inline">
-                        <select name="interface_index" lay-search>
+                        <select name="interface_index" xm-select="interface_index">
                         </select>
                     </div>
                 </div>
@@ -53,6 +54,7 @@
                         <button lay-submit class="layui-btn" lay-filter="interface-search" type="button">
                             <i class="layui-icon layui-icon-search icon-size">搜索</i>
                         </button>
+                        <button type="reset" class="layui-btn layui-btn-primary">清空</button>
                     </div>
                 </div>
             </div>
@@ -63,6 +65,7 @@
 </div>
 
 <script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/layui-formSelects.js"></script>
 <script type="text/javascript" src="/static/js/interface/interface_list.js"></script>
 </body>
 </html>

@@ -17,7 +17,7 @@ class InterfaceList(Resource):
     @interface_list_request
     @interface_list_response_success
     @InterfaceFilter.filter_list_data(result=list, total=int)
-    @InterfaceOperation.get_interface_list(interface_name=str, interface_index=str, start_time=int, end_time=int,
+    @InterfaceOperation.get_interface_list(interface_name=str, interface_index=list, start_time=int, end_time=int,
                                            is_deleted=int, page=int, limit=int)
     @InterfaceVerify.verify_get_interface_list(interface_name=str, interface_index=str, start_time=int, end_time=int,
                                                is_deleted=int, page=int, limit=int)

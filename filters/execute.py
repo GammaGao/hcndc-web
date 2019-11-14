@@ -17,8 +17,20 @@ class ExecuteFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_get_execute_list(result, total):
-        """任务列表"""
+    def filter_get_execute_flow(result, total):
+        """获取任务流最新日志列表"""
+        for item in result:
+            item['insert_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time'])) if item[
+                'insert_time'] else None
+            item['update_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['update_time'])) if item[
+                'update_time'] else None
+            item['timedelta'] = seconds_format(item['timedelta']) if item['timedelta'] else None
+        return {'status': 200, 'msg': '成功', 'total': total, 'data': result}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_get_execute_history(result, total):
+        """获取任务流历史日志列表"""
         for item in result:
             item['insert_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time']))
             item['update_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['update_time']))

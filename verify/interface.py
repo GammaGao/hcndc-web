@@ -12,6 +12,9 @@ class InterfaceVerify(object):
     @make_decorator
     def verify_get_interface_list(interface_name, interface_index, start_time, end_time, is_deleted, page, limit):
         """获取任务流列表"""
+        # 任务流目录
+        interface_index = interface_index.split(',') if interface_index else []
+        # 创建时间
         if start_time and end_time and start_time >= end_time:
             abort(400, **make_result(status=400, msg='创建开始时间大于创建结束时间'))
         if is_deleted > 2:

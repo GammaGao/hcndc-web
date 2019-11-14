@@ -18,7 +18,7 @@ class InterfaceOperation(object):
         if interface_name:
             condition.append('interface_name LIKE "%%%%%s%%%%"' % interface_name)
         if interface_index:
-            condition.append('interface_index = "%s"' % interface_index)
+            condition.append('interface_index IN (%s)' % ','.join('"%s"' % item for item in interface_index))
         if start_time:
             condition.append('insert_time >= %s' % start_time)
         if end_time:
@@ -31,6 +31,8 @@ class InterfaceOperation(object):
         condition = 'WHERE ' + ' AND '.join(condition) if condition else ''
 
         result = InterfaceModel.get_interface_list(db.etl_db, condition, page, limit)
+        for item in result:
+            item['run_time'] = str(item['run_time']) if item['run_time'] else ''
         total = InterfaceModel.get_interface_count(db.etl_db, condition)
         return Response(result=result, total=total)
 

@@ -5,11 +5,19 @@ from configs import app
 from flask import render_template, session, redirect
 
 
-@app.route('/execute/list/')
-def ExecuteList():
-    """任务流日志"""
+@app.route('/execute/flow/')
+def ExecuteFlow():
+    """任务流最新日志"""
     if session.get('login'):
-        return render_template('execute/execute_list.html')
+        return render_template('execute/execute_flow.html')
+    return redirect('/login/')
+
+
+@app.route('/execute/history/<int:dispatch_id>/')
+def ExecuteHistory(dispatch_id):
+    """任务流历史日志"""
+    if session.get('login'):
+        return render_template('execute/execute_history.html', dispatch_id=dispatch_id)
     return redirect('/login/')
 
 

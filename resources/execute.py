@@ -29,16 +29,39 @@ class ExecuteCallBack(Resource):
         return params
 
 
-class ExecuteList(Resource):
+class ExecuteFlow(Resource):
+    @staticmethod
+    @execute_flow_request
+    @ExecuteFilter.filter_get_execute_flow(result=list, total=int)
+    @ExecuteOperation.get_execute_flow(interface_id=int, interface_index=str, run_status=int, start_time=int,
+                                       end_time=int, page=int, limit=int)
+    @ExecuteVerify.verify_get_execute_flow(interface_id=int, interface_index=str, run_status=int, start_time=int,
+                                           end_time=int, page=int, limit=int)
+    def get():
+        """获取任务流最新日志"""
+        params = Response(
+            interface_id=int(get_arg('interface_id', 0)),
+            interface_index=get_arg('interface_index', ''),
+            run_status=int(get_arg('run_status', 0)),
+            start_time=int(get_arg('start_time', 0)),
+            end_time=int(get_arg('end_time', 0)),
+            page=int(get_arg('page', 1)),
+            limit=int(get_arg('limit', 10))
+        )
+        log.info('获取任务流最新日志[params: %s]' % str(params))
+        return params
+
+
+class ExecuteHistory(Resource):
     @staticmethod
     @execute_list_request
-    @ExecuteFilter.filter_get_execute_list(result=list, total=int)
-    @ExecuteOperation.get_execute_list(interface_id=int, start_time=int, end_time=int, run_status=int,
-                                       page=int, limit=int)
-    @ExecuteVerify.verify_get_execute_list(interface_id=int, start_time=int, end_time=int, run_status=int,
-                                           page=int, limit=int)
+    @ExecuteFilter.filter_get_execute_history(result=list, total=int)
+    @ExecuteOperation.get_execute_history(interface_id=int, start_time=int, end_time=int, run_status=int,
+                                          page=int, limit=int)
+    @ExecuteVerify.verify_get_execute_history(interface_id=int, start_time=int, end_time=int, run_status=int,
+                                              page=int, limit=int)
     def get():
-        """获取任务流日志"""
+        """获取任务流历史日志"""
         params = Response(
             interface_id=int(get_arg('interface_id', 0)),
             start_time=int(get_arg('start_time', 0)),
@@ -47,7 +70,7 @@ class ExecuteList(Resource):
             page=int(get_arg('page', 1)),
             limit=int(get_arg('limit', 10))
         )
-        log.info('获取任务流日志[params: %s]' % str(params))
+        log.info('获取任务流历史日志[params: %s]' % str(params))
         return params
 
 
@@ -141,7 +164,8 @@ class ExecuteGraph(Resource):
 
 ns = api.namespace('execute', description='执行')
 ns.add_resource(ExecuteCallBack, '/callback/')
-ns.add_resource(ExecuteList, '/list/api/')
+ns.add_resource(ExecuteFlow, '/flow/api/')
+ns.add_resource(ExecuteHistory, '/history/api/')
 ns.add_resource(ExecuteDetail, '/detail/api/<int:exec_id>/')
 ns.add_resource(ExecuteLog, '/log/api/')
 ns.add_resource(ExecuteGraph, '/graph/api/')

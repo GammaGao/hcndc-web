@@ -151,8 +151,57 @@ class ExecuteModel(object):
         return result if result else []
 
     @staticmethod
-    def get_execute_list(cursor, condition, page=1, limit=10):
-        """获取任务流日志"""
+    def get_execute_flow(cursor, condition, page=1, limit=10):
+        """获取任务流最新日志"""
+        command = '''
+        SELECT a.interface_id, a.interface_name, a.interface_index, a.run_time, b.dispatch_id,
+        d.`status`, d.insert_time, d.update_time, d.update_time - d.insert_time AS timedelta
+        FROM tb_interface AS a
+        LEFT JOIN tb_dispatch AS b ON a.interface_id = b.interface_id
+        -- 调度ID对应最新的执行ID
+        LEFT JOIN (
+        SELECT a.dispatch_id, MAX(exec_id) AS exec_id
+        FROM tb_dispatch AS a
+        LEFT JOIN tb_execute AS b ON a.dispatch_id = b.dispatch_id
+        GROUP BY a.dispatch_id) AS c ON b.dispatch_id = c.dispatch_id
+        LEFT JOIN tb_execute AS d ON c.exec_id = d.exec_id
+        WHERE a.is_deleted = 0 %s
+        LIMIT :limit OFFSET :offset
+        '''
+
+        command = command % condition
+
+        result = cursor.query(command, {
+            'limit': limit,
+            'offset': (page - 1) * limit
+        })
+        return result if result else []
+
+    @staticmethod
+    def get_execute_flow_count(cursor, condition):
+        """获取任务流最新日志条数"""
+        command = '''
+        SELECT COUNT(*) AS count
+        FROM tb_interface AS a
+        LEFT JOIN tb_dispatch AS b ON a.interface_id = b.interface_id
+        -- 调度ID对应最新的执行ID
+        LEFT JOIN (
+        SELECT a.dispatch_id, MAX(exec_id) AS exec_id
+        FROM tb_dispatch AS a
+        LEFT JOIN tb_execute AS b ON a.dispatch_id = b.dispatch_id
+        GROUP BY a.dispatch_id) AS c ON b.dispatch_id = c.dispatch_id
+        LEFT JOIN tb_execute AS d ON c.exec_id = d.exec_id
+        WHERE a.is_deleted = 0 %s
+        '''
+
+        command = command % condition
+
+        result = cursor.query_one(command)
+        return result['count'] if result else 0
+
+    @staticmethod
+    def get_execute_history(cursor, condition, page=1, limit=10):
+        """获取任务流历史日志"""
         command = '''
         SELECT a.exec_id, b.interface_id, dispatch_name, dispatch_desc, exec_type, a.`status`,
         a.insert_time, a.update_time, a.update_time - a.insert_time AS timedelta, c.job_id, d.run_time
@@ -174,8 +223,8 @@ class ExecuteModel(object):
         return result if result else []
 
     @staticmethod
-    def get_execute_count(cursor, condition):
-        """获取任务流日志条数"""
+    def get_execute_history_count(cursor, condition):
+        """获取任务流历史日志条数"""
         command = '''
         SELECT COUNT(*) AS count
         FROM tb_execute AS a

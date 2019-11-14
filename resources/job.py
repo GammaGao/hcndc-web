@@ -18,17 +18,13 @@ class JobList(Resource):
     @job_list_request
     @job_list_response_success
     @JobFilter.filter_list_data(result=list, total=int)
-    @JobOperation.get_job_list(job_name=str, job_index=str, start_time=int, end_time=int, interface_id=int,
-                               is_deleted=int, page=int, limit=int)
-    @JobVerify.verify_get_job_list(job_name=str, job_index=str, start_time=int, end_time=int, interface_id=int,
-                                   is_deleted=int, page=int, limit=int)
+    @JobOperation.get_job_list(job_name=str, job_index=list, interface_id=int, is_deleted=int, page=int, limit=int)
+    @JobVerify.verify_get_job_list(job_name=str, job_index=str, interface_id=int, is_deleted=int, page=int, limit=int)
     def get():
         """获取任务列表"""
         params = Response(
             job_name=get_arg('job_name', ''),
             job_index=get_arg('job_index', ''),
-            start_time=int(get_arg('start_time', 0)),
-            end_time=int(get_arg('end_time', 0)),
             interface_id=int(get_arg('interface_id', 0)),
             is_deleted=int(get_arg('is_deleted', 0)),
             page=int(get_arg('page', 1)),

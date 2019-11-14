@@ -9,8 +9,6 @@ from flask_restplus import fields
 job_list_request = api.doc(params={
     'job_name': '任务名称',
     'job_index': '任务目录',
-    'start_time': '开始创建时间',
-    'end_time': '结束创建时间',
     'interface_id': '任务流id',
     'is_deleted': '是否使用: 0全部, 1使用, 2失效',
     'page': '页码',

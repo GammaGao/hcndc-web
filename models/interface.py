@@ -9,7 +9,7 @@ class InterfaceModel(object):
     def get_interface_list(cursor, condition, page=1, limit=10):
         """获取任务流列表"""
         command = '''
-        SELECT interface_id, interface_name, interface_desc, interface_index, retry, is_deleted
+        SELECT interface_id, interface_name, interface_desc, interface_index, run_time, retry, is_deleted
         FROM tb_interface
         %s
         ORDER BY interface_id
