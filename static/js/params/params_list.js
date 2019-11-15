@@ -16,10 +16,10 @@
             this.user_info();
             // 元素事件注册
             this.element_event();
+            // 参数目录渲染
+            this.param_index_init();
             // 数据源ID渲染
             this.datasource_list_id();
-            // 树形菜单初始化
-            this.tree_index_init();
             // 表单搜索事件
             this.form_search();
             // 表格数据初始化
@@ -111,10 +111,6 @@
                 '#user-info dl a': {
                     // 用户登出
                     click: this.userLoginOut,
-                },
-                '#add_params_index': {
-                    // 新增参数菜单
-                    click: this.add_params_list
                 }
             })
         },
@@ -131,18 +127,21 @@
                 }
             })
         },
-        // 新增参数菜单
-        add_params_list: function () {
-            let that = this;
-            layer.open({
-                type: 2,
-                anim: 5,
-                title: '新增参数菜单页面',
-                maxmin: true, //开启最大化最小化按钮
-                area: ['60%', '80%'],
-                content: BASE.uri.params_index.add,
-                end: function () {
-                    that.tree_index_init();
+        // 参数目录渲染
+        param_index_init: function() {
+            $.ajax({
+                url: BASE.uri.params.index_api,
+                type: 'get',
+                success: function (result) {
+                    let formSelects = layui.formSelects;
+                    let html = [];
+                    html.push('<option value="">全部</option>');
+                    for (let i = 0; i < result.data.length; i++) {
+                        let item = result.data[i];
+                        html.push('<option value="' + item.param_index + '">' + item.param_index + '</option>')
+                    }
+                    $('select[xm-select=param_index]').append(html.join(''));
+                    formSelects.render('param_index');
                 }
             });
         },
@@ -164,87 +163,6 @@
                     })
                 }
             })
-        },
-        // 树形菜单初始化
-        tree_index_init: function () {
-            let that = this;
-            $.ajax({
-                url: BASE.uri.params_index.list_api,
-                type: 'get',
-                success: function (result) {
-                    layui.use('tree', function () {
-                        let tree = layui.tree;
-                        tree.render({
-                            elem: '#param_index_tree',
-                            data: [result.data],
-                            edit: true,
-                            onlyIconControl: true,
-                            accordion: true,
-                            click: function (item) {
-                                // 加载该目录下参数
-                                let index_id = item.data.id;
-                                that.table_data_load({index_id: index_id});
-                            },
-                            operate: function (obj) {
-                                // 操作类型
-                                let type = obj.type;
-                                // 当前节点数据
-                                let data = obj.data;
-                                // 修改节点
-                                if (type === 'update') {
-                                    if (data.mark === 1) {
-                                        layer.alert('禁止修改', {icon: 5});
-                                        that.tree_index_init();
-                                        return
-                                    }
-                                    $.ajax({
-                                        url: BASE.uri.params_index.detail_api + data.id + '/',
-                                        contentType: "application/json; charset=utf-8",
-                                        type: 'put',
-                                        data: JSON.stringify({index_name: data.title}),
-                                        success: function (result) {
-                                            if (result.status === 200) {
-                                                layer.msg('修改成功', {icon: 6});
-                                            } else {
-                                                layer.alert('修改失败', {icon: 5});
-                                            }
-                                        },
-                                        error: function (error) {
-                                            let result = error.responseJSON;
-                                            layer.alert(sprintf('修改失败[%s]', result.msg), {icon: 5});
-                                        }
-                                    });
-                                }
-                                // 删除节点
-                                else if (type === 'del') {
-                                    if (data.mark === 1) {
-                                        layer.alert('禁止删除', {icon: 5});
-                                        that.tree_index_init();
-                                        return
-                                    }
-                                    $.ajax({
-                                        url: BASE.uri.params_index.detail_api + data.id + '/',
-                                        contentType: "application/json; charset=utf-8",
-                                        type: 'delete',
-                                        data: JSON.stringify({}),
-                                        success: function (result) {
-                                            if (result.status === 200) {
-                                                layer.msg('删除成功', {icon: 6});
-                                            } else {
-                                                layer.alert('删除失败', {icon: 5});
-                                            }
-                                        },
-                                        error: function (error) {
-                                            let result = error.responseJSON;
-                                            layer.alert(sprintf('删除失败[%s]', result.msg), {icon: 5});
-                                        }
-                                    });
-                                }
-                            }
-                        })
-                    })
-                }
-            });
         },
         // 表单搜索
         form_search: function () {
@@ -307,7 +225,7 @@
                         field: "param_value",
                         title: "参数值"
                     }, {
-                        field: "index_name",
+                        field: "param_index",
                         title: "参数目录"
                     }, {
                         field: "source_name",

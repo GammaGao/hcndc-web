@@ -19,9 +19,9 @@ params_list_request = api.doc(params={
 
 # 参数新增请求
 params_add_request = api.doc(body=api.model('params_add_request', {
-    'index_id': fields.Integer(description='参数目录id: 非0'),
     'param_type': fields.Integer(description='参数类型: 0.静态参数, 1.SQL参数, 2.上下文参数'),
     'param_name': fields.String(description='参数名称'),
+    'param_index': fields.String(description='参数目录'),
     'source_id': fields.Integer(description='数据源id'),
     'param_value': fields.String(description='参数值: 静态值或SQL查询'),
     'param_desc': fields.String(description='描述'),
@@ -30,9 +30,9 @@ params_add_request = api.doc(body=api.model('params_add_request', {
 
 # 参数修改请求
 params_update_request = api.doc(body=api.model('params_update_request', {
-    'index_id': fields.Integer(description='参数目录id: 非0'),
     'param_type': fields.Integer(description='参数类型: 0.静态参数, 1.SQL参数, 2.上下文参数'),
     'param_name': fields.String(description='参数名称'),
+    'param_index': fields.String(description='参数目录'),
     'source_id': fields.Integer(description='数据源id'),
     'param_value': fields.String(description='参数值: 静态值或SQL查询'),
     'param_desc': fields.String(description='描述'),

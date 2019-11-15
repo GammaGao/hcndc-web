@@ -138,7 +138,8 @@ let BASE = {
             'update': '/params/update/',
             'detail_api': '/params/detail/api/',
             'test_api': '/params/test/api/',
-            'id_list_api': '/params/list/all/api/'
+            'id_list_api': '/params/list/all/api/',
+            'index_api': '/params/index/api/'
         },
         params_index: {
             'list_api': '/params_index/list/api/',

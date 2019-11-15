@@ -8,40 +8,12 @@
 
     Controller.prototype = {
         init: function () {
-            // 参数菜单请求
-            this.tree_index_request();
             // 参数列表请求
             this.param_list_id();
             // 参数类型样式更改
             this.param_type_change();
             // 任务表单事件注册
             this.form_event();
-        },
-        // 参数菜单请求
-        tree_index_request: function () {
-            let that = this;
-            $.ajax({
-                url: BASE.uri.params_index.list_api,
-                type: 'get',
-                success: function (result) {
-                    layui.use('tree', function () {
-                        let tree = layui.tree;
-                        tree.render({
-                            id: 'id',
-                            elem: '#param_index_tree',
-                            data: [result.data],
-                            onlyIconControl: true,
-                            accordion: true,
-                            showCheckbox: true,
-                            oncheck: function (obj) {
-                                // 更改表单数据
-                                $('input[name=index_name]').attr('value', obj.data.id);
-                                $('input[name=index_name]').val(obj.data.title);
-                            }
-                        })
-                    })
-                }
-            });
         },
         // 参数列表请求
         param_list_id: function () {
@@ -83,15 +55,13 @@
         },
         // 参数详情初始化
         param_detail_init: function (data) {
-            layui.use(['form', 'tree'], function () {
+            layui.use('form', function () {
                 let form = layui.form;
-                let tree = layui.tree;
-                tree.setChecked('id', data.index_id);
-                $('input[name=index_name]').attr('value', data.index_id);
                 form.val('param_detail', {
                     'index_name': data.index_name,
                     'param_type': data.param_type,
                     'param_name': data.param_name,
+                    'param_index': data.param_index,
                     'source_id': data.source_id,
                     'param_value': data.param_value,
                     'param_desc': data.param_desc,

@@ -17,18 +17,18 @@ class ParamsList(Resource):
     @staticmethod
     @params_list_request
     @ParamsFilter.filter_list_data(result=list, total=int)
-    @ParamsOperation.get_params_list(param_type=int, param_name=str, source_id=int, is_deleted=int, index_id=int,
+    @ParamsOperation.get_params_list(param_type=int, param_name=str, param_index=list, source_id=int, is_deleted=int,
                                      page=int, limit=int)
-    @ParamsVerify.verify_get_params_list(param_type=int, param_name=str, source_id=int, is_deleted=int, index_id=int,
+    @ParamsVerify.verify_get_params_list(param_type=int, param_name=str, param_index=str, source_id=int, is_deleted=int,
                                          page=int, limit=int)
     def get():
         """获取参数列表"""
         params = Response(
             param_type=int(get_arg('param_type', 0)),
             param_name=get_arg('param_name', ''),
+            param_index=get_arg('param_index', ''),
             source_id=int(get_arg('source_id', 0)),
             is_deleted=int(get_arg('is_deleted', 0)),
-            index_id=int(get_arg('index_id', 0)),
             page=int(get_arg('page', 1)),
             limit=int(get_arg('limit', 10))
         )
@@ -40,19 +40,19 @@ class ParamsAdd(Resource):
     @staticmethod
     @params_add_request
     @ParamsFilter.filter_add_data(param_id=int)
-    @ParamsOperation.add_params_detail(index_id=int, param_type=int, param_name=str, source_id=int, param_value=str,
+    @ParamsOperation.add_params_detail(param_type=int, param_name=str, param_index=str, source_id=int, param_value=str,
                                        param_desc=str, param_mark=int, user_id=int)
-    @ParamsVerify.verify_add_param(index_id=int, param_type=int, param_name=str, source_id=int, param_value=str,
+    @ParamsVerify.verify_add_param(param_type=int, param_name=str, param_index=str, source_id=int, param_value=str,
                                    param_desc=str, param_mark=int, user_id=int)
-    @PermissionVerify.verify_write_permission(index_id=int, param_type=int, param_name=str, source_id=int,
+    @PermissionVerify.verify_write_permission(param_type=int, param_name=str, param_index=str, source_id=int,
                                               param_value=str, param_desc=str, param_mark=int)
     def post():
         """新增参数"""
         payload = get_payload()
         params = Response(
-            index_id=int(payload.get('index_id', 0)),
             param_type=int(payload.get('param_type', 0)),
             param_name=payload.get('param_name', ''),
+            param_index=payload.get('param_index', ''),
             source_id=int(payload.get('source_id', 0)),
             param_value=payload.get('param_value', ''),
             param_desc=payload.get('param_desc', ''),
@@ -75,20 +75,21 @@ class ParamsDetail(Resource):
     @staticmethod
     @params_update_request
     @ParamsFilter.filter_update_data(param_id=int)
-    @ParamsOperation.update_params_detail(index_id=int, param_id=int, param_type=int, param_name=str, source_id=int,
+    @ParamsOperation.update_params_detail(param_id=int, param_type=int, param_name=str, param_index=str, source_id=int,
                                           param_value=str, param_desc=str, param_mark=int, is_deleted=int, user_id=int)
-    @ParamsVerify.verify_update_param(index_id=int, param_id=int, param_type=int, param_name=str, source_id=int,
+    @ParamsVerify.verify_update_param(param_id=int, param_type=int, param_name=str, param_index=str, source_id=int,
                                       param_value=str, param_desc=str, param_mark=int, is_deleted=int, user_id=int)
-    @PermissionVerify.verify_write_permission(index_id=int, param_id=int, param_type=int, param_name=str, source_id=int,
-                                              param_value=str, param_desc=str, param_mark=int, is_deleted=int)
+    @PermissionVerify.verify_write_permission(param_id=int, param_type=int, param_name=str, param_index=str,
+                                              source_id=int, param_value=str, param_desc=str, param_mark=int,
+                                              is_deleted=int)
     def put(param_id):
         """修改参数"""
         payload = get_payload()
         params = Response(
             param_id=param_id,
-            index_id=int(payload.get('index_id', 0)),
             param_type=int(payload.get('param_type', 0)),
             param_name=payload.get('param_name', ''),
+            param_index=payload.get('param_index', ''),
             source_id=int(payload.get('source_id', 0)),
             param_value=payload.get('param_value', ''),
             param_desc=payload.get('param_desc', ''),
@@ -137,9 +138,21 @@ class ParamsListAll(Resource):
         return params
 
 
+class ParamsIndex(Resource):
+    @staticmethod
+    @ParamsFilter.filter_all_index_data(result=list)
+    @ParamsOperation.get_params_index_all()
+    def get():
+        """获取所有参数目录"""
+        params = Response()
+        log.info('获取所有参数目录')
+        return params
+
+
 ns = api.namespace('params', description='参数')
 ns.add_resource(ParamsList, '/list/api/')
 ns.add_resource(ParamsAdd, '/add/api/')
 ns.add_resource(ParamsDetail, '/detail/api/<int:param_id>/')
 ns.add_resource(ParamsTest, '/test/api/')
 ns.add_resource(ParamsListAll, '/list/all/api/')
+ns.add_resource(ParamsIndex, '/index/api/')

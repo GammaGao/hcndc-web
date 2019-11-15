@@ -8,40 +8,12 @@
 
     Controller.prototype = {
         init: function () {
-            // 参数菜单请求
-            this.tree_index_request();
             // 数据源列表请求
             this.datasource_list_id();
             // 参数类型样式更改
             this.param_type_change();
             // 任务表单事件注册
             this.form_event();
-        },
-        // 参数菜单请求
-        tree_index_request: function () {
-            let that = this;
-            $.ajax({
-                url: BASE.uri.params_index.list_api,
-                type: 'get',
-                success: function (result) {
-                    layui.use('tree', function () {
-                        let tree = layui.tree;
-                        tree.render({
-                            id: 'id',
-                            elem: '#param_index_tree',
-                            data: [result.data],
-                            onlyIconControl: true,
-                            accordion: true,
-                            showCheckbox: true,
-                            oncheck: function (obj) {
-                                // 更改表单数据
-                                $('input[name=index_name]').attr('value', obj.data.id);
-                                $('input[name=index_name]').val(obj.data.title);
-                            }
-                        })
-                    })
-                }
-            });
         },
         // 数据源列表请求
         datasource_list_id: function () {

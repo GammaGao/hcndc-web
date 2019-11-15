@@ -10,79 +10,72 @@
     <fieldset class="layui-elem-field layui-field-title">
         <legend>新增参数</legend>
     </fieldset>
-    <fieldset class="layui-elem-field layui-field-title">
-        <legend>菜单目录</legend>
-        <div id="param_index_tree" class="demo-tree-more" style="margin-left: 40px;"></div>
-    </fieldset>
-    <fieldset class="layui-elem-field layui-field-title" style="margin-top: 30px;">
-        <legend>菜单参数</legend>
-        <form class="layui-form">
-            <div class="layui-form-item">
-                <label class="layui-form-label">菜单目录</label>
-                <div class="layui-input-inline">
-                    <input type="text" class="layui-input" name="index_name" lay-verify="required" placeholder="菜单目录" disabled="disabled">
-                </div>
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <label class="layui-form-label">参数类型</label>
+            <div class="layui-input-inline">
+                <label>
+                    <select name="param_type" lay-filter="param_type" lay-verify="required">
+                        <option value="0">静态参数</option>
+                        <option value="1">SQL参数</option>
+                        <option value="2">上下文参数</option>
+                    </select>
+                </label>
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">参数类型</label>
-                <div class="layui-input-inline">
-                    <label>
-                        <select name="param_type" lay-filter="param_type" lay-verify="required">
-                            <option value="0">静态参数</option>
-                            <option value="1">SQL参数</option>
-                            <option value="2">上下文参数</option>
-                        </select>
-                    </label>
-                </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">参数名称</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="param_name" lay-verify="required" placeholder="参数名称">
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">参数名称</label>
-                <div class="layui-input-inline">
-                    <input type="text" class="layui-input" name="param_name" lay-verify="required" placeholder="参数名称">
-                </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">参数目录</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="param_index" lay-verify="required" placeholder="参数目录">
             </div>
-            <div class="layui-form-item" style="display: none;">
-                <label class="layui-form-label">数据源</label>
-                <div class="layui-input-inline">
-                    <label>
-                        <select name="source_id" lay-filter="source_id"></select>
-                    </label>
-                </div>
+        </div>
+        <div class="layui-form-item" style="display: none;">
+            <label class="layui-form-label">数据源</label>
+            <div class="layui-input-inline">
+                <label>
+                    <select name="source_id" lay-filter="source_id"></select>
+                </label>
             </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">参数值</label>
-                <div class="layui-input-block">
-                    <input type="text" class="layui-input" name="param_value" lay-verify="required" placeholder="静态参数值">
-                </div>
-            </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">描述</label>
-                <div class="layui-input-block">
-                    <input type="text" class="layui-input" name="param_desc" placeholder="描述">
-                </div>
-            </div>
-            <div class="layui-form-item">
-                <label class="layui-form-label">参数权限标识</label>
-                <div class="layui-input-inline">
-                    <label>
-                        <select name="param_mark" lay-filter="param_mark" lay-verify="required">
-                            <option value="0">全部操作</option>
-                            <option value="1">禁止改动</option>
-                        </select>
-                    </label>
-                </div>
-            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">参数值</label>
             <div class="layui-input-block">
-                <div class="layui-input-inline">
-                    <button lay-submit class="layui-btn layui-btn-normal" lay-filter="param-test" type="button"
-                            style="display: none;">测试SQL参数
-                    </button>
-                    <button lay-submit class="layui-btn" lay-filter="param-save" type="button">保存</button>
-                    <button type="reset" class="layui-btn layui-btn-primary">清空</button>
-                </div>
+                <input type="text" class="layui-input" name="param_value" lay-verify="required" placeholder="静态参数值">
             </div>
-        </form>
-    </fieldset>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">描述</label>
+            <div class="layui-input-block">
+                <input type="text" class="layui-input" name="param_desc" placeholder="描述">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">参数权限标识</label>
+            <div class="layui-input-inline">
+                <label>
+                    <select name="param_mark" lay-filter="param_mark" lay-verify="required">
+                        <option value="0">全部操作</option>
+                        <option value="1">禁止改动</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+        <div class="layui-input-block">
+            <div class="layui-input-inline">
+                <button lay-submit class="layui-btn layui-btn-normal" lay-filter="param-test" type="button"
+                        style="display: none;">测试SQL参数
+                </button>
+                <button lay-submit class="layui-btn" lay-filter="param-save" type="button">保存</button>
+                <button type="reset" class="layui-btn layui-btn-primary">清空</button>
+            </div>
+        </div>
+    </form>
 </div>
 
 <script type="text/javascript" src="/static/layui/layui.all.js"></script>

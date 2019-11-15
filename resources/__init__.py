@@ -10,4 +10,3 @@ from resources.base import ns
 from resources.execute import ns
 from resources.datasource import ns
 from resources.params import ns
-from resources.params_index import ns

@@ -14,39 +14,37 @@ from util.db_util import get_db_data_one
 class ParamsOperation(object):
     @staticmethod
     @make_decorator
-    def get_params_list(param_type, param_name, source_id, is_deleted, index_id, page, limit):
+    def get_params_list(param_type, param_name, param_index, source_id, is_deleted, page, limit):
         """获取任务列表"""
         condition = []
         if param_type == 1:
             condition.append('param_type = 0')
         elif param_type == 2:
             condition.append('param_type = 1')
+        elif param_type == 3:
+            condition.append('param_type = 2')
         if param_name:
             condition.append('param_name LIKE "%%%%%s%%%%"' % param_name)
+        if param_index:
+            condition.append('param_index IN (%s)' % ','.join('"%s"' % item for item in param_index))
         if source_id:
             condition.append('source_id = %s' % source_id)
         if is_deleted == 1:
             condition.append('is_deleted = 0')
         elif is_deleted == 2:
             condition.append('is_deleted = 1')
-        if index_id:
-            condition.append('p_index_id = %s' % index_id)
 
         condition = 'WHERE ' + ' AND '.join(condition) if condition else ''
-        # 存在层级筛选
-        if index_id:
-            result = ParamsModel.get_params_list(db.etl_db, condition, page, limit)
-            total = ParamsModel.get_params_count(db.etl_db, condition)
-        else:
-            result = ParamsModel.get_params_list_all(db.etl_db, condition, page, limit)
-            total = ParamsModel.get_params_count_all(db.etl_db, condition)
+
+        result = ParamsModel.get_params_list_all(db.etl_db, condition, page, limit)
+        total = ParamsModel.get_params_count_all(db.etl_db, condition)
         return Response(result=result, total=total)
 
     @staticmethod
     @make_decorator
-    def add_params_detail(index_id, param_type, param_name, source_id, param_value, param_desc, param_mark, user_id):
+    def add_params_detail(param_type, param_name, param_index, source_id, param_value, param_desc, param_mark, user_id):
         """新增参数"""
-        param_id = ParamsModel.add_params_detail(db.etl_db, index_id, param_type, param_name, source_id, param_value,
+        param_id = ParamsModel.add_params_detail(db.etl_db, param_type, param_name, param_index, source_id, param_value,
                                                  param_desc, param_mark, user_id)
         return Response(param_id=param_id)
 
@@ -59,11 +57,11 @@ class ParamsOperation(object):
 
     @staticmethod
     @make_decorator
-    def update_params_detail(index_id, param_id, param_type, param_name, source_id, param_value, param_desc,
+    def update_params_detail(param_id, param_type, param_name, param_index, source_id, param_value, param_desc,
                              param_mark, is_deleted, user_id):
         """修改参数详情"""
-        ParamsModel.update_params_detail(db.etl_db, index_id, param_id, param_type, param_name, source_id, param_value,
-                                         param_desc, param_mark, is_deleted, user_id)
+        ParamsModel.update_params_detail(db.etl_db, param_id, param_type, param_name, param_index, source_id,
+                                         param_value, param_desc, param_mark, is_deleted, user_id)
         return Response(param_id=param_id)
 
     @staticmethod
@@ -91,4 +89,11 @@ class ParamsOperation(object):
     def get_params_list_all():
         """获取所有参数"""
         result = ParamsModel.get_params_all(db.etl_db)
+        return Response(result=result)
+
+    @staticmethod
+    @make_decorator
+    def get_params_index_all():
+        """获取所有参数目录"""
+        result = ParamsModel.get_params_index_all(db.etl_db)
         return Response(result=result)
