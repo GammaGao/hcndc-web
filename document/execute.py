@@ -24,7 +24,7 @@ execute_flow_request = api.doc(params={
 
 # 任务流日志请求值
 execute_list_request = api.doc(params={
-    'interface_id': '任务流id',
+    'dispatch_id': '调度id',
     'start_time': '开始运行时间',
     'end_time': '结束运行时间',
     'run_status': '运行状态: 0.全部, 1.成功, 2.运行中, 3.中断, 4.失败, 5.就绪',
@@ -43,7 +43,23 @@ execute_graph_request = api.doc(params={
     'exec_id': '执行id'
 })
 
+# 中止执行任务请求
+execute_stop_requests = api.doc(body=api.model('execute_stop_requests', {
+    'exec_id': fields.List(fields.Integer, description='执行ID列表'),
+}, description='中止执行任务请求'))
+
 # 断点重跑请求
 execute_restart_requests = api.doc(body=api.model('execute_restart_requests', {
+    'exec_id': fields.List(fields.Integer, description='执行ID列表'),
     'prepose_rely': fields.Integer(description='检查任务流中任务前置依赖: 0.否, 1.是')
 }, description='断点重跑请求参数'))
+
+# 重置执行任务请求
+execute_reset_requests = api.doc(body=api.model('execute_reset_requests', {
+    'exec_id': fields.List(fields.Integer, description='执行ID列表'),
+}, description='重置执行任务请求'))
+
+# 启动执行任务请求
+execute_start_requests = api.doc(body=api.model('execute_start_requests', {
+    'exec_id': fields.List(fields.Integer, description='执行ID列表'),
+}, description='启动执行任务请求'))

@@ -33,7 +33,7 @@ class ExecuteFlow(Resource):
     @staticmethod
     @execute_flow_request
     @ExecuteFilter.filter_get_execute_flow(result=list, total=int)
-    @ExecuteOperation.get_execute_flow(interface_id=int, interface_index=str, run_status=int, start_time=int,
+    @ExecuteOperation.get_execute_flow(interface_id=int, interface_index=list, run_status=int, start_time=int,
                                        end_time=int, page=int, limit=int)
     @ExecuteVerify.verify_get_execute_flow(interface_id=int, interface_index=str, run_status=int, start_time=int,
                                            end_time=int, page=int, limit=int)
@@ -56,21 +56,21 @@ class ExecuteHistory(Resource):
     @staticmethod
     @execute_list_request
     @ExecuteFilter.filter_get_execute_history(result=list, total=int)
-    @ExecuteOperation.get_execute_history(interface_id=int, start_time=int, end_time=int, run_status=int,
+    @ExecuteOperation.get_execute_history(dispatch_id=int, start_time=int, end_time=int, run_status=int,
                                           page=int, limit=int)
-    @ExecuteVerify.verify_get_execute_history(interface_id=int, start_time=int, end_time=int, run_status=int,
+    @ExecuteVerify.verify_get_execute_history(dispatch_id=int, start_time=int, end_time=int, run_status=int,
                                               page=int, limit=int)
     def get():
-        """获取任务流历史日志"""
+        """获取调度历史日志"""
         params = Response(
-            interface_id=int(get_arg('interface_id', 0)),
+            dispatch_id=int(get_arg('dispatch_id', 0)),
             start_time=int(get_arg('start_time', 0)),
             end_time=int(get_arg('end_time', 0)),
             run_status=int(get_arg('run_status', 0)),
             page=int(get_arg('page', 1)),
             limit=int(get_arg('limit', 10))
         )
-        log.info('获取任务流历史日志[params: %s]' % str(params))
+        log.info('获取调度历史日志[params: %s]' % str(params))
         return params
 
 
@@ -85,48 +85,60 @@ class ExecuteDetail(Resource):
         log.info('获取执行详情[params: %s]' % str(params))
         return params
 
+
+class ExecuteAction(Resource):
     @staticmethod
-    @ExecuteFilter.filter_stop_execute_job(status=bool)
-    @ExecuteOperation.stop_execute_job(exec_id=int, user_id=int)
-    @PermissionVerify.verify_execute_permission(exec_id=int)
-    def delete(exec_id):
+    @execute_stop_requests
+    @ExecuteFilter.filter_stop_execute_job(msg=list)
+    @ExecuteOperation.stop_execute_job(exec_id=list, user_id=int)
+    @ExecuteVerify.verify_stop_execute(exec_id=list, user_id=int)
+    @PermissionVerify.verify_execute_permission(exec_id=list)
+    def delete():
         """中止执行任务"""
-        params = Response(exec_id=exec_id)
+        payload = get_payload()
+        params = Response(exec_id=payload.get('exec_id', []))
         log.info('中止执行任务[params: %s]' % str(params))
         return params
 
     @staticmethod
     @execute_restart_requests
     @ExecuteFilter.filter_restart(msg=str)
-    @ExecuteOperation.restart_execute_job(exec_id=int, prepose_rely=int, user_id=int)
-    @PermissionVerify.verify_execute_permission(exec_id=int, prepose_rely=int)
-    def post(exec_id):
+    @ExecuteOperation.restart_execute_job(exec_id=list, prepose_rely=int, user_id=int)
+    @ExecuteVerify.verify_restart_execute(exec_id=list, prepose_rely=int, user_id=int)
+    @PermissionVerify.verify_execute_permission(exec_id=list, prepose_rely=int)
+    def post():
         """断点续跑"""
         payload = get_payload()
         params = Response(
-            exec_id=exec_id,
+            exec_id=payload.get('exec_id', []),
             prepose_rely=int(payload.get('prepose_rely', 0))
         )
         log.info('执行任务断点续跑[params: %s]' % str(params))
         return params
 
     @staticmethod
-    @ExecuteFilter.filter_reset(exec_id=int)
-    @ExecuteOperation.reset_execute_job(exec_id=int, user_id=int)
-    @PermissionVerify.verify_execute_permission(exec_id=int)
-    def put(exec_id):
+    @execute_reset_requests
+    @ExecuteFilter.filter_reset(exec_id=list)
+    @ExecuteOperation.reset_execute_job(exec_id=list, user_id=int)
+    @ExecuteVerify.verify_reset_execute(exec_id=list, user_id=int)
+    @PermissionVerify.verify_execute_permission(exec_id=list)
+    def put():
         """重置执行任务"""
-        params = Response(exec_id=exec_id)
+        payload = get_payload()
+        params = Response(exec_id=payload.get('exec_id', []))
         log.info('重置执行任务[params: %s]' % str(params))
         return params
 
     @staticmethod
-    @ExecuteFilter.filter_start(exec_id=int)
-    @ExecuteOperation.start_execute_job(exec_id=int, user_id=int)
-    @PermissionVerify.verify_execute_permission(exec_id=int)
-    def patch(exec_id):
+    @execute_start_requests
+    @ExecuteFilter.filter_start(exec_id=list)
+    @ExecuteOperation.start_execute_job(exec_id=list, user_id=int)
+    @ExecuteVerify.verify_start_execute(exec_id=list, user_id=int)
+    @PermissionVerify.verify_execute_permission(exec_id=list)
+    def patch():
         """启动执行任务(重置任务后)"""
-        params = Response(exec_id=exec_id)
+        payload = get_payload()
+        params = Response(exec_id=payload.get('exec_id', []))
         log.info('启动执行任务[params: %s]' % str(params))
         return params
 
@@ -167,5 +179,6 @@ ns.add_resource(ExecuteCallBack, '/callback/')
 ns.add_resource(ExecuteFlow, '/flow/api/')
 ns.add_resource(ExecuteHistory, '/history/api/')
 ns.add_resource(ExecuteDetail, '/detail/api/<int:exec_id>/')
+ns.add_resource(ExecuteAction, '/action/api/')
 ns.add_resource(ExecuteLog, '/log/api/')
 ns.add_resource(ExecuteGraph, '/graph/api/')

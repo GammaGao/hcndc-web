@@ -92,6 +92,7 @@ class DispatchDetail(Resource):
 
 class DispatchAction(Resource):
     @staticmethod
+    @dispatch_run_request
     @DispatchFilter.filter_run_dispatch(dispatch_id=list)
     @DispatchOperation.run_dispatch(dispatch_id=list)
     @DispatchVerify.verify_run_dispatch(dispatch_id=list)
@@ -120,6 +121,7 @@ class DispatchAction(Resource):
         return params
 
     @staticmethod
+    @dispatch_delete_request
     @DispatchFilter.filter_delete_dispatch_detail(dispatch_id=list)
     @DispatchOperation.delete_dispatch_detail(dispatch_id=list, user_id=int)
     @DispatchVerify.verify_delete_dispatch_detail(dispatch_id=list, user_id=int)

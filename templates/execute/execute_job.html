@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     {% include "util/style.html" %}
-    <title>任务流历史日志</title>
+    <title>任务流日志</title>
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
@@ -13,20 +13,22 @@
     <!-- 内容主体区域 -->
     <div class="layui-body">
         <fieldset class="layui-elem-field layui-field-title">
-            <legend>任务流历史日志</legend>
+            <legend>任务流日志</legend>
         </fieldset>
-        <div style="margin: 0 20px 0 20px">
-            <span class="layui-breadcrumb">
-                <a href="/execute/flow/">返回任务流日志</a>
-                <a><cite>历史日志</cite></a>
-            </span>
-        </div>
         <fieldset class="layui-elem-field layui-field-title">
         </fieldset>
         <form class="layui-form">
             <div class="layui-form-item">
                 <div class="layui-inline">
-                    <label class="layui-form-label">执行时间</label>
+                    <label class="layui-form-label">任务流ID</label>
+                    <div class="layui-input-inline">
+                        <label>
+                            <select name="interface_id" lay-verify="required"></select>
+                        </label>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">运行时间</label>
                     <div class="layui-input-inline" style="width: 300px">
                         <input type="text" class="layui-input" name="run_date" placeholder=" - " autocomplete="off">
                     </div>
@@ -51,19 +53,16 @@
                         <button lay-submit class="layui-btn" lay-filter="execute-search" type="button">
                             <i class="layui-icon layui-icon-search icon-size">搜索</i>
                         </button>
-                        <button type="reset" class="layui-btn layui-btn-primary">清空</button>
                     </div>
                 </div>
             </div>
         </form>
-        <!-- 任务流历史日志 -->
-        <div id="execute-history" lay-filter="execute-history"></div>
+        <!-- 任务流日志 -->
+        <div id="execute-list" lay-filter="execute-list"></div>
     </div>
 </div>
-<script>
-    window.dispatch_id = {{ dispatch_id }};
-</script>
+
 <script type="text/javascript" src="/static/layui/layui.all.js"></script>
-<script type="text/javascript" src="/static/js/execute/execute_history.js"></script>
+<script type="text/javascript" src="/static/js/execute/execute_list.js"></script>
 </body>
 </html>

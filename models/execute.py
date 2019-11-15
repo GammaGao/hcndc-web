@@ -51,6 +51,21 @@ class ExecuteModel(object):
         return result
 
     @staticmethod
+    def update_execute_stop(cursor, exec_id, status):
+        """修改调度执行表状态为中断"""
+        command = '''
+        UPDATE tb_execute
+        SET status = :status, update_time = :update_time
+        WHERE exec_id = :exec_id AND status = 1
+        '''
+        result = cursor.update(command, {
+            'exec_id': exec_id,
+            'status': status,
+            'update_time': int(time.time())
+        })
+        return result
+
+    @staticmethod
     def update_interface_account_by_execute_id(cursor, exec_id, run_time):
         """修改调度执行表账期-执行id"""
         command = '''
@@ -155,7 +170,7 @@ class ExecuteModel(object):
         """获取任务流最新日志"""
         command = '''
         SELECT a.interface_id, a.interface_name, a.interface_index, a.run_time, b.dispatch_id,
-        d.`status`, d.insert_time, d.update_time, d.update_time - d.insert_time AS timedelta
+        d.`status`, d.insert_time, d.update_time, d.update_time - d.insert_time AS timedelta, d.exec_id
         FROM tb_interface AS a
         LEFT JOIN tb_dispatch AS b ON a.interface_id = b.interface_id
         -- 调度ID对应最新的执行ID
@@ -200,16 +215,14 @@ class ExecuteModel(object):
         return result['count'] if result else 0
 
     @staticmethod
-    def get_execute_history(cursor, condition, page=1, limit=10):
+    def get_execute_history(cursor, dispatch_id, condition, page=1, limit=10):
         """获取任务流历史日志"""
         command = '''
-        SELECT a.exec_id, b.interface_id, dispatch_name, dispatch_desc, exec_type, a.`status`,
-        a.insert_time, a.update_time, a.update_time - a.insert_time AS timedelta, c.job_id, d.run_time
+        SELECT a.exec_id, dispatch_name, dispatch_desc, exec_type, a.`status`,
+        a.insert_time, a.update_time, a.update_time - a.insert_time AS timedelta
         FROM tb_execute AS a
-        LEFT JOIN tb_dispatch AS b ON a.dispatch_id = b.dispatch_id AND a.exec_type = 1
-        LEFT JOIN tb_execute_detail AS c ON a.exec_id = c.exec_id AND a.exec_type = 2
-        left JOIN tb_interface AS d ON b.interface_id = d.interface_id
-        %s
+        LEFT JOIN tb_dispatch AS b ON a.dispatch_id = b.dispatch_id
+        WHERE b.dispatch_id = :dispatch_id %s
         ORDER BY exec_id DESC
         LIMIT :limit OFFSET :offset
         '''
@@ -217,24 +230,27 @@ class ExecuteModel(object):
         command = command % condition
 
         result = cursor.query(command, {
+            'dispatch_id': dispatch_id,
             'limit': limit,
             'offset': (page - 1) * limit
         })
         return result if result else []
 
     @staticmethod
-    def get_execute_history_count(cursor, condition):
+    def get_execute_history_count(cursor, dispatch_id, condition):
         """获取任务流历史日志条数"""
         command = '''
         SELECT COUNT(*) AS count
         FROM tb_execute AS a
         LEFT JOIN tb_dispatch AS b USING(dispatch_id)
-        %s
+        WHERE b.dispatch_id = :dispatch_id %s
         '''
 
         command = command % condition
 
-        result = cursor.query_one(command)
+        result = cursor.query_one(command, {
+            'dispatch_id': dispatch_id
+        })
         return result['count'] if result else 0
 
     @staticmethod

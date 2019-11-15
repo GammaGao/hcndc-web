@@ -58,11 +58,6 @@ dispatch_update_request = api.doc(body=api.model('dispatch_update_request', {
     'new_status': fields.Integer(description='新调度状态: 0.删除1.运行中,2.暂停')
 }, description='调度修改请求参数'))
 
-# 立即执行调度请求
-dispatch_run_request = api.doc(body=api.model('dispatch_run_request', {
-    'dispatch_id': fields.Integer(description='调度id')
-}, description='立即执行调度请求'))
-
 # 调度预警修改请求
 dispatch_alert_update_request = api.doc(body=api.model('dispatch_alert_update_request', {
     'flow_id': fields.Integer(description='执行流id'),
@@ -76,7 +71,18 @@ dispatch_alert_update_request = api.doc(body=api.model('dispatch_alert_update_re
     'send_mail_f': fields.String(description='发送邮箱(失败)')
 }, description='任务广播修改请求参数'))
 
-# 调度任务暂停/恢复请求参数
+# 立即执行调度任务请求
+dispatch_run_request = api.doc(body=api.model('dispatch_run_request', {
+    'dispatch_id': fields.List(fields.Integer, description='调度id列表')
+}, description='立即执行调度请求'))
+
+# 调度任务暂停/恢复请求
 dispatch_action_request = api.doc(body=api.model('dispatch_action_request', {
+    'dispatch_id': fields.List(fields.Integer, description='调度id列表'),
     'action': fields.Integer(description='1.暂停, 2.恢复')
 }, description='调度任务暂停/恢复请求参数'))
+
+# 删除调度详情请求
+dispatch_delete_request = api.doc(body=api.model('dispatch_delete_request', {
+    'dispatch_id': fields.List(fields.Integer, description='调度id列表')
+}, description='删除调度详情请求'))
