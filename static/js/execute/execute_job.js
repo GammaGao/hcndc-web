@@ -9,13 +9,15 @@
     Controller.prototype = {
         init: function () {
             // 菜单样式加载
-            menu_init('调度总览', '任务流日志');
+            menu_init('调度总览', '手动执行任务日志');
             // 侧边栏样式切换
             this.tree_toggle();
             // 用户数据渲染
             this.user_info();
             // 元素事件注册
             this.element_event();
+            // 任务流ID渲染
+            this.interface_list_id();
             // 表单搜索事件
             this.form_search();
             // 表格数据初始化
@@ -125,6 +127,25 @@
                 }
             })
         },
+        // 任务流ID渲染
+        interface_list_id: function () {
+            $.ajax({
+                url: BASE.uri.interface.id_list_api,
+                type: 'get',
+                success: function (res) {
+                    layui.use('form', function () {
+                        let form = layui.form;
+                        let html = [];
+                        html.push('<option value="0">请选择</option>');
+                        for (let i in res.data) {
+                            html.push('<option value="' + res.data[i].interface_id + '">' + res.data[i].interface_name + '</option>')
+                        }
+                        $('select[name=interface_id]').append(html.join(''));
+                        form.render('select');
+                    })
+                }
+            })
+        },
         // 表单搜索
         form_search: function () {
             let that = this;
@@ -157,18 +178,16 @@
                 '<div class="layui-inline" lay-event="reset" title="重置"><i class="layui-icon layui-icon-refresh"></i></div>',
                 '</div>'
             ].join('');
-            // 请求参数赋值
-            data.dispatch_id = window.dispatch_id;
             // 表格渲染
             layui.use('table', function () {
                 let table = layui.table;
                 table.render({
-                    elem: "#execute-history",
+                    elem: "#execute-job",
                     page: true,
                     toolbar: toolbar_div,
                     limits: [10, 20, 30, 40, 50, 100],
-                    title: '执行历史日志列表',
-                    url: BASE.uri.execute.history_api,
+                    title: '日志列表',
+                    url: BASE.uri.execute.job_api,
                     where: data,
                     cols: [[{
                         type: 'checkbox'
@@ -178,11 +197,29 @@
                         width: '5%',
                         sort: true
                     }, {
-                        field: "dispatch_name",
-                        title: "调度名称"
+                        field: "job_name",
+                        title: "任务名称",
+                        width: '8%',
+                        sort: true
                     }, {
-                        field: "dispatch_desc",
-                        title: "调度描述"
+                        field: "exec_type",
+                        title: "执行类型",
+                        width: '5%',
+                        templet: function () {
+                            return '<span class="layui-badge layui-bg-green">手动</span>';
+                        }
+                    }, {
+                        field: "server_host",
+                        title: "服务器ip",
+                        width: '8%'
+                    }, {
+                        field: "server_dir",
+                        title: "脚本目录",
+                        width: '8%'
+                    }, {
+                        field: "server_script",
+                        title: "脚本命令",
+                        width: '8%'
                     }, {
                         field: "status",
                         title: "运行状态",
@@ -208,7 +245,8 @@
                         title: "结束时间"
                     }, {
                         field: "timedelta",
-                        title: "时长"
+                        title: "时长",
+                        width: '8%'
                     }, {
                         field: "operation",
                         title: "操作",
@@ -250,7 +288,7 @@
             // 工具栏事件注册
             layui.use('table', function () {
                 let table = layui.table;
-                table.on('toolbar(execute-history)', function (obj) {
+                table.on('toolbar(execute-job)', function (obj) {
                     // 工具栏事件监听
                     let check_status = table.checkStatus(obj.config.id);
                     let check_data = check_status.data;
@@ -403,133 +441,135 @@
         table_data_event: function () {
             layui.use('table', function () {
                 let table = layui.table;
-                table.on('tool(execute-history)', function (obj) {
-                    let data = obj.data;
-                    let event = obj.event;
-                    // 执行详情
-                    if (event === 'detail') {
-                        layer.open({
-                            type: 2,
-                            anim: 5,
-                            title: '执行详情',
-                            maxmin: true,
-                            area: ['60%', '80%'],
-                            content: BASE.uri.execute.detail + data.exec_id + '/'
-                        });
-                    }
-                    // 中止
-                    else if (event === 'stop') {
-                        layer.confirm('确定中止?', function (index) {
-                            // 关闭弹窗
-                            layer.close(index);
-                            $.ajax({
-                                url: BASE.uri.execute.action_api,
-                                contentType: "application/json; charset=utf-8",
-                                data: JSON.stringify({exec_id: [data.exec_id]}),
-                                type: 'delete',
-                                success: function (result) {
-                                    if (result.status === 200) {
-                                        layer.msg('中止成功', {icon: 6});
-                                        // 关闭自身iframe窗口
-                                        setTimeout(function () {
-                                            window.location.reload();
-                                        }, 2000);
-                                    } else {
-                                        layer.msg(sprintf('中止失败[%s]', result.msg), {icon: 5});
+                table.on('tool(execute-job)', function (obj) {
+                        let data = obj.data;
+                        let event = obj.event;
+                        let tr = obj.tr;
+                        // 执行详情
+                        if (event === 'detail') {
+                            layer.open({
+                                type: 2,
+                                anim: 5,
+                                title: '执行详情',
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.execute.detail + data.exec_id + '/'
+                            });
+                        }
+                        // 中止
+                        else if (event === 'stop') {
+                            layer.confirm('确定中止?', function (index) {
+                                // 关闭弹窗
+                                layer.close(index);
+                                $.ajax({
+                                    url: BASE.uri.execute.action_api,
+                                    contentType: "application/json; charset=utf-8",
+                                    data: JSON.stringify({exec_id: [data.exec_id]}),
+                                    type: 'delete',
+                                    success: function (result) {
+                                        if (result.status === 200) {
+                                            layer.msg('中止成功', {icon: 6});
+                                            // 关闭自身iframe窗口
+                                            setTimeout(function () {
+                                                window.location.reload();
+                                            }, 2000);
+                                        } else {
+                                            layer.msg(sprintf('中止失败[%s]', result.msg), {icon: 5});
+                                        }
+                                    },
+                                    error: function (error) {
+                                        let result = error.responseJSON;
+                                        layer.alert(sprintf('中止失败: %s', result.msg))
                                     }
-                                },
-                                error: function (error) {
-                                    let result = error.responseJSON;
-                                    layer.alert(sprintf('中止失败: %s', result.msg))
-                                }
+                                })
                             })
-                        })
-                    }
-                    // 断点重跑
-                    else if (event === 'restart') {
-                        // layer.open({
-                        //     type: 2,
-                        //     anim: 5,
-                        //     title: '断点重跑',
-                        //     maxmin: true,
-                        //     area: ['60%', '80%'],
-                        //     content: BASE.uri.execute.restart + data.exec_id + '/'
-                        // });
-                        layer.confirm('确定断点重跑?', function (index) {
-                            // 关闭弹窗
-                            layer.close(index);
-                            $.ajax({
-                                url: BASE.uri.execute.action_api,
-                                contentType: "application/json; charset=utf-8",
-                                data: JSON.stringify({exec_id: [data.exec_id]}),
-                                type: 'post',
-                                success: function (result) {
-                                    if (result.status === 200) {
-                                        layer.msg('重跑成功', {icon: 6});
-                                        // 关闭自身iframe窗口
-                                        setTimeout(function () {
-                                            window.location.reload();
-                                        }, 2000);
-                                    } else {
+                        }
+                        // 断点重跑
+                        else if (event === 'restart') {
+                            // layer.open({
+                            //     type: 2,
+                            //     anim: 5,
+                            //     title: '断点重跑',
+                            //     maxmin: true,
+                            //     area: ['60%', '80%'],
+                            //     content: BASE.uri.execute.restart + data.exec_id + '/'
+                            // });
+                            layer.confirm('确定断点重跑?', function (index) {
+                                // 关闭弹窗
+                                layer.close(index);
+                                $.ajax({
+                                    url: BASE.uri.execute.action_api,
+                                    contentType: "application/json; charset=utf-8",
+                                    data: JSON.stringify({exec_id: [data.exec_id]}),
+                                    type: 'post',
+                                    success: function (result) {
+                                        if (result.status === 200) {
+                                            layer.msg('重跑成功', {icon: 6});
+                                            // 关闭自身iframe窗口
+                                            setTimeout(function () {
+                                                window.location.reload();
+                                            }, 2000);
+                                        } else {
+                                            layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5});
+                                        }
+                                    },
+                                    error: function (error) {
+                                        let result = error.responseJSON;
                                         layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5});
                                     }
+                                });
+                            })
+                        }
+                        // 重置
+                        else if (event === 'reset') {
+                            $.ajax({
+                                url: BASE.uri.execute.action_api,
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify({exec_id: [data.exec_id]}),
+                                type: 'put',
+                                success: function (result) {
+                                    if (result.status === 200) {
+                                        layer.msg('重置成功', {icon: 6});
+                                        // 关闭自身iframe窗口
+                                        setTimeout(function () {
+                                            window.location.reload();
+                                        }, 2000);
+                                    } else {
+                                        layer.msg(sprintf('重置失败[%s]', result.msg), {icon: 5});
+                                    }
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;
-                                    layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5});
+                                    layer.alert(sprintf('重置失败: %s', result.msg))
                                 }
-                            });
-                        })
-                    }
-                    // 重置
-                    else if (event === 'reset') {
-                        $.ajax({
-                            url: BASE.uri.execute.action_api,
-                            contentType: "application/json; charset=utf-8",
-                            data: JSON.stringify({exec_id: [data.exec_id]}),
-                            type: 'put',
-                            success: function (result) {
-                                if (result.status === 200) {
-                                    layer.msg('重置成功', {icon: 6});
-                                    // 关闭自身iframe窗口
-                                    setTimeout(function () {
-                                        window.location.reload();
-                                    }, 2000);
-                                } else {
-                                    layer.msg(sprintf('重置失败[%s]', result.msg), {icon: 5});
+                            })
+                        }
+                        // 启动
+                        else if (event === 'start') {
+                            $.ajax({
+                                url: BASE.uri.execute.action_api,
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify({exec_id: [data.exec_id]}),
+                                type: 'patch',
+                                success: function (result) {
+                                    if (result.status === 200) {
+                                        layer.msg('启动成功', {icon: 6});
+                                        // 关闭自身iframe窗口
+                                        setTimeout(function () {
+                                            window.location.reload();
+                                        }, 2000);
+                                    } else {
+                                        layer.msg(sprintf('启动失败[%s]', result.msg), {icon: 5});
+                                    }
+                                },
+                                error: function (error) {
+                                    let result = error.responseJSON;
+                                    layer.alert(sprintf('启动失败: %s', result.msg))
                                 }
-                            },
-                            error: function (error) {
-                                let result = error.responseJSON;
-                                layer.alert(sprintf('重置失败: %s', result.msg))
-                            }
-                        })
+                            })
+                        }
                     }
-                    // 启动
-                    else if (event === 'start') {
-                        $.ajax({
-                            url: BASE.uri.execute.action_api,
-                            contentType: "application/json; charset=utf-8",
-                            data: JSON.stringify({exec_id: [data.exec_id]}),
-                            type: 'patch',
-                            success: function (result) {
-                                if (result.status === 200) {
-                                    layer.msg('启动成功', {icon: 6});
-                                    // 关闭自身iframe窗口
-                                    setTimeout(function () {
-                                        window.location.reload();
-                                    }, 2000);
-                                } else {
-                                    layer.msg(sprintf('启动失败[%s]', result.msg), {icon: 5});
-                                }
-                            },
-                            error: function (error) {
-                                let result = error.responseJSON;
-                                layer.alert(sprintf('启动失败: %s', result.msg))
-                            }
-                        })
-                    }
-                })
+                )
             })
         },
         element_init: function () {

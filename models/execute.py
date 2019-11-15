@@ -254,6 +254,40 @@ class ExecuteModel(object):
         return result['count'] if result else 0
 
     @staticmethod
+    def get_execute_job_log(cursor, condition, page, limit):
+        """获取手动执行任务日志"""
+        command = '''
+        SELECT a.exec_id, a.exec_type, c.job_name, a.`status`, a.insert_time, a.update_time,
+        a.update_time - a.insert_time AS timedelta,
+        b.server_host, b.server_dir, b.server_script, b.return_code
+        FROM tb_execute AS a
+        LEFT JOIN tb_execute_detail AS b USING(exec_id)
+        LEFT JOIN tb_jobs AS c USING(job_id)
+        WHERE exec_type = 2 %s
+        ORDER BY exec_id DESC
+        LIMIT :limit OFFSET :offset
+        '''
+        command = command % condition
+        result = cursor.query(command, {
+            'limit': limit,
+            'offset': (page - 1) * limit
+        })
+        return result if result else []
+
+    @staticmethod
+    def get_execute_job_log_count(cursor, condition):
+        """获取手动执行任务日志数量"""
+        command = '''
+            SELECT COUNT(*) AS count
+            FROM tb_execute AS a
+            LEFT JOIN tb_execute_detail AS b USING(exec_id)
+            WHERE exec_type = 2 %s
+            '''
+        command = command % condition
+        result = cursor.query_one(command)
+        return result['count'] if result else 0
+
+    @staticmethod
     def get_execute_detail(cursor, exec_id):
         """获取执行详情"""
         command = '''

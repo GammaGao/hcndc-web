@@ -188,6 +188,40 @@ class ExecuteOperation(object):
 
     @staticmethod
     @make_decorator
+    def get_execute_job_log(job_id, start_time, end_time, run_status, page, limit):
+        """获取手动执行任务日志"""
+        condition = []
+        if job_id:
+            condition.append('b.job_id = %s' % job_id)
+        if start_time:
+            condition.append('a.insert_time >= %s' % start_time)
+        if end_time:
+            condition.append('a.insert_time <= %s' % end_time)
+        if run_status:
+            # 成功
+            if run_status == 1:
+                condition.append('a.`status` = 0')
+            # 运行中
+            elif run_status == 2:
+                condition.append('a.`status` = 1')
+            # 中断
+            elif run_status == 3:
+                condition.append('a.`status` = 2')
+            # 失败
+            elif run_status == 4:
+                condition.append('a.`status` = -1')
+            # 就绪
+            elif run_status == 5:
+                condition.append('a.`status` = 3')
+
+        condition = ' AND ' + ' AND '.join(condition) if condition else ''
+
+        result = ExecuteModel.get_execute_job_log(db.etl_db, condition, page, limit)
+        total = ExecuteModel.get_execute_job_log_count(db.etl_db, condition)
+        return Response(result=result, total=total)
+
+    @staticmethod
+    @make_decorator
     def get_execute_detail(exec_id):
         """获取执行详情"""
         result = ExecuteModel.get_execute_detail(db.etl_db, exec_id)

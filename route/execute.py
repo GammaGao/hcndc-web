@@ -13,6 +13,14 @@ def ExecuteFlow():
     return redirect('/login/')
 
 
+@app.route('/execute/job/')
+def ExecuteJob():
+    """任务日志"""
+    if session.get('login'):
+        return render_template('execute/execute_job.html')
+    return redirect('/login/')
+
+
 @app.route('/execute/history/<int:dispatch_id>/')
 def ExecuteHistory(dispatch_id):
     """任务流历史日志"""

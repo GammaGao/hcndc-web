@@ -89,8 +89,9 @@ let BASE = {
             'run_api': '/dispatch/run/api/'
         },
         execute: {
-            'list': '/execute/list/',
-            'list_api': '/execute/list/api/',
+            'job': '/execute/job/',
+            'job_api': '/execute/job/api/',
+            'flow': '/execute/flow/',
             'flow_api': '/execute/flow/api/',
             'history': '/execute/history/',
             'history_api': '/execute/history/api/',

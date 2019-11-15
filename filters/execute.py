@@ -39,6 +39,16 @@ class ExecuteFilter(object):
 
     @staticmethod
     @make_decorator
+    def filter_get_execute_job_log(result, total):
+        """获取手动执行任务日志"""
+        for item in result:
+            item['insert_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time']))
+            item['update_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['update_time']))
+            item['timedelta'] = seconds_format(item['timedelta'])
+        return {'status': 200, 'msg': '成功', 'total': total, 'data': result}, 200
+
+    @staticmethod
+    @make_decorator
     def filter_get_execute_detail(result):
         """获取执行详情"""
         for item in result:
@@ -78,9 +88,9 @@ class ExecuteFilter(object):
         nodes = {}
         links = []
         layers = {}
-        symbolSize = log(10, len(job_nodes)) * 40 if len(job_nodes) > 1 else 30
-        horizontalMargin = 20 * (1 + 1 / len(job_nodes)) if len(job_nodes) > 1 else 10
-        verticalMargin = len(job_nodes)
+        symbol_size = log(10, len(job_nodes)) * 40 if len(job_nodes) > 1 else 30
+        horizontal_margin = 20 * (1 + 1 / len(job_nodes)) if len(job_nodes) > 1 else 10
+        vertical_margin = len(job_nodes)
         # 0.预处理: id统一为字符串
         for job in job_nodes:
             job['job_id'] = str(job['job_id']) if job['job_id'] else None
@@ -92,7 +102,7 @@ class ExecuteFilter(object):
                     'id': job['job_id'],
                     'name': job['job_name'],
                     'itemStyle': None,
-                    'symbolSize': symbolSize,
+                    'symbolSize': symbol_size,
                     'x': 0,
                     'y': 0,
                     'label': {'show': True},
@@ -103,7 +113,7 @@ class ExecuteFilter(object):
                 }
         # 2.计算节点层级
         # 最大层级
-        maxLayer = max(j['level'] for i, j in nodes.items())
+        max_layer = max(j['level'] for i, j in nodes.items())
         # 填充层级对象
         for _, node in nodes.items():
             if node['level'] not in layers:
@@ -143,30 +153,30 @@ class ExecuteFilter(object):
                     # 添加结束边
                     links.append({'source': source_node, 'target': job['job_id']})
         # 4.计算坐标
-        for level in range(maxLayer + 1):
+        for level in range(max_layer + 1):
             # x坐标
             layer = layers[level]
             ranges = {
                 'start': 0,
                 'end': 0,
-                'width': horizontalMargin,
+                'width': horizontal_margin,
                 'x': 0
             }
             # 遍历每层所有节点
             for node_index in range(1, len(layer)):
                 ranges['end'] = node_index
-                ranges['width'] += horizontalMargin
+                ranges['width'] += horizontal_margin
             # 多个节点
             if ranges['start'] != ranges['end']:
                 # 负数折半
                 left = -ranges['width'] / 2
                 for j in range(0, len(layer)):
-                    layer[j]['x'] = left + horizontalMargin / 2
-                    left += horizontalMargin
+                    layer[j]['x'] = left + horizontal_margin / 2
+                    left += horizontal_margin
         # y坐标
-        for level in range(maxLayer + 1):
+        for level in range(max_layer + 1):
             for node in layers[level]:
-                node['y'] = verticalMargin * level
+                node['y'] = vertical_margin * level
         # 5.数据整理
         for _, node in nodes.items():
             node.pop('in')

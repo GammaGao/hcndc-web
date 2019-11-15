@@ -53,6 +53,19 @@ class ExecuteVerify(object):
 
     @staticmethod
     @make_decorator
+    def verify_get_execute_job_log(job_id, start_time, end_time, run_status, page, limit):
+        """获取手动执行任务日志"""
+        # 执行时间
+        if start_time and end_time and start_time >= end_time:
+            abort(400, **make_result(status=400, msg='执行开始时间大于创建结束时间'))
+        if run_status < 0 or run_status > 5:
+            abort(400, **make_result(status=400, msg='运行状态错误'))
+
+        return Response(job_id=job_id, start_time=start_time, end_time=end_time, run_status=run_status,
+                        page=page, limit=limit)
+
+    @staticmethod
+    @make_decorator
     def verify_get_execute_detail(exec_id):
         """获取执行详情"""
         if not exec_id:

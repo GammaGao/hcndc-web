@@ -22,9 +22,19 @@ execute_flow_request = api.doc(params={
     'limit': '条数'
 })
 
-# 任务流日志请求值
-execute_list_request = api.doc(params={
+# 任务流历史日志请求值
+execute_history_request = api.doc(params={
     'dispatch_id': '调度id',
+    'start_time': '开始运行时间',
+    'end_time': '结束运行时间',
+    'run_status': '运行状态: 0.全部, 1.成功, 2.运行中, 3.中断, 4.失败, 5.就绪',
+    'page': '页码',
+    'limit': '条数'
+})
+
+# 手动执行任务日志请求
+execute_job_request = api.doc(params={
+    'job_id': '任务id',
     'start_time': '开始运行时间',
     'end_time': '结束运行时间',
     'run_status': '运行状态: 0.全部, 1.成功, 2.运行中, 3.中断, 4.失败, 5.就绪',

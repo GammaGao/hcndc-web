@@ -54,7 +54,7 @@ class ExecuteFlow(Resource):
 
 class ExecuteHistory(Resource):
     @staticmethod
-    @execute_list_request
+    @execute_history_request
     @ExecuteFilter.filter_get_execute_history(result=list, total=int)
     @ExecuteOperation.get_execute_history(dispatch_id=int, start_time=int, end_time=int, run_status=int,
                                           page=int, limit=int)
@@ -71,6 +71,28 @@ class ExecuteHistory(Resource):
             limit=int(get_arg('limit', 10))
         )
         log.info('获取调度历史日志[params: %s]' % str(params))
+        return params
+
+
+class ExecuteJob(Resource):
+    @staticmethod
+    @execute_job_request
+    @ExecuteFilter.filter_get_execute_job_log(result=list, total=int)
+    @ExecuteOperation.get_execute_job_log(job_id=int, start_time=int, end_time=int, run_status=int,
+                                          page=int, limit=int)
+    @ExecuteVerify.verify_get_execute_job_log(job_id=int, start_time=int, end_time=int, run_status=int,
+                                              page=int, limit=int)
+    def get():
+        """获取手动执行任务日志"""
+        params = Response(
+            job_id=int(get_arg('job_id', 0)),
+            start_time=int(get_arg('start_time', 0)),
+            end_time=int(get_arg('end_time', 0)),
+            run_status=int(get_arg('run_status', 0)),
+            page=int(get_arg('page', 1)),
+            limit=int(get_arg('limit', 10))
+        )
+        log.info('获取手动执行任务日志[params: %s]' % str(params))
         return params
 
 
@@ -178,6 +200,7 @@ ns = api.namespace('execute', description='执行')
 ns.add_resource(ExecuteCallBack, '/callback/')
 ns.add_resource(ExecuteFlow, '/flow/api/')
 ns.add_resource(ExecuteHistory, '/history/api/')
+ns.add_resource(ExecuteJob, '/job/api/')
 ns.add_resource(ExecuteDetail, '/detail/api/<int:exec_id>/')
 ns.add_resource(ExecuteAction, '/action/api/')
 ns.add_resource(ExecuteLog, '/log/api/')

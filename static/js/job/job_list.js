@@ -469,7 +469,7 @@
                                                 content: '是否跳转至执行日志?',
                                                 yes: function (index) {
                                                     layer.close(index);
-                                                    window.location.href = BASE.uri.execute.list;
+                                                    window.location.href = BASE.uri.execute.job;
                                                 }
                                             });
                                         } else {
