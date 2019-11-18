@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
 from flask_restful import abort
 
 from server.decorators import make_decorator, Response
@@ -33,6 +34,8 @@ class ParamsVerify(object):
             abort(400, **make_result(status=400, msg='数据源不得为空'))
         if not param_index:
             abort(400, **make_result(status=400, msg='参数目录不得为空'))
+        elif re.findall(',', param_index):
+            abort(400, **make_result(status=400, msg='参数目录中不得出现逗号字符","'))
         if not param_value:
             abort(400, **make_result(status=400, msg='参数值不得为空'))
         if param_mark < 0 or param_mark > 1:
@@ -55,6 +58,8 @@ class ParamsVerify(object):
             abort(400, **make_result(status=400, msg='参数名称不得为空'))
         if not param_index:
             abort(400, **make_result(status=400, msg='参数目录不得为空'))
+        elif re.findall(',', param_index):
+            abort(400, **make_result(status=400, msg='参数目录中不得出现逗号字符","'))
         if param_type == 1 and source_id == 0:
             abort(400, **make_result(status=400, msg='数据源不得为空'))
         if not param_value:

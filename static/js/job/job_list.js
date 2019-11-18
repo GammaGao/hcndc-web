@@ -197,6 +197,7 @@
                 '<div class="layui-inline" lay-event="add" title="添加作业"><i class="layui-icon layui-icon-add-1"></i></div>',
                 '<div class="layui-inline" lay-event="update" title="修改作业"><i class="layui-icon layui-icon-edit"></i></div>',
                 '<div class="layui-inline" lay-event="upload" title="上传作业文件" id="job-upload"><i class="layui-icon layui-icon-upload"></i></div>',
+                '<div class="layui-inline" lay-event="download" title="下载作业模板" id="job-upload"><i class="layui-icon layui-icon-download-circle"></i></div>',
                 '</div>'
             ].join('');
             // 表格渲染
@@ -346,6 +347,7 @@
                     let check_status = table.checkStatus(obj.config.id);
                     let check_data = check_status.data;
                     switch (obj.event) {
+                        // 新增
                         case 'add':
                             layer.open({
                                 type: 2,
@@ -359,6 +361,7 @@
                                 }
                             });
                             break;
+                        // 修改
                         case 'update':
                             if (check_data.length === 0) {
                                 layer.msg('请选择一行');
@@ -378,6 +381,18 @@
                                 });
                             }
                             break;
+                        // 下载
+                        case 'download':
+                            window.location.href = '/job/download/';
+                            // // 获取XMLHttpRequest
+                            // let xmlResquest = new XMLHttpRequest();
+                            // //  发起请求
+                            // xmlResquest.open("POST", "/job/download/", true);
+                            // // 设置请求头类型
+                            // xmlResquest.setRequestHeader("Content-type", "application/json");
+                            // // xmlResquest.setRequestHeader("id", data.id);
+                            // xmlResquest.responseType = "blob";
+                            // xmlResquest.send();
                     }
                 })
             })

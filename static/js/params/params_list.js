@@ -184,6 +184,7 @@
                 '<div class="layui-inline" lay-event="add" title="添加参数"><i class="layui-icon layui-icon-add-1"></i></div>',
                 '<div class="layui-inline" lay-event="update" title="修改参数"><i class="layui-icon layui-icon-edit"></i></div>',
                 '<div class="layui-inline" lay-event="upload" title="上传参数文件" id="param-upload"><i class="layui-icon layui-icon-upload"></i></div>',
+                '<div class="layui-inline" lay-event="download" title="下载参数模板" id="job-upload"><i class="layui-icon layui-icon-download-circle"></i></div>',
                 '</div>'
             ].join('');
             // 表格渲染
@@ -340,6 +341,7 @@
                     console.log(check_status);
                     let check_data = check_status.data;
                     switch (obj.event) {
+                        // 新增
                         case 'add':
                             layer.open({
                                 type: 2,
@@ -353,6 +355,7 @@
                                 }
                             });
                             break;
+                        // 修改
                         case 'update':
                             if (check_data.length === 0) {
                                 layer.msg('请选择一行', {icon: 5});
@@ -378,6 +381,9 @@
                                 });
                             }
                             break;
+                        // 下载
+                        case 'download':
+                            window.location.href = '/params/download/';
                     }
                 })
             })

@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
 from flask_restful import abort
 
 from server.decorators import make_decorator, Response
@@ -50,6 +51,8 @@ class JobVerify(object):
             abort(400, **make_result(status=400, msg='任务名称不存在'))
         if not job_index:
             abort(400, **make_result(status=400, msg='任务目录不存在'))
+        elif re.findall(',', job_index):
+            abort(400, **make_result(status=400, msg='任务目录中不得出现逗号字符","'))
         if not user_id:
             abort(400, **make_result(status=400, msg='用户不存在'))
         if not server_id:
@@ -73,6 +76,8 @@ class JobVerify(object):
             abort(400, **make_result(status=400, msg='任务名称不存在'))
         if not job_index:
             abort(400, **make_result(status=400, msg='任务目录不存在'))
+        elif re.findall(',', job_index):
+            abort(400, **make_result(status=400, msg='任务目录中不得出现逗号字符","'))
         if not interface_id:
             abort(400, **make_result(status=400, msg='任务流id不存在'))
         if not server_id:

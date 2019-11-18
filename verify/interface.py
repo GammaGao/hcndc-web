@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
 from flask_restful import abort
 
 from server.decorators import make_decorator, Response
@@ -51,6 +52,8 @@ class InterfaceVerify(object):
             abort(400, **make_result(status=400, msg='任务流名称不存在'))
         if not interface_index:
             abort(400, **make_result(status=400, msg='任务流目录不存在'))
+        elif re.findall(',', interface_index):
+            abort(400, **make_result(status=400, msg='任务流目录中不得出现逗号字符","'))
         if retry < 0 or retry > 10:
             abort(400, **make_result(status=400, msg='重试次数请限制在0-10之内'))
         if is_deleted < 0 or is_deleted > 1:
@@ -67,6 +70,8 @@ class InterfaceVerify(object):
             abort(400, **make_result(status=400, msg='任务流名称不存在'))
         if not interface_index:
             abort(400, **make_result(status=400, msg='任务流目录不存在'))
+        elif re.findall(',', interface_index):
+            abort(400, **make_result(status=400, msg='任务流目录中不得出现逗号字符","'))
         if retry < 0 or retry > 10:
             abort(400, **make_result(status=400, msg='重试次数请限制在0-10之内'))
         return Response(interface_name=interface_name, interface_desc=interface_desc, interface_index=interface_index,

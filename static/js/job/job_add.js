@@ -8,6 +8,8 @@
 
     Controller.prototype = {
         init: function () {
+            // 表单验证规则
+            this.form_verify();
             // 任务流名称请求
             this.interface_list_id_req();
             // 服务器名称请求
@@ -18,6 +20,23 @@
             this.job_params_req();
             // 任务表单事件注册
             this.form_event();
+        },
+        // 表单验证
+        form_verify: function () {
+            layui.use('form', function () {
+                let form = layui.form;
+                form.verify({
+                    // 多选目录验证规则
+                    index_verify: function (value, item) {
+                        if (!value) {
+                            return '必填项不能为空'
+                        }
+                        if (/,/.test(value)) {
+                            return '任务目录中不得出现逗号字符","'
+                        }
+                    }
+                })
+            })
         },
         // 任务流ID渲染
         interface_list_id_req: function () {

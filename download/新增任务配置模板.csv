@@ -1,0 +1,7 @@
+序号,所属接口id,任务名称,任务描述,服务器id,脚本目录,脚本命令,依赖任务序号(本次新建任务),依赖任务id(已有任务),任务参数,返回值
+1,1,测试任务1,测试任务1描述,1,/root/hcdnc,python3 test.py,,6,,0
+2,1,测试任务2,测试任务2描述,1,/root/hcdnc,python3 test.py,1,,,0
+3,1,测试任务3,测试任务3描述,1,/root/hcdnc,python3 test.py,1,,,0
+4,1,测试任务4,测试任务4描述,1,/root/hcdnc,python3 test.py,2,,,0
+5,1,测试任务5,测试任务5描述,1,/root/hcdnc,python3 test.py,"2,3",,,0
+6,1,测试任务6,测试任务6描述,1,/root/hcdnc,python3 test.py,"4,5",,3,0

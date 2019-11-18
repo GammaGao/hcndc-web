@@ -8,10 +8,29 @@
 
     Controller.prototype = {
         init: function () {
+            // 表单验证规则
+            this.form_verify();
             // 数据初始化赋值
             this.form_data_init();
             // 表单提交
             this.form_event();
+        },
+        // 表单验证
+        form_verify: function () {
+            layui.use('form', function () {
+                let form = layui.form;
+                form.verify({
+                    // 多选目录验证规则
+                    index_verify: function (value, item) {
+                        if (!value) {
+                            return '必填项不能为空'
+                        }
+                        if (/,/.test(value)) {
+                            return '任务流目录中不得出现逗号字符","'
+                        }
+                    }
+                })
+            })
         },
         // 表单提交
         form_event: function () {
