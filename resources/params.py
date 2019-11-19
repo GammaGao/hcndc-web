@@ -100,7 +100,7 @@ class ParamsDetail(Resource):
         return params
 
     @staticmethod
-    @ParamsFilter.filter_delete_data(param_id=int)
+    @ParamsFilter.filter_delete_data(msg=list)
     @ParamsOperation.delete_params_detail(param_id=int, user_id=int)
     @PermissionVerify.verify_write_permission(param_id=int)
     def delete(param_id):
@@ -151,7 +151,7 @@ class ParamsIndex(Resource):
 
 class ParamsAction(Resource):
     @staticmethod
-    @ParamsFilter.filter_delete_params_may(msg=str)
+    @ParamsFilter.filter_delete_params_may(msg=list)
     @ParamsOperation.delete_params_may(param_id_arr=list, user_id=int)
     @ParamsVerify.verify_delete_many_params(param_id_arr=list, user_id=int)
     @PermissionVerify.verify_execute_permission(param_id_arr=list)

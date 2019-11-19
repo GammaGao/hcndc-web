@@ -117,6 +117,21 @@ class ParamsModel(object):
         return result
 
     @staticmethod
+    def get_params_detail_not_delete(cursor, param_id):
+        """获取非删除参数"""
+        command = '''
+        SELECT a.param_id, GROUP_CONCAT(b.job_id) AS job_id, a.param_type
+        FROM tb_param_config AS a
+        LEFT JOIN tb_job_param AS b ON a.param_id = b.param_id AND b.is_deleted = 0
+        WHERE a.param_id = :param_id
+        GROUP BY a.param_id
+        '''
+        result = cursor.query(command, {
+            'param_id': param_id
+        })
+        return result if result else []
+
+    @staticmethod
     def delete_params_detail(cursor, param_id, user_id):
         """删除参数"""
         command = '''

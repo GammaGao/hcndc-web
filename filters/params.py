@@ -31,9 +31,12 @@ class ParamsFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_delete_data(param_id):
+    def filter_delete_data(msg):
         """删除参数详情"""
-        return {'status': 200, 'msg': '成功', 'data': {'param_id': param_id}}, 200
+        if not msg:
+            return {'status': 200, 'msg': '成功', 'data': {}}, 200
+        else:
+            return {'status': 403, 'msg': '<br>' + ';<br>'.join(msg), 'data': {}}, 200
 
     @staticmethod
     @make_decorator
@@ -59,4 +62,8 @@ class ParamsFilter(object):
     @staticmethod
     @make_decorator
     def filter_delete_params_may(msg):
-        return {'status': 200, 'msg': msg, 'data': {}}, 200
+        """批量删除参数"""
+        if not msg:
+            return {'status': 200, 'msg': '成功', 'data': {}}, 200
+        else:
+            return {'status': 403, 'msg': '<br>' + ';<br>'.join(msg), 'data': {}}, 200

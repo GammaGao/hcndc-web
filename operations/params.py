@@ -68,8 +68,17 @@ class ParamsOperation(object):
     @make_decorator
     def delete_params_detail(param_id, user_id):
         """删除参数"""
-        ParamsModel.delete_params_detail(db.etl_db, param_id, user_id)
-        return Response(param_id=param_id)
+        err_msg = []
+        result = ParamsModel.get_params_detail_not_delete(db.etl_db, param_id)
+        for param_detail in result:
+            if param_detail['param_type'] == 2:
+                err_msg.append('参数ID: [%s]为上下文参数, 不能删除' % param_id)
+            if param_detail['job_id']:
+                err_msg.append('参数ID: [%s], 在任务: [%s]调用中, 请停止调用后删除' %
+                               (param_id, ','.join(item['job_id'] for item in result)))
+        if not err_msg:
+            ParamsModel.delete_params_detail(db.etl_db, param_id, user_id)
+        return Response(msg=err_msg)
 
     @staticmethod
     @make_decorator
@@ -102,6 +111,16 @@ class ParamsOperation(object):
     @make_decorator
     def delete_params_may(param_id_arr, user_id):
         """批量删除参数"""
-        condition = '(%s)' % ','.join(str(item) for item in param_id_arr)
-        ParamsModel.delete_params_many(db.etl_db, condition, user_id)
-        return Response(msg='成功')
+        err_msg = []
+        for param_id in param_id_arr:
+            result = ParamsModel.get_params_detail_not_delete(db.etl_db, param_id)
+            for param_detail in result:
+                if param_detail['param_type'] == 2:
+                    err_msg.append('参数ID: [%s]为上下文参数, 不能删除' % param_id)
+                if param_detail['job_id']:
+                    err_msg.append('参数ID: [%s], 在任务: [%s]调用中, 请停止调用后删除' %
+                                   (param_id, ','.join(item['job_id'] for item in result)))
+        if not err_msg:
+            condition = '(%s)' % ','.join(str(item) for item in param_id_arr)
+            ParamsModel.delete_params_many(db.etl_db, condition, user_id)
+        return Response(msg=err_msg)

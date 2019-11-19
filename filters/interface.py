@@ -220,4 +220,4 @@ class InterfaceFilter(object):
         if not msg:
             return {'status': 200, 'msg': '成功', 'data': {}}, 200
         else:
-            return {'status': 403, 'msg': ','.join(msg), 'data': {}}, 200
+            return {'status': 403, 'msg': '<br>' + ';<br>'.join(msg), 'data': {}}, 200
