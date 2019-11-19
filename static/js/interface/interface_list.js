@@ -176,6 +176,7 @@
                 '<div class="layui-table-tool-temp">',
                 '<div class="layui-inline" lay-event="add" title="添加任务流"><i class="layui-icon layui-icon-add-1"></i></div>',
                 '<div class="layui-inline" lay-event="update" title="修改任务流"><i class="layui-icon layui-icon-edit"></i></div>',
+                '<div class="layui-inline" lay-event="delete" title="删除任务流"><i class="layui-icon layui-icon-delete"></i></div>',
                 '</div>'
             ].join('');
             // 表格渲染
@@ -190,7 +191,7 @@
                     url: BASE.uri.interface.list_api,
                     where: data,
                     cols: [[{
-                        type: 'radio'
+                        type: 'checkbox'
                     }, {
                         field: "interface_id",
                         title: "任务流id",
@@ -267,6 +268,7 @@
                     let check_status = table.checkStatus(obj.config.id);
                     let check_data = check_status.data;
                     switch (obj.event) {
+                        // 新增
                         case 'add':
                             layer.open({
                                 type: 2,
@@ -280,6 +282,7 @@
                                 }
                             });
                             break;
+                        // 修改
                         case 'update':
                             if (check_data.length === 0) {
                                 layer.msg('请选择一行')
@@ -297,6 +300,50 @@
                                         window.location.reload();
                                     }
                                 });
+                            }
+                            break;
+                        // 删除
+                        case 'delete':
+                            if (check_data.length === 0) {
+                                layer.msg('请选择一行');
+                            } else {
+                                let delete_status = check_data.filter(item => item.is_deleted !== 0);
+                                if (delete_status.length > 0) {
+                                    layer.msg('存在已删除任务流, 不能执行', {icon: 5});
+                                    break
+                                } else {
+                                    let flow_id_arr = [];
+                                    check_data.forEach(item => flow_id_arr.push(item.interface_id));
+                                    layer.confirm('确定删除任务流?', function (index) {
+                                        layer.close(index);
+                                        $.ajax({
+                                            url: BASE.uri.interface.action_api,
+                                            data: JSON.stringify({flow_id_arr: flow_id_arr}),
+                                            contentType: "application/json; charset=utf-8",
+                                            type: 'delete',
+                                            success: function (result) {
+                                                if (result.status === 200) {
+                                                    layer.open({
+                                                        title: '删除成功',
+                                                        content: '删除成功',
+                                                        yes: function (index) {
+                                                            layer.close(index);
+                                                            // 刷新页面
+                                                            window.location.reload();
+                                                        }
+                                                    })
+                                                } else {
+                                                    layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5});
+                                                }
+                                            }
+                                            ,
+                                            error: function (error) {
+                                                let result = error.responseJSON;
+                                                layer.msg(sprintf('删除失败[%s]', result.msg), {icon: 5});
+                                            }
+                                        });
+                                    });
+                                }
                             }
                             break;
                     }

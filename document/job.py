@@ -74,3 +74,8 @@ all_job_request = api.doc(params={
 job_execute_request = api.doc(body=api.model('job_execute_request', {
     'job_id': fields.Integer(description='任务id')
 }, description='立即执行任务请求'))
+
+# 批量删除任务请求
+job_delete_many_request = api.doc(body=api.model('job_delete_many_request', {
+    'job_id_arr': fields.List(fields.Integer, description='任务id列表')
+}, description='批量删除任务请求'))

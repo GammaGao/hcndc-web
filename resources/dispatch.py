@@ -125,7 +125,7 @@ class DispatchAction(Resource):
     @DispatchFilter.filter_delete_dispatch_detail(dispatch_id=list)
     @DispatchOperation.delete_dispatch_detail(dispatch_id=list, user_id=int)
     @DispatchVerify.verify_delete_dispatch_detail(dispatch_id=list, user_id=int)
-    @PermissionVerify.verify_schedule_permission(dispatch_id=list)
+    @PermissionVerify.verify_execute_permission(dispatch_id=list)
     def delete():
         """删除调度详情"""
         payload = get_payload()

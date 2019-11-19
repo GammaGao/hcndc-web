@@ -71,6 +71,23 @@ class JobModel(object):
         return result
 
     @staticmethod
+    def delete_job_many(cursor, condition, user_id):
+        """批量删除任务"""
+        command = '''
+        UPDATE tb_jobs
+        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
+        WHERE job_id IN %s
+        '''
+
+        command = command % condition
+
+        result = cursor.update(command, {
+            'user_id': user_id,
+            'update_time': int(time.time())
+        })
+        return result
+
+    @staticmethod
     def get_job_detail(cursor, job_id):
         """获取任务详情"""
         command = '''

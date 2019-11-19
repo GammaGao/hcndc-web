@@ -146,8 +146,25 @@ class InterfaceModel(object):
         WHERE interface_id = :interface_id
         '''
 
-        result = cursor.delete(command, {
+        result = cursor.update(command, {
             'interface_id': interface_id,
+            'user_id': user_id,
+            'update_time': int(time.time())
+        })
+        return result
+
+    @staticmethod
+    def delete_interface_many(cursor, condition, user_id):
+        """批量删除任务流"""
+        command = '''
+        UPDATE tb_interface
+        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
+        WHERE interface_id IN %s
+        '''
+
+        command = command % condition
+
+        result = cursor.update(command, {
             'user_id': user_id,
             'update_time': int(time.time())
         })

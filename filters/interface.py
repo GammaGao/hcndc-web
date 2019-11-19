@@ -212,3 +212,12 @@ class InterfaceFilter(object):
     def filter_get_interface_index(result):
         """获取所有任务流目录"""
         return {'status': 200, 'msg': '成功', 'data': result}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_delete_interface_many(msg):
+        """批量删除任务流"""
+        if not msg:
+            return {'status': 200, 'msg': '成功', 'data': {}}, 200
+        else:
+            return {'status': 403, 'msg': ','.join(msg), 'data': {}}, 200

@@ -97,3 +97,11 @@ class ParamsOperation(object):
         """获取所有参数目录"""
         result = ParamsModel.get_params_index_all(db.etl_db)
         return Response(result=result)
+
+    @staticmethod
+    @make_decorator
+    def delete_params_may(param_id_arr, user_id):
+        """批量删除参数"""
+        condition = '(%s)' % ','.join(str(item) for item in param_id_arr)
+        ParamsModel.delete_params_many(db.etl_db, condition, user_id)
+        return Response(msg='成功')

@@ -273,3 +273,18 @@ class JobOperation(object):
         """获取所有任务目录"""
         result = JobModel.get_job_index(db.etl_db)
         return Response(result=result)
+
+    @staticmethod
+    @make_decorator
+    def delete_job_many(job_id_arr, user_id):
+        """批量删除任务"""
+        err_mag = []
+        for item in job_id_arr:
+            # 是否在任务依赖中
+            prep_count = JobModel.is_alive_job(db.etl_db, item)
+            if prep_count:
+                err_mag.append('任务ID: [%s]存在%s个依赖, 不能删除' % (item, prep_count))
+        if not err_mag:
+            condition = '(%s)' % ','.join(str(item) for item in job_id_arr)
+            JobModel.delete_job_many(db.etl_db, condition, user_id)
+        return Response(msg=err_mag)

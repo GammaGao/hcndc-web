@@ -76,17 +76,17 @@ class InterfaceOperation(object):
         # 查询是否在调度内
         if InterfaceModel.get_schedule_detail(db.etl_db, interface_id):
             abort(400, **make_result(status=400, msg='调度任务运行中, 请停止调度任务后删除'))
-        # 查询是否有任务依赖
-        ids = InterfaceModel.get_job_prep_by_interface(db.etl_db, interface_id)
-        job_ids = []
-        out_ids = []
-        for items in ids:
-            if items['job_id']:
-                job_ids.append(items['job_id'])
-            if items['out_id']:
-                out_ids.append(items['out_id'])
-        if set(out_ids) - set(job_ids):
-            abort(400, **make_result(status=400, msg='任务流中任务作为其他任务依赖, 请停止依赖任务后删除'))
+        # # 查询是否有任务依赖
+        # ids = InterfaceModel.get_job_prep_by_interface(db.etl_db, interface_id)
+        # job_ids = []
+        # out_ids = []
+        # for items in ids:
+        #     if items['job_id']:
+        #         job_ids.append(items['job_id'])
+        #     if items['out_id']:
+        #         out_ids.append(items['out_id'])
+        # if set(out_ids) - set(job_ids):
+        #     abort(400, **make_result(status=400, msg='任务流中任务作为其他任务依赖, 请停止依赖任务后删除'))
         # 删除任务流
         InterfaceModel.delete_interface(db.etl_db, interface_id, user_id)
         return Response(interface_id=interface_id)
@@ -104,3 +104,29 @@ class InterfaceOperation(object):
         """获取所有任务流目录"""
         result = InterfaceModel.get_interface_index(db.etl_db)
         return Response(result=result)
+
+    @staticmethod
+    @make_decorator
+    def delete_interface_many(flow_id_arr, user_id):
+        """批量删除任务流"""
+        err_msg = []
+        for interface_id in flow_id_arr:
+            # 查询是否在调度内
+            if InterfaceModel.get_schedule_detail(db.etl_db, interface_id):
+                err_msg.append('任务流ID: [%s], 调度运行中, 请停止调度任务后删除' % interface_id)
+            # # 查询是否有任务依赖
+            # ids = InterfaceModel.get_job_prep_by_interface(db.etl_db, interface_id)
+            # job_ids = []
+            # out_ids = []
+            # for items in ids:
+            #     if items['job_id']:
+            #         job_ids.append(items['job_id'])
+            #     if items['out_id']:
+            #         out_ids.append(items['out_id'])
+            # if set(out_ids) - set(job_ids):
+            #     abort(400, **make_result(status=400, msg='任务流中任务作为其他任务依赖, 请停止依赖任务后删除'))
+        # 删除任务流
+        if not err_msg:
+            condition = '(%s)' % ','.join(str(item) for item in flow_id_arr)
+            InterfaceModel.delete_interface_many(db.etl_db, condition, user_id)
+        return Response(msg=err_msg)

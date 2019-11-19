@@ -84,3 +84,11 @@ class InterfaceVerify(object):
         if not interface_id:
             abort(400, **make_result(status=400, msg='任务流id不存在'))
         return Response(interface_id=interface_id, user_id=user_id)
+
+    @staticmethod
+    @make_decorator
+    def verify_delete_many_flow(flow_id_arr, user_id):
+        """批量删除任务流"""
+        if not flow_id_arr:
+            abort(400, **make_result(status=400, msg='任务流id不存在'))
+        return Response(flow_id_arr=flow_id_arr, user_id=user_id)

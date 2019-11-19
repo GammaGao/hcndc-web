@@ -196,6 +196,7 @@
                 '<div class="layui-table-tool-temp">',
                 '<div class="layui-inline" lay-event="add" title="添加作业"><i class="layui-icon layui-icon-add-1"></i></div>',
                 '<div class="layui-inline" lay-event="update" title="修改作业"><i class="layui-icon layui-icon-edit"></i></div>',
+                '<div class="layui-inline" lay-event="delete" title="删除作业"><i class="layui-icon layui-icon-delete"></i></div>',
                 '<div class="layui-inline" lay-event="upload" title="上传作业文件" id="job-upload"><i class="layui-icon layui-icon-upload"></i></div>',
                 '<div class="layui-inline" lay-event="download" title="下载作业模板" id="job-upload"><i class="layui-icon layui-icon-download-circle"></i></div>',
                 '</div>'
@@ -212,7 +213,7 @@
                     url: BASE.uri.job.list_api,
                     where: data,
                     cols: [[{
-                        type: 'radio'
+                        type: 'checkbox'
                     }, {
                         field: "job_id",
                         title: "任务id",
@@ -381,18 +382,62 @@
                                 });
                             }
                             break;
+                        // 删除
+                        case 'delete':
+                            if (check_data.length === 0) {
+                                layer.msg('请选择一行');
+                            } else {
+                                let delete_status = check_data.filter(item => item.is_deleted !== 0);
+                                if (delete_status.length > 0) {
+                                    layer.msg('存在已删除任务, 不能执行', {icon: 5});
+                                    break
+                                } else {
+                                    let job_id_arr = [];
+                                    check_data.forEach(item => job_id_arr.push(item.job_id));
+                                    layer.confirm('确定删除任务?', function (index) {
+                                        layer.close(index);
+                                        $.ajax({
+                                            url: BASE.uri.job.action_api,
+                                            data: JSON.stringify({job_id_arr: job_id_arr}),
+                                            contentType: "application/json; charset=utf-8",
+                                            type: 'delete',
+                                            success: function (result) {
+                                                if (result.status === 200) {
+                                                    layer.open({
+                                                        title: '删除成功',
+                                                        content: '删除成功',
+                                                        yes: function (index) {
+                                                            layer.close(index);
+                                                            // 刷新页面
+                                                            window.location.reload();
+                                                        }
+                                                    })
+                                                } else {
+                                                    layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5});
+                                                }
+                                            }
+                                            ,
+                                            error: function (error) {
+                                                let result = error.responseJSON;
+                                                layer.msg(sprintf('删除失败[%s]', result.msg), {icon: 5});
+                                            }
+                                        });
+                                    });
+                                }
+                            }
+                            break;
                         // 下载
                         case 'download':
                             window.location.href = '/job/download/';
-                            // // 获取XMLHttpRequest
-                            // let xmlResquest = new XMLHttpRequest();
-                            // //  发起请求
-                            // xmlResquest.open("POST", "/job/download/", true);
-                            // // 设置请求头类型
-                            // xmlResquest.setRequestHeader("Content-type", "application/json");
-                            // // xmlResquest.setRequestHeader("id", data.id);
-                            // xmlResquest.responseType = "blob";
-                            // xmlResquest.send();
+                        // // 获取XMLHttpRequest
+                        // let xmlResquest = new XMLHttpRequest();
+                        // //  发起请求
+                        // xmlResquest.open("POST", "/job/download/", true);
+                        // // 设置请求头类型
+                        // xmlResquest.setRequestHeader("Content-type", "application/json");
+                        // // xmlResquest.setRequestHeader("id", data.id);
+                        // xmlResquest.responseType = "blob";
+                        // xmlResquest.send();
                     }
                 })
             })

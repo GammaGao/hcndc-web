@@ -85,3 +85,11 @@ class ParamsVerify(object):
         if not param_value:
             abort(400, **make_result(status=400, msg='参数值不得为空'))
         return Response(source_id=source_id, param_value=param_value)
+
+    @staticmethod
+    @make_decorator
+    def verify_delete_many_params(param_id_arr, user_id):
+        """批量删除参数"""
+        if not param_id_arr:
+            abort(400, **make_result(status=400, msg='参数id不存在'))
+        return Response(param_id_arr=param_id_arr, user_id=user_id)

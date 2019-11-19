@@ -149,10 +149,27 @@ class ParamsIndex(Resource):
         return params
 
 
+class ParamsAction(Resource):
+    @staticmethod
+    @ParamsFilter.filter_delete_params_may(msg=str)
+    @ParamsOperation.delete_params_may(param_id_arr=list, user_id=int)
+    @ParamsVerify.verify_delete_many_params(param_id_arr=list, user_id=int)
+    @PermissionVerify.verify_execute_permission(param_id_arr=list)
+    def delete():
+        """批量删除参数"""
+        payload = get_payload()
+        params = Response(
+            param_id_arr=payload.get('param_id_arr', [])
+        )
+        log.info('批量删除任务流[params: %s]' % str(params))
+        return params
+
+
 ns = api.namespace('params', description='参数')
 ns.add_resource(ParamsList, '/list/api/')
 ns.add_resource(ParamsAdd, '/add/api/')
 ns.add_resource(ParamsDetail, '/detail/api/<int:param_id>/')
+ns.add_resource(ParamsAction, '/action/api/')
 ns.add_resource(ParamsTest, '/test/api/')
 ns.add_resource(ParamsListAll, '/list/all/api/')
 ns.add_resource(ParamsIndex, '/index/api/')

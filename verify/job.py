@@ -102,3 +102,11 @@ class JobVerify(object):
         if not user_id:
             abort(400, **make_result(status=400, msg='用户不存在'))
         return Response(job_id=job_id, user_id=user_id)
+
+    @staticmethod
+    @make_decorator
+    def verify_delete_many_job(job_id_arr, user_id):
+        """批量删除任务"""
+        if not job_id_arr:
+            abort(400, **make_result(status=400, msg='任务id不存在'))
+        return Response(job_id_arr=job_id_arr, user_id=user_id)

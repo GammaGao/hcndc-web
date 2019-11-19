@@ -164,10 +164,28 @@ class JobIndex(Resource):
         return params
 
 
+class JobAction(Resource):
+    @staticmethod
+    @job_delete_many_request
+    @JobFilter.filter_delete_job_many(msg=list)
+    @JobOperation.delete_job_many(job_id_arr=list, user_id=int)
+    @JobVerify.verify_delete_many_job(job_id_arr=list, user_id=int)
+    @PermissionVerify.verify_execute_permission(job_id_arr=list)
+    def delete():
+        """批量删除任务"""
+        payload = get_payload()
+        params = Response(
+            job_id_arr=payload.get('job_id_arr', [])
+        )
+        log.info('批量删除任务[params: %s]' % params)
+        return params
+
+
 ns = api.namespace('job', description='任务')
 ns.add_resource(JobList, '/list/api/')
 ns.add_resource(JobDetail, '/detail/api/<int:job_id>/')
 ns.add_resource(JobAdd, '/add/api/')
 ns.add_resource(JobListAll, '/list/all/api/')
 ns.add_resource(JobExecute, '/run/api/')
+ns.add_resource(JobAction, '/action/api/')
 ns.add_resource(JobIndex, '/index/api/')

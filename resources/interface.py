@@ -138,10 +138,27 @@ class InterfaceIndex(Resource):
         return params
 
 
+class InterfaceAction(Resource):
+    @staticmethod
+    @InterfaceFilter.filter_delete_interface_many(msg=list)
+    @InterfaceOperation.delete_interface_many(flow_id_arr=list, user_id=int)
+    @InterfaceVerify.verify_delete_many_flow(flow_id_arr=list, user_id=int)
+    @PermissionVerify.verify_execute_permission(flow_id_arr=list)
+    def delete():
+        """批量删除任务流"""
+        payload = get_payload()
+        params = Response(
+            flow_id_arr=payload.get('flow_id_arr', [])
+        )
+        log.info('批量删除任务流[params: %s]' % str(params))
+        return params
+
+
 ns = api.namespace('interface', description='任务流')
 ns.add_resource(InterfaceList, '/list/api/')
 ns.add_resource(InterfaceGraph, '/graph/api/<int:interface_id>/')
 ns.add_resource(InterfaceDetail, '/detail/api/<int:interface_id>/')
+ns.add_resource(InterfaceAction, '/action/api/')
 ns.add_resource(InterfaceAdd, '/add/api/')
 ns.add_resource(InterfaceIDList, '/id/list/api/')
 ns.add_resource(InterfaceIndex, '/index/api/')

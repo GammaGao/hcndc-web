@@ -55,3 +55,8 @@ class ParamsFilter(object):
     def filter_all_index_data(result):
         """获取所有参数目录"""
         return {'status': 200, 'msg': '成功', 'data': result}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_delete_params_may(msg):
+        return {'status': 200, 'msg': msg, 'data': {}}, 200

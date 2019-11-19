@@ -132,6 +132,22 @@ class ParamsModel(object):
         return result
 
     @staticmethod
+    def delete_params_many(cursor, condition, user_id):
+        """删除参数"""
+        command = '''
+        UPDATE tb_param_config
+        SET is_deleted = 1, update_time = :update_time, updater_id = :updater_id
+        WHERE param_id IN %s
+        '''
+        command = command % condition
+
+        result = cursor.update(command, {
+            'updater_id': user_id,
+            'update_time': int(time.time())
+        })
+        return result
+
+    @staticmethod
     def get_params_all(cursor):
         """获取所有参数"""
         command = '''

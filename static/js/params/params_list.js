@@ -128,7 +128,7 @@
             })
         },
         // 参数目录渲染
-        param_index_init: function() {
+        param_index_init: function () {
             $.ajax({
                 url: BASE.uri.params.index_api,
                 type: 'get',
@@ -183,6 +183,7 @@
                 '<div class="layui-table-tool-temp">',
                 '<div class="layui-inline" lay-event="add" title="添加参数"><i class="layui-icon layui-icon-add-1"></i></div>',
                 '<div class="layui-inline" lay-event="update" title="修改参数"><i class="layui-icon layui-icon-edit"></i></div>',
+                '<div class="layui-inline" lay-event="delete" title="删除参数"><i class="layui-icon layui-icon-delete"></i></div>',
                 '<div class="layui-inline" lay-event="upload" title="上传参数文件" id="param-upload"><i class="layui-icon layui-icon-upload"></i></div>',
                 '<div class="layui-inline" lay-event="download" title="下载参数模板" id="job-upload"><i class="layui-icon layui-icon-download-circle"></i></div>',
                 '</div>'
@@ -199,7 +200,7 @@
                     url: BASE.uri.params.list_api,
                     where: data,
                     cols: [[{
-                        type: 'radio'
+                        type: 'checkbox'
                     }, {
                         field: "param_id",
                         title: "参数id",
@@ -379,6 +380,50 @@
                                         window.location.reload();
                                     }
                                 });
+                            }
+                            break;
+                        // 删除
+                        case 'delete':
+                            if (check_data.length === 0) {
+                                layer.msg('请选择一行');
+                            } else {
+                                let delete_status = check_data.filter(item => item.is_deleted !== 0);
+                                if (delete_status.length > 0) {
+                                    layer.msg('存在已删除参数, 不能执行', {icon: 5});
+                                    break
+                                } else {
+                                    let param_id_arr = [];
+                                    check_data.forEach(item => param_id_arr.push(item.param_id));
+                                    layer.confirm('确定删除参数?', function (index) {
+                                        layer.close(index);
+                                        $.ajax({
+                                            url: BASE.uri.params.action_api,
+                                            data: JSON.stringify({param_id_arr: param_id_arr}),
+                                            contentType: "application/json; charset=utf-8",
+                                            type: 'delete',
+                                            success: function (result) {
+                                                if (result.status === 200) {
+                                                    layer.open({
+                                                        title: '删除成功',
+                                                        content: '删除成功',
+                                                        yes: function (index) {
+                                                            layer.close(index);
+                                                            // 刷新页面
+                                                            window.location.reload();
+                                                        }
+                                                    })
+                                                } else {
+                                                    layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5});
+                                                }
+                                            }
+                                            ,
+                                            error: function (error) {
+                                                let result = error.responseJSON;
+                                                layer.msg(sprintf('删除失败[%s]', result.msg), {icon: 5});
+                                            }
+                                        });
+                                    });
+                                }
                             }
                             break;
                         // 下载
