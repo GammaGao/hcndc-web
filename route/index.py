@@ -17,5 +17,6 @@ def favicon():
 def Index():
     """首页"""
     if session.get('login'):
-        return render_template('interface/interface_list.html')
+        # return render_template('interface/interface_list.html')
+        return render_template('execute/execute_flow.html')
     return redirect('/login/')
