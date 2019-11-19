@@ -229,15 +229,13 @@ class ExecuteOperation(object):
 
     @staticmethod
     @make_decorator
-    def get_execute_log(exec_id, job_id, page, limit):
+    def get_execute_log(exec_id, job_id):
         """获取执行日志"""
         if job_id:
-            result = ExecuteModel.get_execute_log_by_job(db.etl_db, exec_id, job_id, page, limit)
-            total = ExecuteModel.get_execute_log_by_job_count(db.etl_db, exec_id, job_id)
+            result = ExecuteModel.get_execute_log_by_job(db.etl_db, exec_id, job_id)
         else:
-            result = ExecuteModel.get_execute_log(db.etl_db, exec_id, page, limit)
-            total = ExecuteModel.get_execute_log_count(db.etl_db, exec_id)
-        return Response(result=result, total=total)
+            result = ExecuteModel.get_execute_log(db.etl_db, exec_id)
+        return Response(result=result)
 
     @staticmethod
     @make_decorator

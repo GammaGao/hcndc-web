@@ -74,11 +74,11 @@ class ExecuteVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_get_execute_log(exec_id, job_id, page, limit):
+    def verify_get_execute_log(exec_id, job_id):
         """获取执行日志"""
         if not exec_id:
             abort(400, **make_result(status=400, msg='执行id不得为空'))
-        return Response(exec_id=exec_id, job_id=job_id, page=page, limit=limit)
+        return Response(exec_id=exec_id, job_id=job_id)
 
     @staticmethod
     @make_decorator

@@ -321,64 +321,33 @@ class ExecuteModel(object):
         return result if result else []
 
     @staticmethod
-    def get_execute_log_by_job(cursor, exec_id, job_id, page, limit):
+    def get_execute_log_by_job(cursor, exec_id, job_id):
         """获取任务执行日志"""
         command = '''
-        SELECT `level`, message, insert_time
+        SELECT job_id, job_name,`level`, message
         FROM tb_schedule_detail_logs
+        LEFT JOIN tb_jobs USING(job_id)
         WHERE exec_id = :exec_id AND job_id = :job_id
-        LIMIT :limit OFFSET :offset
         '''
         result = cursor.query(command, {
-            'exec_id': exec_id,
-            'job_id': job_id,
-            'limit': limit,
-            'offset': (page - 1) * limit
-        })
-        return result if result else []
-
-    @staticmethod
-    def get_execute_log_by_job_count(cursor, exec_id, job_id):
-        """获取任务执行日志总数"""
-        command = '''
-        SELECT COUNT(*) AS count
-        FROM tb_schedule_detail_logs
-        WHERE exec_id = :exec_id AND job_id = :job_id
-        '''
-        result = cursor.query_one(command, {
             'exec_id': exec_id,
             'job_id': job_id
         })
-        return result['count'] if result else 0
-
-    @staticmethod
-    def get_execute_log(cursor, exec_id, page, limit):
-        """获取执行日志"""
-        command = '''
-        SELECT `level`, message, insert_time
-        FROM tb_schedule_detail_logs
-        WHERE exec_id = :exec_id
-        LIMIT :limit OFFSET :offset
-        '''
-        result = cursor.query(command, {
-            'exec_id': exec_id,
-            'limit': limit,
-            'offset': (page - 1) * limit
-        })
         return result if result else []
 
     @staticmethod
-    def get_execute_log_count(cursor, exec_id):
-        """获取执行日志总数"""
+    def get_execute_log(cursor, exec_id):
+        """获取执行日志"""
         command = '''
-        SELECT COUNT(*) AS count
+        SELECT job_id, job_name,`level`, message
         FROM tb_schedule_detail_logs
+        LEFT JOIN tb_jobs USING(job_id)
         WHERE exec_id = :exec_id
         '''
-        result = cursor.query_one(command, {
+        result = cursor.query(command, {
             'exec_id': exec_id
         })
-        return result['count'] if result else 0
+        return result if result else []
 
     @staticmethod
     def get_execute_graph(cursor, exec_id):

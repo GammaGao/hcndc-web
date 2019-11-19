@@ -66,11 +66,17 @@ class ExecuteFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_get_execute_log(result, total):
+    def filter_get_execute_log(result):
         """获取执行日志"""
-        # for item in result:
-        #     item['time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time']))
-        return {'status': 200, 'msg': '成功', 'data': result, 'total': total}, 200
+        group_result = {}
+        for item in result:
+            group_result.setdefault(item['job_id'], {'job_name': item['job_name'], 'message': ''})
+            group_result[item['job_id']]['message'] = group_result[item['job_id']]['message'] \
+                                                      + '[%s] %s<br>' % (item['level'], item['message'])
+        result = []
+        for key, item in group_result.items():
+            result.append({'job_id': key, 'job_name': item['job_name'], 'message': item['message']})
+        return {'status': 200, 'msg': '成功', 'data': result}, 200
 
     @staticmethod
     @make_decorator

@@ -168,16 +168,14 @@ class ExecuteAction(Resource):
 class ExecuteLog(Resource):
     @staticmethod
     @execute_log_request
-    @ExecuteFilter.filter_get_execute_log(result=list, total=int)
-    @ExecuteOperation.get_execute_log(exec_id=int, job_id=int, page=int, limit=int)
-    @ExecuteVerify.verify_get_execute_log(exec_id=int, job_id=int, page=int, limit=int)
+    @ExecuteFilter.filter_get_execute_log(result=list)
+    @ExecuteOperation.get_execute_log(exec_id=int, job_id=int)
+    @ExecuteVerify.verify_get_execute_log(exec_id=int, job_id=int)
     def get():
         """获取执行日志"""
         params = Response(
             exec_id=int(get_arg('exec_id', 0)),
-            job_id=int(get_arg('job_id', 0)),
-            page=int(get_arg('page', 1)),
-            limit=int(get_arg('limit', 10))
+            job_id=int(get_arg('job_id', 0))
         )
         log.info('获取执行日志[params: %s]' % str(params))
         return params

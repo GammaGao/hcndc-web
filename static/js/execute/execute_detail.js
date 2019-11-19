@@ -229,17 +229,19 @@
                 let table = layui.table;
                 table.render({
                     elem: "#exec-log",
-                    page: true,
-                    toolbar: true,
-                    limit: 100,
-                    limits: [100, 200, 300, 400, 500],
+                    page: false,
+                    toolbar: false,
                     title: '日志内容',
                     url: BASE.uri.execute.log_api,
                     where: {'exec_id': window.exec_id},
                     cols: [[{
-                        field: "level",
-                        title: "日志级别",
+                        field: "job_id",
+                        title: "任务ID",
                         width: '8%'
+                    }, {
+                        field: "job_name",
+                        title: "任务名称",
+                        width: '15%'
                     }, {
                         field: "message",
                         title: "日志信息"
