@@ -78,8 +78,7 @@ class JobOperation(object):
                 'user_id': user_id,
                 'update_time': int(time.time())
             })
-        if del_data:
-            JobModel.delete_job_prep(db.etl_db, del_data)
+        JobModel.delete_job_prep(db.etl_db, del_data) if del_data else None
         # 增
         add_data = []
         for prep_id in job_prep - old_prep:
@@ -90,8 +89,7 @@ class JobOperation(object):
                 'insert_time': int(time.time()),
                 'update_time': int(time.time())
             })
-        if add_data:
-            JobModel.add_job_prep(db.etl_db, add_data)
+        JobModel.add_job_prep(db.etl_db, add_data) if add_data else None
 
         # 修改任务参数(保证参数顺序, 全部删除再新增)
         old_params = set() if not old_params else set(int(i) for i in old_params.split(','))
@@ -110,8 +108,7 @@ class JobOperation(object):
                 'user_id': user_id,
                 'update_time': int(time.time())
             })
-        if del_data:
-            JobModel.delete_job_param(db.etl_db, del_data)
+        JobModel.delete_job_param(db.etl_db, del_data) if del_data else None
         # 增
         add_data = []
         for param_id in add_params:
@@ -122,9 +119,7 @@ class JobOperation(object):
                 'insert_time': int(time.time()),
                 'update_time': int(time.time())
             })
-        if add_data:
-            JobModel.add_job_param(db.etl_db, add_data)
-
+        JobModel.add_job_param(db.etl_db, add_data) if add_data else None
         return Response(job_id=job_id)
 
     @staticmethod
@@ -136,29 +131,29 @@ class JobOperation(object):
         job_id = JobModel.add_job_detail(db.etl_db, job_name, interface_id, job_desc, job_index, server_id, server_dir,
                                          server_script, return_code, user_id)
         # 新增任务依赖
-        if job_prep:
-            data = []
-            for prep_id in job_prep.split(','):
-                data.append({
-                    'job_id': job_id,
-                    'prep_id': prep_id,
-                    'user_id': user_id,
-                    'insert_time': int(time.time()),
-                    'update_time': int(time.time())
-                })
-            JobModel.add_job_prep(db.etl_db, data)
+        job_prep = job_prep.split(',') if job_prep else []
+        data = []
+        for prep_id in job_prep:
+            data.append({
+                'job_id': job_id,
+                'prep_id': prep_id,
+                'user_id': user_id,
+                'insert_time': int(time.time()),
+                'update_time': int(time.time())
+            })
+        JobModel.add_job_prep(db.etl_db, data) if data else None
         # 新增任务参数
-        if job_params:
-            data = []
-            for param_id in job_params.split(','):
-                data.append({
-                    'job_id': job_id,
-                    'param_id': param_id,
-                    'insert_time': int(time.time()),
-                    'update_time': int(time.time()),
-                    'user_id': user_id
-                })
-            JobModel.add_job_param(db.etl_db, data)
+        job_params = job_params.split(',') if job_params else []
+        data = []
+        for param_id in job_params:
+            data.append({
+                'job_id': job_id,
+                'param_id': param_id,
+                'insert_time': int(time.time()),
+                'update_time': int(time.time()),
+                'user_id': user_id
+            })
+        JobModel.add_job_param(db.etl_db, data) if data else None
         return Response(job_id=job_id)
 
     @staticmethod

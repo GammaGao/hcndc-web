@@ -2,16 +2,35 @@
 <html lang="en">
 <head>
     {% include "util/style.html" %}
-    <title>任务依赖</title>
+    <title>任务流详情</title>
     <script type="text/javascript" src="/static/echarts/echarts.min.js"></script>
 </head>
-<body class="layui-layout-body">
+<body>
 <div class="layui-layout layui-layout-admin">
     <fieldset class="layui-elem-field layui-field-title">
-        <legend>任务依赖</legend>
+        <legend>任务流详情</legend>
     </fieldset>
-    <!-- 矢量图 -->
-    <div class="svg-div" id="svg-div"></div>
+    <div class="layui-tab layui-tab-brief">
+        <ul class="layui-tab-title">
+            <li class="layui-this">任务依赖</li>
+            <li>局部-任务流依赖</li>
+            <li>全局-任务流依赖</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <!-- 任务依赖矢量图 -->
+                <div class="svg-div" id="svg-div"></div>
+            </div>
+            <div class="layui-tab-item layui-show">
+                <!-- 局部-任务流依赖 -->
+                <div id="local-graph"></div>
+            </div>
+            <div class="layui-tab-item layui-show">
+                <!-- 全局-任务流依赖 -->
+                <div id="global-graph"></div>
+            </div>
+        </div>
+    </div>
 </div>
 <script>
     window.interface_id = {{ interface_id }};

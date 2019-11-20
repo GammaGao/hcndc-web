@@ -45,6 +45,8 @@ interface_add_request = api.doc(body=api.model('interface_add_request', {
     'interface_name': fields.String(description='任务流名称'),
     'interface_desc': fields.String(description='任务流描述'),
     'interface_index': fields.String(description='任务流目录'),
+    'parent_interface': fields.String(description='前置任务流'),
+    'child_interface': fields.String(description='后置任务流'),
     'run_time': fields.String(description='数据日期: %Y-%m-%d'),
     'retry': fields.Integer(description='重试次数'),
 }, description='新增任务流请求参数'))

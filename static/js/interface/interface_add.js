@@ -8,12 +8,37 @@
 
     Controller.prototype = {
         init: function () {
+            // 任务流列表请求
+            this.interface_list_req();
             // 表单验证规则
             this.form_verify();
             // 表单提交
             this.form_event();
             // 日期组件渲染
             this.restart('run_time');
+        },
+        // 任务流列表请求
+        interface_list_req: function () {
+            $.ajax({
+                url: BASE.uri.interface.id_list_api,
+                type: 'get',
+                success: function (res) {
+                    let formSelects = layui.formSelects;
+                    let html = [];
+                    for (let i = 0; i < res.data.length; i++) {
+                        html.push(sprintf(
+                            '<option value="%s">%s(%s)</option>',
+                            res.data[i].interface_id,
+                            res.data[i].interface_id,
+                            res.data[i].interface_name
+                        ))
+                    }
+                    $('select[xm-select=parent_interface]').append(html.join(''));
+                    $('select[xm-select=child_interface]').append(html.join(''));
+                    formSelects.render('parent_interface');
+                    formSelects.render('child_interface');
+                }
+            })
         },
         // 表单验证
         form_verify: function () {

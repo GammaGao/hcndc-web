@@ -138,6 +138,26 @@ class InterfaceModel(object):
         return result
 
     @staticmethod
+    def add_interface_parent(cursor, data):
+        """新增任务流前置"""
+        command = '''
+        INSERT INTO tb_interface_parent(interface_id, parent_id, insert_time, update_time, creator_id, updater_id)
+        VALUES (:interface_id, :parent_id, :insert_time, :update_time, :creator_id, :updater_id)
+        '''
+        result = cursor.insert(command, args=data)
+        return result
+
+    @staticmethod
+    def add_interface_child(cursor, data):
+        """新增任务流后置"""
+        command = '''
+            INSERT INTO tb_interface_child(interface_id, child_id, insert_time, update_time, creator_id, updater_id)
+            VALUES (:interface_id, :child_id, :insert_time, :update_time, :creator_id, :updater_id)
+            '''
+        result = cursor.insert(command, args=data)
+        return result
+
+    @staticmethod
     def add_interface_many(cursor, data):
         """批量新增任务流"""
         command = '''

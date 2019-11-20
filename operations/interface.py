@@ -1,6 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import time
 from flask_restful import abort
 
 from server.decorators import make_decorator, Response
@@ -64,10 +65,39 @@ class InterfaceOperation(object):
 
     @staticmethod
     @make_decorator
-    def add_interface(interface_name, interface_desc, interface_index, run_time, retry, user_id):
+    def add_interface(interface_name, interface_desc, interface_index, parent_interface, child_interface, run_time,
+                      retry, user_id):
         """新增任务流"""
+        # 任务流名称查重
+        if InterfaceModel.get_interface_detail_by_name(db.etl_db, interface_name):
+            abort(400, **make_result(status=400, msg='任务流名称重复, 已存在数据库中'))
+        # 新增任务流
         interface_id = InterfaceModel.add_interface(db.etl_db, interface_name, interface_desc, interface_index,
                                                     run_time, retry, user_id)
+        # 新增任务流前置
+        parent_arr = []
+        for item in parent_interface:
+            parent_arr.append({
+                'interface_id': interface_id,
+                'parent_id': item,
+                'insert_time': int(time.time()),
+                'update_time': int(time.time()),
+                'creator_id': user_id,
+                'updater_id': user_id
+            })
+        InterfaceModel.add_interface_parent(db.etl_db, parent_arr) if parent_arr else None
+        # 新增任务流后置
+        child_arr = []
+        for item in child_interface:
+            child_arr.append({
+                'interface_id': interface_id,
+                'child_id': item,
+                'insert_time': int(time.time()),
+                'update_time': int(time.time()),
+                'creator_id': user_id,
+                'updater_id': user_id
+            })
+        InterfaceModel.add_interface_child(db.etl_db, child_arr) if child_arr else None
         return Response(interface_id=interface_id)
 
     @staticmethod

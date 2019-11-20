@@ -67,7 +67,8 @@ class InterfaceVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_add_interface(interface_name, interface_desc, interface_index, run_time, retry, user_id):
+    def verify_add_interface(interface_name, interface_desc, interface_index, parent_interface, child_interface,
+                             run_time, retry, user_id):
         """新增任务流请求"""
         if not interface_name:
             abort(400, **make_result(status=400, msg='任务流名称不存在'))
@@ -79,8 +80,13 @@ class InterfaceVerify(object):
             abort(400, **make_result(status=400, msg='数据日期格式错误'))
         if retry < 0 or retry > 10:
             abort(400, **make_result(status=400, msg='重试次数请限制在0-10之内'))
+        parent_interface = [int(item) for item in parent_interface.split(',')] if parent_interface else []
+        child_interface = [int(item) for item in child_interface.split(',')] if child_interface else []
+        if parent_interface and child_interface and set(parent_interface) & set(child_interface):
+            abort(400, **make_result(status=400, msg='前置任务流和后置任务流存在交集'))
         return Response(interface_name=interface_name, interface_desc=interface_desc, interface_index=interface_index,
-                        run_time=run_time, retry=retry, user_id=user_id)
+                        parent_interface=parent_interface, child_interface=child_interface, run_time=run_time,
+                        retry=retry, user_id=user_id)
 
     @staticmethod
     @make_decorator

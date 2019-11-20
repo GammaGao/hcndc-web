@@ -238,7 +238,7 @@
                         templet: function (data) {
                             let html = [];
                             html.push('<div class="layui-btn-group">');
-                            html.push('<a class="layui-btn layui-btn-sm" lay-event="detail">任务依赖</a>');
+                            html.push('<a class="layui-btn layui-btn-sm" lay-event="detail">网络拓扑</a>');
                             html.push('<a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</a>');
                             if (data.is_deleted === 0) {
                                 html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
@@ -416,7 +416,7 @@
                         layer.open({
                             type: 2,
                             anim: 5,
-                            title: '任务依赖详情',
+                            title: '任务流详情',
                             maxmin: true,
                             area: ['60%', '80%'],
                             content: BASE.uri.interface.detail + data.interface_id + '/'
