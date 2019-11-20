@@ -16,6 +16,7 @@ def get_dispatch_job(dispatch_id):
     """执行调度主方法-获取调度任务"""
     # 获取任务流参数
     result = generate_dag_by_dispatch_id(dispatch_id)
+    log.info('记录: %s' % str(result))
     source = result['source']
     # 任务流中任务为空, 则视调度已完成
     if not source:

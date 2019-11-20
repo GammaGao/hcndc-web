@@ -198,7 +198,7 @@
                 '<div class="layui-inline" lay-event="update" title="修改作业"><i class="layui-icon layui-icon-edit"></i></div>',
                 '<div class="layui-inline" lay-event="delete" title="删除作业"><i class="layui-icon layui-icon-delete"></i></div>',
                 '<div class="layui-inline" lay-event="upload" title="上传作业文件" id="job-upload"><i class="layui-icon layui-icon-upload"></i></div>',
-                '<div class="layui-inline" lay-event="download" title="下载作业模板" id="job-upload"><i class="layui-icon layui-icon-download-circle"></i></div>',
+                '<div class="layui-inline" lay-event="download" title="下载作业模板"><i class="layui-icon layui-icon-download-circle"></i></div>',
                 '</div>'
             ].join('');
             // 表格渲染

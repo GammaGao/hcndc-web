@@ -43,12 +43,25 @@ class InterfaceModel(object):
     def get_interface_detail(cursor, interface_id):
         """获取任务流详情"""
         command = '''
-        SELECT interface_id, interface_name, interface_desc, interface_index, retry, is_deleted
+        SELECT interface_id, interface_name, interface_desc, interface_index, run_time, retry, is_deleted
         FROM tb_interface
         WHERE interface_id = :interface_id
         '''
         result = cursor.query_one(command, {
             'interface_id': interface_id
+        })
+        return result if result else {}
+
+    @staticmethod
+    def get_interface_detail_by_name(cursor, interface_name):
+        """获取任务流详情by任务流名称"""
+        command = '''
+        SELECT interface_id, interface_name, interface_desc, interface_index, run_time, retry, is_deleted
+        FROM tb_interface
+        WHERE interface_name = :interface_name
+        '''
+        result = cursor.query_one(command, {
+            'interface_name': interface_name
         })
         return result if result else {}
 
@@ -80,12 +93,12 @@ class InterfaceModel(object):
         return result if result else []
 
     @staticmethod
-    def update_interface_detail(cursor, interface_id, interface_name, interface_desc, interface_index, retry, user_id,
-                                is_deleted):
+    def update_interface_detail(cursor, interface_id, interface_name, interface_desc, interface_index, run_time, retry,
+                                user_id, is_deleted):
         """修改任务流详情"""
         command = '''
         UPDATE tb_interface
-        SET interface_name = :interface_name, interface_desc = :interface_desc, retry = :retry,
+        SET interface_name = :interface_name, interface_desc = :interface_desc, run_time =:run_time, retry = :retry,
         interface_index = :interface_index, is_deleted = :is_deleted, updater_id = :user_id, update_time = :update_time
         WHERE interface_id = :interface_id
         '''
@@ -94,6 +107,7 @@ class InterfaceModel(object):
             'interface_name': interface_name,
             'interface_desc': interface_desc,
             'interface_index': interface_index,
+            'run_time': run_time,
             'retry': retry,
             'is_deleted': is_deleted,
             'user_id': user_id,
@@ -102,24 +116,38 @@ class InterfaceModel(object):
         return result
 
     @staticmethod
-    def add_interface(cursor, interface_name, interface_desc, interface_index, retry, user_id):
+    def add_interface(cursor, interface_name, interface_desc, interface_index, run_time, retry, user_id):
         """新增任务流"""
         command = '''
         INSERT INTO tb_interface(interface_name, interface_desc, interface_index,
-        insert_time, update_time, retry, creator_id, updater_id)
+        run_time, insert_time, update_time, retry, creator_id, updater_id)
         VALUES (:interface_name, :interface_desc, :interface_index,
-        :insert_time, :update_time, :retry, :user_id, :user_id)
+        :run_time, :insert_time, :update_time, :retry, :user_id, :user_id)
         '''
 
         result = cursor.insert(command, {
             'interface_name': interface_name,
             'interface_desc': interface_desc,
             'interface_index': interface_index,
+            'run_time': run_time,
             'retry': retry,
             'user_id': user_id,
             'insert_time': int(time.time()),
             'update_time': int(time.time())
         })
+        return result
+
+    @staticmethod
+    def add_interface_many(cursor, data):
+        """批量新增任务流"""
+        command = '''
+        INSERT INTO tb_interface(interface_name, interface_desc, interface_index,
+        run_time, insert_time, update_time, retry, creator_id, updater_id)
+        VALUES (:interface_name, :interface_desc, :interface_index,
+        :run_time, :insert_time, :update_time, :retry, :user_id, :user_id)
+        '''
+
+        result = cursor.insert(command, args=data)
         return result
 
     @staticmethod

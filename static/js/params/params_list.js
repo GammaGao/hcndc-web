@@ -185,7 +185,7 @@
                 '<div class="layui-inline" lay-event="update" title="修改参数"><i class="layui-icon layui-icon-edit"></i></div>',
                 '<div class="layui-inline" lay-event="delete" title="删除参数"><i class="layui-icon layui-icon-delete"></i></div>',
                 '<div class="layui-inline" lay-event="upload" title="上传参数文件" id="param-upload"><i class="layui-icon layui-icon-upload"></i></div>',
-                '<div class="layui-inline" lay-event="download" title="下载参数模板" id="job-upload"><i class="layui-icon layui-icon-download-circle"></i></div>',
+                '<div class="layui-inline" lay-event="download" title="下载参数模板"><i class="layui-icon layui-icon-download-circle"></i></div>',
                 '</div>'
             ].join('');
             // 表格渲染

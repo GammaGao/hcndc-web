@@ -162,7 +162,7 @@ def JobUpload():
                         if param not in interface_ids:
                             err_msg.append('第%s行[所属任务流id]不存在' % row_num)
                     # [任务名称]判空
-                    if i == 2 and row[i] == '':
+                    if i == 2 and param == '':
                         err_msg.append('第%s行[任务名称]参数不得为空' % row_num)
                     # [服务器id]判空
                     if i == 4 and isinstance(param, int):
@@ -196,10 +196,10 @@ def JobUpload():
                             if job_param not in job_params_ids:
                                 err_msg.append('第%s行[任务参数][%s]不存在' % (row_num, job_param))
 
-        # 序号是否重复
+        # [序号]是否重复
         serial_num = [row[0] for row in data]
         if len(serial_num) != len(set(serial_num)):
-            err_msg.append('该文件中序号存在重复')
+            err_msg.append('该文件中[序号]存在重复')
 
         # 返回异常信息
         if err_msg:

@@ -8,6 +8,8 @@
 
     Controller.prototype = {
         init: function () {
+            // 日期组件渲染
+            this.restart('run_time');
             // 表单验证规则
             this.form_verify();
             // 数据初始化赋值
@@ -70,7 +72,8 @@
                 type: 'get',
                 success: function (result) {
                     let data = result.data.detail;
-                    layui.use('form', function () {
+                    layui.use(['form', 'laydate'], function () {
+                        // 详情参数初始化
                         let form = layui.form;
                         form.val('interface_detail', {
                             'interface_name': data.interface_name,
@@ -80,8 +83,29 @@
                             'is_deleted': data.is_deleted === 1
                         });
                         form.render();
-                    })
+                        // 数据日期参数初始化
+                        if (data.run_time) {
+                            let laydate = layui.laydate;
+                            laydate.render({
+                                elem: 'input[name=run_time]',
+                                value: data.run_time
+                            })
+                        }
+                    });
                 }
+            });
+        },
+        // 日期组件渲染
+        restart: function (field) {
+            layui.use('laydate', function () {
+                let laydate = layui.laydate;
+                laydate.render({
+                    elem: sprintf('input[name=%s]', field),
+                    theme: '#393D49',
+                    format: 'yyyy-MM-dd',
+                    calendar: true,
+                    range: false
+                })
             });
         },
         element_init: function () {

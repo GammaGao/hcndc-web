@@ -35,6 +35,7 @@ interface_update_request = api.doc(body=api.model('interface_update_request', {
     'interface_name': fields.String(description='任务流名称'),
     'interface_desc': fields.String(description='任务流描述'),
     'interface_index': fields.String(description='任务流目录'),
+    'run_time': fields.String(description='数据日期: %Y-%m-%d'),
     'retry': fields.Integer(description='重试次数'),
     'is_deleted': fields.Integer(description='是否删除: 0否, 1是')
 }, description='任务流修改请求参数'))
@@ -43,5 +44,7 @@ interface_update_request = api.doc(body=api.model('interface_update_request', {
 interface_add_request = api.doc(body=api.model('interface_add_request', {
     'interface_name': fields.String(description='任务流名称'),
     'interface_desc': fields.String(description='任务流描述'),
+    'interface_index': fields.String(description='任务流目录'),
+    'run_time': fields.String(description='数据日期: %Y-%m-%d'),
     'retry': fields.Integer(description='重试次数'),
 }, description='新增任务流请求参数'))

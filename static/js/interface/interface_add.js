@@ -12,6 +12,8 @@
             this.form_verify();
             // 表单提交
             this.form_event();
+            // 日期组件渲染
+            this.restart('run_time');
         },
         // 表单验证
         form_verify: function () {
@@ -68,6 +70,19 @@
             layui.use('element', function () {
                 let element = layui.element;
                 element.init();
+            });
+        },
+        // 日期组件渲染
+        restart: function (field) {
+            layui.use('laydate', function () {
+                let laydate = layui.laydate;
+                laydate.render({
+                    elem: sprintf('input[name=%s]', field),
+                    theme: '#393D49',
+                    format: 'yyyy-MM-dd',
+                    calendar: true,
+                    range: false
+                })
             });
         }
     };

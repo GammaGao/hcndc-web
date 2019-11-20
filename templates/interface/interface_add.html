@@ -13,25 +13,32 @@
         <div class="layui-form-item">
             <label class="layui-form-label">任务流名称</label>
             <div class="layui-input-inline">
-                <input type="text" class="layui-input" name="interface_name" lay-verify="required" autocomplete="off">
+                <input type="text" class="layui-input" name="interface_name" lay-verify="required" placeholder="任务流名称">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">任务流描述</label>
             <div class="layui-input-block">
-                <textarea class="layui-textarea" name="interface_desc"></textarea>
+                <textarea class="layui-textarea" name="interface_desc" placeholder="任务流描述"></textarea>
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">任务流目录</label>
             <div class="layui-input-inline">
-                <input type="text" class="layui-input" name="interface_index" placeholder="任务流目录" lay-verify="index_verify" autocomplete="off">
+                <input type="text" class="layui-input" name="interface_index" placeholder="任务流目录"
+                       lay-verify="index_verify">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">数据日期</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="run_time" placeholder="数据日期">
             </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">重试次数</label>
             <div class="layui-input-inline">
-                <input type="number" class="layui-input" name="retry" lay-verify="required|number" autocomplete="off">
+                <input type="number" class="layui-input" name="retry" lay-verify="required|number" placeholder="重试次数">
             </div>
         </div>
         <div class="layui-input-block">

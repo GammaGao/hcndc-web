@@ -150,7 +150,7 @@ class ExecuteOperation(object):
 
         result = ExecuteModel.get_execute_flow(db.etl_db, condition, page, limit)
         for item in result:
-            item['run_time'] = str(item['run_time']) if item['run_time'] else None
+            item['run_time'] = item['run_time'].strftime('%Y-%m-%d') if item['run_time'] else None
         total = ExecuteModel.get_execute_flow_count(db.etl_db, condition)
         return Response(result=result, total=total)
 

@@ -32,7 +32,7 @@ class InterfaceOperation(object):
 
         result = InterfaceModel.get_interface_list(db.etl_db, condition, page, limit)
         for item in result:
-            item['run_time'] = str(item['run_time']) if item['run_time'] else ''
+            item['run_time'] = item['run_time'].strftime('%Y-%m-%d') if item['run_time'] else ''
         total = InterfaceModel.get_interface_count(db.etl_db, condition)
         return Response(result=result, total=total)
 
@@ -50,23 +50,24 @@ class InterfaceOperation(object):
         """获取任务流详情"""
         # 任务流详情
         detail = InterfaceModel.get_interface_detail(db.etl_db, interface_id)
+        detail['run_time'] = detail['run_time'].strftime('%Y-%m-%d') if detail['run_time'] else ''
         return Response(detail=detail)
 
     @staticmethod
     @make_decorator
-    def update_interface_detail(interface_id, interface_name, interface_desc, interface_index, retry, user_id,
+    def update_interface_detail(interface_id, interface_name, interface_desc, interface_index, run_time, retry, user_id,
                                 is_deleted):
         """修改任务流详情"""
         InterfaceModel.update_interface_detail(db.etl_db, interface_id, interface_name, interface_desc, interface_index,
-                                               retry, user_id, is_deleted)
+                                               run_time, retry, user_id, is_deleted)
         return Response(interface_id=interface_id)
 
     @staticmethod
     @make_decorator
-    def add_interface(interface_name, interface_desc, interface_index, retry, user_id):
+    def add_interface(interface_name, interface_desc, interface_index, run_time, retry, user_id):
         """新增任务流"""
-        interface_id = InterfaceModel.add_interface(db.etl_db, interface_name, interface_desc, interface_index, retry,
-                                                    user_id)
+        interface_id = InterfaceModel.add_interface(db.etl_db, interface_name, interface_desc, interface_index,
+                                                    run_time, retry, user_id)
         return Response(interface_id=interface_id)
 
     @staticmethod
