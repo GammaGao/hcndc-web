@@ -125,6 +125,10 @@ def ParamsUpload():
                     # [参数名称]校验
                     if i == 1 and param == '':
                         err_msg.append('第%s行[参数名称]不得为空' % row_num)
+                    # [参数名称]数据库查重
+                    if i == 1 and param != '':
+                        if ParamsModel.get_params_detail_by_name(db.etl_db, param):
+                            err_msg.append('第%s行[参数名称]已存在数据库中' % row_num)
                     # [数据源id]校验
                     if i == 2 and int(row[0]) == 1:
                         if param not in source_ids:

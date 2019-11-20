@@ -164,6 +164,10 @@ def JobUpload():
                     # [任务名称]判空
                     if i == 2 and param == '':
                         err_msg.append('第%s行[任务名称]参数不得为空' % row_num)
+                    # [任务名称]数据库查重
+                    if i == 2 and param != '':
+                        if JobModel.get_job_detail_by_name(db.etl_db, param):
+                            err_msg.append('第%s行[任务名称]参数已存在数据库中' % row_num)
                     # [服务器id]判空
                     if i == 4 and isinstance(param, int):
                         if param not in exec_host_ids:

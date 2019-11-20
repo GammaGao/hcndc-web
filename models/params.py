@@ -91,6 +91,19 @@ class ParamsModel(object):
         return result if result else {}
 
     @staticmethod
+    def get_params_detail_by_name(cursor, param_name):
+        """获取参数详情by参数名称"""
+        command = '''
+        SELECT *
+        FROM tb_param_config
+        WHERE param_name = :param_name
+        '''
+        result = cursor.query_one(command, {
+            'param_name': param_name
+        })
+        return result if result else {}
+
+    @staticmethod
     def update_params_detail(cursor, param_id, param_type, param_name, param_index, source_id, param_value, param_desc,
                              param_mark, is_deleted, user_id):
         """修改参数详情"""

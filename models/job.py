@@ -108,6 +108,19 @@ class JobModel(object):
         return result if result else {}
 
     @staticmethod
+    def get_job_detail_by_name(cursor, job_name):
+        """获取任务详情by任务名称"""
+        command = '''
+        SELECT *
+        FROM tb_jobs
+        WHERE job_name = :job_name
+        '''
+        result = cursor.query_one(command, {
+            'job_name': job_name
+        })
+        return result if result else {}
+
+    @staticmethod
     def update_job_detail(cursor, job_id, interface_id, job_name, job_desc, job_index, server_id, server_dir,
                           server_script, return_code, user_id, is_deleted):
         """修改任务详情"""
