@@ -38,19 +38,23 @@ class InterfaceList(Resource):
 
 class InterfaceGraph(Resource):
     @staticmethod
-    @InterfaceFilter.filter_interface_graph_data(job_nodes=list)
-    @InterfaceOperation.get_interface_graph(interface_id=int)
-    @InterfaceVerify.verify_get_interface_graph(interface_id=int)
+    @interface_graph
+    @InterfaceFilter.filter_interface_graph_data(result=list, graph_type=int)
+    @InterfaceOperation.get_interface_graph(interface_id=int, graph_type=int)
+    @InterfaceVerify.verify_get_interface_graph(interface_id=int, graph_type=int)
     def get(interface_id):
         """获取任务流拓扑结构"""
-        params = Response(interface_id=interface_id)
+        params = Response(
+            interface_id=interface_id,
+            graph_type=int(get_arg('graph_type', 1))
+        )
         log.info('获取任务流拓扑结构[params: %s]' % str(params))
         return params
 
 
 class InterfaceDetail(Resource):
     @staticmethod
-    @InterfaceFilter.filter_interface_detail_data(detail=dict)
+    @InterfaceFilter.filter_interface_detail_data(detail=dict, parent=list, child=list)
     @InterfaceOperation.get_interface_detail(interface_id=int)
     @InterfaceVerify.verify_get_interface_detail(interface_id=int)
     def get(interface_id):
@@ -63,13 +67,16 @@ class InterfaceDetail(Resource):
     @interface_update_request
     @InterfaceFilter.filter_update_interface_detail(interface_id=int)
     @InterfaceOperation.update_interface_detail(interface_id=int, interface_name=str, interface_desc=str,
-                                                interface_index=str, run_time=str, retry=int, user_id=int,
-                                                is_deleted=int)
+                                                interface_index=str, run_time=str, old_parent=list,
+                                                parent_interface=list, old_child=list, child_interface=list, retry=int,
+                                                user_id=int, is_deleted=int)
     @InterfaceVerify.verify_update_interface_detail(interface_id=int, interface_name=str, interface_desc=str,
-                                                    run_time=str, interface_index=str, retry=int, user_id=int,
-                                                    is_deleted=int)
+                                                    run_time=str, interface_index=str, old_parent=str,
+                                                    parent_interface=str, old_child=str, child_interface=str, retry=int,
+                                                    user_id=int, is_deleted=int)
     @PermissionVerify.verify_write_permission(interface_id=int, interface_name=str, interface_desc=str, run_time=str,
-                                              interface_index=str, retry=int, is_deleted=int)
+                                              interface_index=str, old_parent=str, parent_interface=str, old_child=str,
+                                              child_interface=str, retry=int, is_deleted=int)
     def put(interface_id):
         """修改任务流详情"""
         payload = get_payload()
@@ -78,6 +85,10 @@ class InterfaceDetail(Resource):
             interface_name=payload.get('interface_name', ''),
             interface_desc=payload.get('interface_desc', ''),
             interface_index=payload.get('interface_index', ''),
+            old_parent=payload.get('old_parent', ''),
+            parent_interface=payload.get('parent_interface', ''),
+            old_child=payload.get('old_child', ''),
+            child_interface=payload.get('child_interface', ''),
             run_time=payload.get('run_time', ''),
             retry=int(payload.get('retry', 0)),
             is_deleted=int(payload.get('is_deleted', 0))

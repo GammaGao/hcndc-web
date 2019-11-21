@@ -39,11 +39,19 @@ class InterfaceOperation(object):
 
     @staticmethod
     @make_decorator
-    def get_interface_graph(interface_id):
+    def get_interface_graph(interface_id, graph_type):
         """获取任务流拓扑结构"""
-        # 任务流任务依赖
-        job_nodes = InterfaceModel.get_interface_graph(db.etl_db, interface_id)
-        return Response(job_nodes=job_nodes)
+        # 任务流中任务依赖
+        result = []
+        if graph_type == 1:
+            result = InterfaceModel.get_interface_graph(db.etl_db, interface_id)
+        # 局部-任务流依赖
+        elif graph_type == 2:
+            pass
+        # 全局-任务流依赖
+        elif graph_type == 3:
+            pass
+        return Response(result=result, graph_type=graph_type)
 
     @staticmethod
     @make_decorator
@@ -52,15 +60,72 @@ class InterfaceOperation(object):
         # 任务流详情
         detail = InterfaceModel.get_interface_detail(db.etl_db, interface_id)
         detail['run_time'] = detail['run_time'].strftime('%Y-%m-%d') if detail['run_time'] else ''
-        return Response(detail=detail)
+        # 任务流前置依赖
+        parent = InterfaceModel.get_interface_parent(db.etl_db, interface_id)
+        # 任务流后置依赖
+        child = InterfaceModel.get_interface_child(db.etl_db, interface_id)
+        return Response(detail=detail, parent=parent, child=child)
 
     @staticmethod
     @make_decorator
-    def update_interface_detail(interface_id, interface_name, interface_desc, interface_index, run_time, retry, user_id,
-                                is_deleted):
+    def update_interface_detail(interface_id, interface_name, interface_desc, interface_index, old_parent,
+                                parent_interface, old_child, child_interface, run_time, retry, user_id, is_deleted):
         """修改任务流详情"""
+        # 任务流名称查重
+        interface_detail = InterfaceModel.get_interface_detail_by_name(db.etl_db, interface_name)
+        if interface_detail and interface_detail['interface_id'] != interface_id:
+            abort(400, **make_result(status=400, msg='任务流名称重复, 已存在数据库中'))
+        # 修改任务流
         InterfaceModel.update_interface_detail(db.etl_db, interface_id, interface_name, interface_desc, interface_index,
                                                run_time, retry, user_id, is_deleted)
+        # 修改任务流前置
+        old_parent = set() if not old_parent else set(old_parent)
+        parent_interface = set() if not parent_interface else set(parent_interface)
+        # 删
+        del_data = []
+        for parent_id in old_parent - parent_interface:
+            del_data.append({
+                'interface_id': interface_id,
+                'parent_id': parent_id,
+                'user_id': user_id,
+                'update_time': int(time.time())
+            })
+        InterfaceModel.delete_job_parent(db.etl_db, del_data) if del_data else None
+        # 增
+        add_data = []
+        for parent_id in parent_interface - old_parent:
+            add_data.append({
+                'interface_id': interface_id,
+                'parent_id': parent_id,
+                'user_id': user_id,
+                'insert_time': int(time.time()),
+                'update_time': int(time.time())
+            })
+        InterfaceModel.add_job_parent(db.etl_db, add_data) if add_data else None
+        # 修改任务流后置
+        old_child = set() if not old_child else set(old_child)
+        child_interface = set() if not parent_interface else set(child_interface)
+        # 删
+        del_data = []
+        for child_id in old_child - child_interface:
+            del_data.append({
+                'interface_id': interface_id,
+                'child_id': child_id,
+                'user_id': user_id,
+                'update_time': int(time.time())
+            })
+        InterfaceModel.delete_job_child(db.etl_db, del_data) if del_data else None
+        # 增
+        add_data = []
+        for child_id in child_interface - old_child:
+            add_data.append({
+                'interface_id': interface_id,
+                'child_id': child_id,
+                'user_id': user_id,
+                'insert_time': int(time.time()),
+                'update_time': int(time.time())
+            })
+        InterfaceModel.add_job_child(db.etl_db, add_data) if add_data else None
         return Response(interface_id=interface_id)
 
     @staticmethod

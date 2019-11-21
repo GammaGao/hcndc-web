@@ -65,6 +65,10 @@
                 let form = layui.form;
                 form.on('submit(interface-save)', function (data) {
                     data = data.field;
+                    // 添加原前置任务流
+                    data.old_parent = window.old_parent.join(',');
+                    // 添加原后置任务流
+                    data.old_child = window.old_child.join(',');
                     $.ajax({
                         url: BASE.uri.interface.detail_api + window.interface_id + '/',
                         contentType: "application/json; charset=utf-8",
@@ -97,9 +101,14 @@
                 type: 'get',
                 success: function (result) {
                     let data = result.data.detail;
+                    // 原前置任务流
+                    window.old_parent = data.parent_interface;
+                    // 原后置任务流
+                    window.old_child = data.child_interface;
                     layui.use(['form', 'laydate'], function () {
                         // 详情参数初始化
                         let form = layui.form;
+                        let formSelects = layui.formSelects;
                         form.val('interface_detail', {
                             'interface_name': data.interface_name,
                             'interface_desc': data.interface_desc,
@@ -116,6 +125,9 @@
                                 value: data.run_time
                             })
                         }
+                        // 前/后置任务流依赖初始化
+                        formSelects.value('parent_interface', data.parent_interface);
+                        formSelects.value('child_interface', data.child_interface);
                     });
                 }
             });

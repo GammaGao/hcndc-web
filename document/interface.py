@@ -30,11 +30,21 @@ interface_list_response_success = api.response(200, '成功', api.model('interfa
     }), description='任务流列表返回值')
 }))
 
+# 任务流图请求
+interface_graph = api.doc(params={
+    'interface_id': '任务流id',
+    'graph_type': '图表类型: 1.任务流中任务依赖, 2.局部-任务流依赖, 3.全局-任务流依赖'
+})
+
 # 任务流修改请求
 interface_update_request = api.doc(body=api.model('interface_update_request', {
     'interface_name': fields.String(description='任务流名称'),
     'interface_desc': fields.String(description='任务流描述'),
     'interface_index': fields.String(description='任务流目录'),
+    'old_parent': fields.String(description='原前置任务流'),
+    'parent_interface': fields.String(description='前置任务流'),
+    'old_child': fields.String(description='原后置任务流'),
+    'child_interface': fields.String(description='后置任务流'),
     'run_time': fields.String(description='数据日期: %Y-%m-%d'),
     'retry': fields.Integer(description='重试次数'),
     'is_deleted': fields.Integer(description='是否删除: 0否, 1是')

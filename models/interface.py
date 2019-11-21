@@ -254,3 +254,71 @@ class InterfaceModel(object):
         '''
         result = cursor.query(command)
         return result if result else []
+
+    @staticmethod
+    def get_interface_parent(cursor, interface_id):
+        """获取任务流前置依赖"""
+        command = '''
+        SELECT interface_id, parent_id
+        FROM tb_interface_parent
+        WHERE interface_id = :interface_id AND is_deleted = 0
+        '''
+        result = cursor.query(command, {
+            'interface_id': interface_id
+        })
+        return result if result else []
+
+    @staticmethod
+    def get_interface_child(cursor, interface_id):
+        """获取任务流后置依赖"""
+        command = '''
+        SELECT interface_id, child_id
+        FROM tb_interface_child
+        WHERE interface_id = :interface_id AND is_deleted = 0
+        '''
+        result = cursor.query(command, {
+            'interface_id': interface_id
+        })
+        return result if result else []
+
+    @staticmethod
+    def delete_job_parent(cursor, data):
+        """删除任务流前置-批量"""
+        command = '''
+        UPDATE tb_interface_parent
+        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
+        WHERE interface_id = :interface_id AND parent_id = :parent_id
+        '''
+        result = cursor.update(command, args=data)
+        return result
+
+    @staticmethod
+    def delete_job_child(cursor, data):
+        """删除任务流后置-批量"""
+        command = '''
+        UPDATE tb_interface_child
+        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
+        WHERE interface_id = :interface_id AND child_id = :child_id
+        '''
+        result = cursor.update(command, args=data)
+        return result
+
+    @staticmethod
+    def add_job_parent(cursor, data):
+        """新增任务流前置-批量"""
+        command = '''
+        INSERT INTO tb_interface_parent(interface_id, parent_id, insert_time, update_time, creator_id, updater_id)
+        VALUES (:interface_id, :parent_id, :insert_time, :update_time, :user_id, :user_id)
+        '''
+        result = cursor.insert(command, args=data)
+        return result
+
+    @staticmethod
+    def add_job_child(cursor, data):
+        """新增任务流后置-批量"""
+        command = '''
+        INSERT INTO tb_interface_child(interface_id, child_id, insert_time, update_time, creator_id, updater_id)
+        VALUES (:interface_id, :child_id, :insert_time, :update_time, :user_id, :user_id)
+        '''
+        result = cursor.insert(command, args=data)
+        return result
