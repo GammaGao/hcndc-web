@@ -54,7 +54,7 @@ class InterfaceGraph(Resource):
 
 class InterfaceDetail(Resource):
     @staticmethod
-    @InterfaceFilter.filter_interface_detail_data(detail=dict, parent=list, child=list)
+    @InterfaceFilter.filter_interface_detail_data(detail=dict, parent=list)
     @InterfaceOperation.get_interface_detail(interface_id=int)
     @InterfaceVerify.verify_get_interface_detail(interface_id=int)
     def get(interface_id):
@@ -68,15 +68,13 @@ class InterfaceDetail(Resource):
     @InterfaceFilter.filter_update_interface_detail(interface_id=int)
     @InterfaceOperation.update_interface_detail(interface_id=int, interface_name=str, interface_desc=str,
                                                 interface_index=str, run_time=str, old_parent=list,
-                                                parent_interface=list, old_child=list, child_interface=list, retry=int,
-                                                user_id=int, is_deleted=int)
+                                                parent_interface=list, retry=int, user_id=int, is_deleted=int)
     @InterfaceVerify.verify_update_interface_detail(interface_id=int, interface_name=str, interface_desc=str,
                                                     run_time=str, interface_index=str, old_parent=str,
-                                                    parent_interface=str, old_child=str, child_interface=str, retry=int,
-                                                    user_id=int, is_deleted=int)
+                                                    parent_interface=str, retry=int, user_id=int, is_deleted=int)
     @PermissionVerify.verify_write_permission(interface_id=int, interface_name=str, interface_desc=str, run_time=str,
-                                              interface_index=str, old_parent=str, parent_interface=str, old_child=str,
-                                              child_interface=str, retry=int, is_deleted=int)
+                                              interface_index=str, old_parent=str, parent_interface=str, retry=int,
+                                              is_deleted=int)
     def put(interface_id):
         """修改任务流详情"""
         payload = get_payload()
@@ -87,8 +85,6 @@ class InterfaceDetail(Resource):
             interface_index=payload.get('interface_index', ''),
             old_parent=payload.get('old_parent', ''),
             parent_interface=payload.get('parent_interface', ''),
-            old_child=payload.get('old_child', ''),
-            child_interface=payload.get('child_interface', ''),
             run_time=payload.get('run_time', ''),
             retry=int(payload.get('retry', 0)),
             is_deleted=int(payload.get('is_deleted', 0))
@@ -113,11 +109,11 @@ class InterfaceAdd(Resource):
     @interface_add_request
     @InterfaceFilter.filter_add_interface(interface_id=int)
     @InterfaceOperation.add_interface(interface_name=str, interface_desc=str, interface_index=str, run_time=str,
-                                      parent_interface=list, child_interface=list, retry=int, user_id=int)
+                                      parent_interface=list, retry=int, user_id=int)
     @InterfaceVerify.verify_add_interface(interface_name=str, interface_desc=str, interface_index=str, run_time=str,
-                                          parent_interface=str, child_interface=str, retry=int, user_id=int)
+                                          parent_interface=str, retry=int, user_id=int)
     @PermissionVerify.verify_write_permission(interface_name=str, interface_desc=str, interface_index=str,
-                                              parent_interface=str, child_interface=str, run_time=str, retry=int)
+                                              parent_interface=str, run_time=str, retry=int)
     def post():
         """新增任务流"""
         payload = get_payload()
@@ -126,7 +122,6 @@ class InterfaceAdd(Resource):
             interface_desc=payload.get('interface_desc', ''),
             interface_index=payload.get('interface_index', ''),
             parent_interface=payload.get('parent_interface', ''),
-            child_interface=payload.get('child_interface', ''),
             run_time=payload.get('run_time', ''),
             retry=int(payload.get('retry', 0))
         )

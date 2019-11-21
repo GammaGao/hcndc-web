@@ -148,16 +148,6 @@ class InterfaceModel(object):
         return result
 
     @staticmethod
-    def add_interface_child(cursor, data):
-        """新增任务流后置"""
-        command = '''
-            INSERT INTO tb_interface_child(interface_id, child_id, insert_time, update_time, creator_id, updater_id)
-            VALUES (:interface_id, :child_id, :insert_time, :update_time, :creator_id, :updater_id)
-            '''
-        result = cursor.insert(command, args=data)
-        return result
-
-    @staticmethod
     def add_interface_many(cursor, data):
         """批量新增任务流"""
         command = '''
@@ -273,10 +263,10 @@ class InterfaceModel(object):
     def get_interface_child(cursor, interface_id):
         """获取任务流后置依赖"""
         command = '''
-        SELECT a.interface_id, child_id, b.interface_name AS child_name
-        FROM tb_interface_child AS a
-        LEFT JOIN tb_interface AS b ON a.child_id = b.interface_id
-        WHERE a.interface_id = :interface_id AND a.is_deleted = 0
+        SELECT parent_id AS interface_id, a.interface_id AS child_id, b.interface_name AS child_name
+        FROM tb_interface_parent AS a
+        LEFT JOIN tb_interface AS b ON a.interface_id = b.interface_id
+        WHERE a.parent_id = :interface_id AND a.is_deleted = 0
         '''
         result = cursor.query(command, {
             'interface_id': interface_id
@@ -300,10 +290,10 @@ class InterfaceModel(object):
     def get_interface_child_all(cursor):
         """获取所有任务流后置依赖"""
         command = '''
-        SELECT a.interface_id, c.interface_name, child_id, b.interface_name AS child_name
-        FROM tb_interface_child AS a
-        LEFT JOIN tb_interface AS b ON a.child_id = b.interface_id
-        LEFT JOIN tb_interface AS c ON a.interface_id = c.interface_id
+        SELECT parent_id AS interface_id, c.interface_name, a.interface_id AS child_id, b.interface_name AS child_name
+        FROM tb_interface_parent AS a
+        LEFT JOIN tb_interface AS b ON a.interface_id = b.interface_id
+        LEFT JOIN tb_interface AS c ON a.parent_id = c.interface_id
         WHERE a.is_deleted = 0
         '''
         result = cursor.query(command)
@@ -321,17 +311,6 @@ class InterfaceModel(object):
         return result
 
     @staticmethod
-    def delete_job_child(cursor, data):
-        """删除任务流后置-批量"""
-        command = '''
-        UPDATE tb_interface_child
-        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
-        WHERE interface_id = :interface_id AND child_id = :child_id
-        '''
-        result = cursor.update(command, args=data)
-        return result
-
-    @staticmethod
     def add_job_parent(cursor, data):
         """新增任务流前置-批量"""
         command = '''
@@ -341,12 +320,3 @@ class InterfaceModel(object):
         result = cursor.insert(command, args=data)
         return result
 
-    @staticmethod
-    def add_job_child(cursor, data):
-        """新增任务流后置-批量"""
-        command = '''
-        INSERT INTO tb_interface_child(interface_id, child_id, insert_time, update_time, creator_id, updater_id)
-        VALUES (:interface_id, :child_id, :insert_time, :update_time, :user_id, :user_id)
-        '''
-        result = cursor.insert(command, args=data)
-        return result

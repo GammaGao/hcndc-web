@@ -42,8 +42,6 @@ interface_update_request = api.doc(body=api.model('interface_update_request', {
     'interface_index': fields.String(description='任务流目录'),
     'old_parent': fields.String(description='原前置任务流'),
     'parent_interface': fields.String(description='前置任务流'),
-    'old_child': fields.String(description='原后置任务流'),
-    'child_interface': fields.String(description='后置任务流'),
     'run_time': fields.String(description='数据日期: %Y-%m-%d'),
     'retry': fields.Integer(description='重试次数'),
     'is_deleted': fields.Integer(description='是否删除: 0否, 1是')
@@ -55,7 +53,6 @@ interface_add_request = api.doc(body=api.model('interface_add_request', {
     'interface_desc': fields.String(description='任务流描述'),
     'interface_index': fields.String(description='任务流目录'),
     'parent_interface': fields.String(description='前置任务流'),
-    'child_interface': fields.String(description='后置任务流'),
     'run_time': fields.String(description='数据日期: %Y-%m-%d'),
     'retry': fields.Integer(description='重试次数'),
 }, description='新增任务流请求参数'))

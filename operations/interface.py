@@ -74,14 +74,12 @@ class InterfaceOperation(object):
         detail['run_time'] = detail['run_time'].strftime('%Y-%m-%d') if detail['run_time'] else ''
         # 任务流前置依赖
         parent = InterfaceModel.get_interface_parent(db.etl_db, interface_id)
-        # 任务流后置依赖
-        child = InterfaceModel.get_interface_child(db.etl_db, interface_id)
-        return Response(detail=detail, parent=parent, child=child)
+        return Response(detail=detail, parent=parent)
 
     @staticmethod
     @make_decorator
     def update_interface_detail(interface_id, interface_name, interface_desc, interface_index, old_parent,
-                                parent_interface, old_child, child_interface, run_time, retry, user_id, is_deleted):
+                                parent_interface, run_time, retry, user_id, is_deleted):
         """修改任务流详情"""
         # 任务流名称查重
         interface_detail = InterfaceModel.get_interface_detail_by_name(db.etl_db, interface_name)
@@ -114,36 +112,11 @@ class InterfaceOperation(object):
                 'update_time': int(time.time())
             })
         InterfaceModel.add_job_parent(db.etl_db, add_data) if add_data else None
-        # 修改任务流后置
-        old_child = set() if not old_child else set(old_child)
-        child_interface = set() if not parent_interface else set(child_interface)
-        # 删
-        del_data = []
-        for child_id in old_child - child_interface:
-            del_data.append({
-                'interface_id': interface_id,
-                'child_id': child_id,
-                'user_id': user_id,
-                'update_time': int(time.time())
-            })
-        InterfaceModel.delete_job_child(db.etl_db, del_data) if del_data else None
-        # 增
-        add_data = []
-        for child_id in child_interface - old_child:
-            add_data.append({
-                'interface_id': interface_id,
-                'child_id': child_id,
-                'user_id': user_id,
-                'insert_time': int(time.time()),
-                'update_time': int(time.time())
-            })
-        InterfaceModel.add_job_child(db.etl_db, add_data) if add_data else None
         return Response(interface_id=interface_id)
 
     @staticmethod
     @make_decorator
-    def add_interface(interface_name, interface_desc, interface_index, parent_interface, child_interface, run_time,
-                      retry, user_id):
+    def add_interface(interface_name, interface_desc, interface_index, parent_interface, run_time, retry, user_id):
         """新增任务流"""
         # 任务流名称查重
         if InterfaceModel.get_interface_detail_by_name(db.etl_db, interface_name):
@@ -163,18 +136,6 @@ class InterfaceOperation(object):
                 'updater_id': user_id
             })
         InterfaceModel.add_interface_parent(db.etl_db, parent_arr) if parent_arr else None
-        # 新增任务流后置
-        child_arr = []
-        for item in child_interface:
-            child_arr.append({
-                'interface_id': interface_id,
-                'child_id': item,
-                'insert_time': int(time.time()),
-                'update_time': int(time.time()),
-                'creator_id': user_id,
-                'updater_id': user_id
-            })
-        InterfaceModel.add_interface_child(db.etl_db, child_arr) if child_arr else None
         return Response(interface_id=interface_id)
 
     @staticmethod
@@ -184,6 +145,11 @@ class InterfaceOperation(object):
         # 查询是否在调度内
         if InterfaceModel.get_schedule_detail(db.etl_db, interface_id):
             abort(400, **make_result(status=400, msg='调度任务运行中, 请停止调度任务后删除'))
+        # 任务流前后置依赖
+        parent = InterfaceModel.get_interface_parent(db.etl_db, interface_id)
+        child = InterfaceModel.get_interface_child(db.etl_db, interface_id)
+        if parent or child:
+            abort(400, **make_result(status=400, msg='任务流存在前/后置依赖, 不可删除'))
         # # 查询是否有任务依赖
         # ids = InterfaceModel.get_job_prep_by_interface(db.etl_db, interface_id)
         # job_ids = []
@@ -222,6 +188,11 @@ class InterfaceOperation(object):
             # 查询是否在调度内
             if InterfaceModel.get_schedule_detail(db.etl_db, interface_id):
                 err_msg.append('任务流ID: [%s], 调度运行中, 请停止调度任务后删除' % interface_id)
+            # 任务流前后置依赖
+            parent = InterfaceModel.get_interface_parent(db.etl_db, interface_id)
+            child = InterfaceModel.get_interface_child(db.etl_db, interface_id)
+            if parent or child:
+                abort(400, **make_result(status=400, msg='任务流存在前/后置依赖, 不可删除'))
             # # 查询是否有任务依赖
             # ids = InterfaceModel.get_job_prep_by_interface(db.etl_db, interface_id)
             # job_ids = []

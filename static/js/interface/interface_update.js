@@ -36,9 +36,7 @@
                         ))
                     }
                     $('select[xm-select=parent_interface]').append(html.join(''));
-                    $('select[xm-select=child_interface]').append(html.join(''));
                     formSelects.render('parent_interface');
-                    formSelects.render('child_interface');
                 }
             })
         },
@@ -67,8 +65,6 @@
                     data = data.field;
                     // 添加原前置任务流
                     data.old_parent = window.old_parent.join(',');
-                    // 添加原后置任务流
-                    data.old_child = window.old_child.join(',');
                     $.ajax({
                         url: BASE.uri.interface.detail_api + window.interface_id + '/',
                         contentType: "application/json; charset=utf-8",
@@ -103,8 +99,6 @@
                     let data = result.data.detail;
                     // 原前置任务流
                     window.old_parent = data.parent_interface;
-                    // 原后置任务流
-                    window.old_child = data.child_interface;
                     layui.use(['form', 'laydate'], function () {
                         // 详情参数初始化
                         let form = layui.form;
@@ -125,9 +119,8 @@
                                 value: data.run_time
                             })
                         }
-                        // 前/后置任务流依赖初始化
+                        // 前置任务流依赖初始化
                         formSelects.value('parent_interface', data.parent_interface);
-                        formSelects.value('child_interface', data.child_interface);
                     });
                 }
             });

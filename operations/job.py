@@ -62,6 +62,10 @@ class JobOperation(object):
     def update_job_detail(job_id, interface_id, job_name, job_desc, job_index, server_id, server_dir, server_script,
                           return_code, old_prep, job_prep, user_id, old_params, job_params, is_deleted):
         """修改任务详情"""
+        # 任务名称查重
+        job_detail = JobModel.get_job_detail_by_name(db.etl_db, job_name)
+        if job_detail and job_detail['job_id'] != job_id:
+            abort(400, **make_result(status=400, msg='任务名称重复, 已存在数据库中'))
         # 修改详情
         JobModel.update_job_detail(db.etl_db, job_id, interface_id, job_name, job_desc, job_index, server_id,
                                    server_dir,
@@ -127,6 +131,9 @@ class JobOperation(object):
     def add_job_detail(job_name, interface_id, job_desc, job_index, server_id, server_dir, job_prep, job_params,
                        server_script, user_id, return_code):
         """新增任务详情"""
+        # 任务名称查重
+        if JobModel.get_job_detail_by_name(db.etl_db, job_name):
+            abort(400, **make_result(status=400, msg='任务名称重复, 已存在数据库中'))
         # 新增任务详情
         job_id = JobModel.add_job_detail(db.etl_db, job_name, interface_id, job_desc, job_index, server_id, server_dir,
                                          server_script, return_code, user_id)

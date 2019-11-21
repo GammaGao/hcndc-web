@@ -34,9 +34,7 @@
                         ))
                     }
                     $('select[xm-select=parent_interface]').append(html.join(''));
-                    $('select[xm-select=child_interface]').append(html.join(''));
                     formSelects.render('parent_interface');
-                    formSelects.render('child_interface');
                 }
             })
         },

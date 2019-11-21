@@ -20,10 +20,9 @@ class InterfaceFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_interface_detail_data(detail, parent, child):
+    def filter_interface_detail_data(detail, parent):
         """任务流详情"""
         detail['parent_interface'] = [item['parent_id'] for item in parent]
-        detail['child_interface'] = [item['child_id'] for item in child]
         return {'status': 200, 'msg': '成功', 'data': {'detail': detail}}, 200
 
     @staticmethod

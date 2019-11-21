@@ -407,53 +407,53 @@ def interface_local_graph(detail, parent, child):
 
 def interface_global_graph(detail, parent, child):
     """任务流全局拓扑"""
-    def get_context_node(interface_id):
+    def get_context_node(node_id):
         """获取上下文节点"""
         # 反向查找: 正向查找亦可
-        parent_node = [i for i in child if i['child_id'] == interface_id]
-        child_node = [i for i in parent if i['parent_id'] == interface_id]
+        parent_node = [i for i in child if i['child_id'] == node_id]
+        child_node = [i for i in parent if i['parent_id'] == node_id]
         # 父节点
-        for node in parent_node:
+        for node_item in parent_node:
             # 添加入度
-            nodes[interface_id]['in'].add(node['interface_id'])
-            if node['interface_id'] not in nodes:
+            nodes[node_id]['in'].add(node_item['interface_id'])
+            if node_item['interface_id'] not in nodes:
                 # 添加节点
-                nodes[node['interface_id']] = {
-                    'id': node['interface_id'],
-                    'name': node['interface_name'],
+                nodes[node_item['interface_id']] = {
+                    'id': node_item['interface_id'],
+                    'name': node_item['interface_name'],
                     'itemStyle': None,
                     'symbolSize': symbol_size,
                     'x': 0,
                     'y': 0,
                     'label': {'show': True},
-                    'category': node['interface_id'],
+                    'category': node_item['interface_id'],
                     'in': set(),
-                    'out': {interface_id},
+                    'out': {node_id},
                     'level': 0
                 }
                 # 递归节点
-                get_context_node(node['interface_id'])
+                get_context_node(node_item['interface_id'])
         # 子节点
-        for node in child_node:
+        for node_item in child_node:
             # 添加出度
-            nodes[interface_id]['out'].add(node['interface_id'])
-            if node['interface_id'] not in nodes:
+            nodes[node_id]['out'].add(node_item['interface_id'])
+            if node_item['interface_id'] not in nodes:
                 # 添加节点
-                nodes[node['interface_id']] = {
-                    'id': node['interface_id'],
-                    'name': node['interface_name'],
+                nodes[node_item['interface_id']] = {
+                    'id': node_item['interface_id'],
+                    'name': node_item['interface_name'],
                     'itemStyle': None,
                     'symbolSize': symbol_size,
                     'x': 0,
                     'y': 0,
                     'label': {'show': True},
-                    'category': node['interface_id'],
-                    'in': {interface_id},
+                    'category': node_item['interface_id'],
+                    'in': {node_id},
                     'out': set(),
                     'level': 0
                 }
                 # 递归节点
-                get_context_node(node['interface_id'])
+                get_context_node(node_item['interface_id'])
 
     nodes = {}
     links = []
