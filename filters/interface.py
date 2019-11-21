@@ -14,19 +14,9 @@ class InterfaceFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_interface_graph_data(result, graph_type):
+    def filter_interface_graph_data(result):
         """获取任务流拓扑结构"""
-        # 任务流中任务依赖
-        data = {}
-        if graph_type == 1:
-            data = job_nodes_graph(result)
-        # 局部-任务流依赖
-        elif graph_type == 2:
-            pass
-        # 全局-任务流依赖
-        elif graph_type == 3:
-            pass
-        return {'status': 200, 'msg': '成功', 'data': data}, 200
+        return {'status': 200, 'msg': '成功', 'data': result}, 200
 
     @staticmethod
     @make_decorator

@@ -259,9 +259,10 @@ class InterfaceModel(object):
     def get_interface_parent(cursor, interface_id):
         """获取任务流前置依赖"""
         command = '''
-        SELECT interface_id, parent_id
-        FROM tb_interface_parent
-        WHERE interface_id = :interface_id AND is_deleted = 0
+        SELECT a.interface_id, parent_id, b.interface_name AS parent_name
+        FROM tb_interface_parent AS a
+        LEFT JOIN tb_interface AS b ON a.parent_id = b.interface_id
+        WHERE a.interface_id = :interface_id AND a.is_deleted = 0;
         '''
         result = cursor.query(command, {
             'interface_id': interface_id
@@ -272,9 +273,10 @@ class InterfaceModel(object):
     def get_interface_child(cursor, interface_id):
         """获取任务流后置依赖"""
         command = '''
-        SELECT interface_id, child_id
-        FROM tb_interface_child
-        WHERE interface_id = :interface_id AND is_deleted = 0
+        SELECT a.interface_id, child_id, b.interface_name AS child_name
+        FROM tb_interface_child AS a
+        LEFT JOIN tb_interface AS b ON a.child_id = b.interface_id
+        WHERE a.interface_id = :interface_id AND a.is_deleted = 0
         '''
         result = cursor.query(command, {
             'interface_id': interface_id

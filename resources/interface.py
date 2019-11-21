@@ -39,7 +39,7 @@ class InterfaceList(Resource):
 class InterfaceGraph(Resource):
     @staticmethod
     @interface_graph
-    @InterfaceFilter.filter_interface_graph_data(result=list, graph_type=int)
+    @InterfaceFilter.filter_interface_graph_data(result=dict)
     @InterfaceOperation.get_interface_graph(interface_id=int, graph_type=int)
     @InterfaceVerify.verify_get_interface_graph(interface_id=int, graph_type=int)
     def get(interface_id):

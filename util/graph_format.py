@@ -10,9 +10,13 @@ def job_nodes_graph(job_nodes):
         return {'nodes': [], 'links': [], 'categories': []}
     nodes = {}
     links = []
+    # 层级对象
     layers = {}
+    # 节点图标大小
     symbol_size = log(10, len(job_nodes)) * 40 if len(job_nodes) > 1 else 30
+    # x坐标间距
     horizontal_margin = 20 * (1 + 1 / len(job_nodes)) if len(job_nodes) > 1 else 10
+    # y坐标间距
     vertical_margin = len(job_nodes)
     # 0.预处理: id统一为字符串
     for job in job_nodes:
@@ -122,8 +126,9 @@ def job_nodes_graph(job_nodes):
                 links.append({'source': source_node, 'target': job['job_id']})
     # 4.计算坐标
     for level in range(max_layer + 1):
-        # x坐标
+        # 该层所有节点
         layer = layers[level]
+        # x坐标
         ranges = {
             'start': 0,
             'end': 0,
@@ -285,4 +290,116 @@ def execute_nodes_graph(job_nodes):
         {'name': '虚拟节点'}
 
     ]
+    return {'nodes': nodes, 'links': links, 'categories': categories}
+
+
+def interface_local_graph(detail, parent, child):
+    """任务流局部拓扑"""
+    nodes = {}
+    links = []
+    # 层级对象
+    layers = {}
+    # 节点图标大小
+    length = len(parent) + len(child)
+    symbol_size = log(10, length) * 40 if length > 1 else 30
+    # x坐标间距
+    horizontal_margin = 20 * (1 + 1 / length) if length > 1 else 10
+    # y坐标间距
+    vertical_margin = length
+    # 1.构造节点: id统一为字符串
+    # 父节点
+    for item in parent:
+        item['interface_id'] = str(item['interface_id'])
+        item['parent_id'] = str(item['parent_id']) if item['parent_id'] else None
+        nodes[item['parent_id']] = {
+            'id': item['parent_id'],
+            'name': item['parent_name'],
+            'itemStyle': None,
+            'symbolSize': symbol_size,
+            'x': 0,
+            'y': 0,
+            'label': {'show': True},
+            'category': item['parent_id'],
+            'level': 0
+        }
+    # 当前节点
+    nodes[detail['interface_id']] = {
+        'id': str(detail['interface_id']),
+        'name': detail['interface_name'],
+        'itemStyle': None,
+        'symbolSize': symbol_size,
+        'x': 0,
+        'y': 0,
+        'label': {'show': True},
+        'category': str(detail['interface_id']),
+        'level': 1
+    }
+    # 子节点
+    for item in child:
+        item['interface_id'] = str(item['interface_id'])
+        item['child_id'] = str(item['child_id']) if item['child_id'] else None
+        nodes[item['child_id']] = {
+            'id': item['child_id'],
+            'name': item['child_name'],
+            'itemStyle': None,
+            'symbolSize': symbol_size,
+            'x': 0,
+            'y': 0,
+            'label': {'show': True},
+            'category': item['child_id'],
+            'level': 2
+        }
+    # 2.构造连线
+    for item in parent:
+        links.append({'source': item['parent_id'], 'target': item['interface_id']})
+    for item in child:
+        links.append({'source': item['interface_id'], 'target': item['child_id']})
+    # 3.填充层级对象
+    for _, node in nodes.items():
+        if node['level'] not in layers:
+            layers[node['level']] = []
+        layers[node['level']].append(node)
+    # 3.计算坐标
+    for level in range(3):
+        # 该层所有节点
+        layer = layers.get(level, [])
+        # x坐标
+        ranges = {
+            'start': 0,
+            'end': 0,
+            'width': horizontal_margin,
+            'x': 0
+        }
+        # 遍历每层所有节点
+        for node_index in range(1, len(layer)):
+            ranges['end'] = node_index
+            ranges['width'] += horizontal_margin
+        # 多个节点
+        if ranges['start'] != ranges['end']:
+            # 负数折半
+            left = -ranges['width'] / 2
+            for j in range(0, len(layer)):
+                layer[j]['x'] = left + horizontal_margin / 2
+                left += horizontal_margin
+    # y坐标
+    for level in range(3):
+        for node in layers.get(level, []):
+            node['y'] = vertical_margin * level
+    # 5.数据整理
+    # 按层级排序
+    nodes = [j for i, j in nodes.items()]
+    nodes.sort(key=lambda x: x['level'])
+    # 6.节点任务流分类
+    interface_id = list(set(node['category'] for node in nodes))
+    interface_id.sort(key=lambda x: int(x))
+    # 当前任务流id
+    curr_interface_id = str(detail['interface_id'])
+    interface_dict = {}
+    for index, value in enumerate(interface_id):
+        interface_dict[value] = index
+    categories = [{
+        'name': '当前任务流:' + category if category == curr_interface_id else '任务流:' + str(category) if category else '-'
+    } for category in interface_id]
+    for node in nodes:
+        node['category'] = interface_dict[node['category']]
     return {'nodes': nodes, 'links': links, 'categories': categories}

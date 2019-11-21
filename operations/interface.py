@@ -8,6 +8,7 @@ from server.decorators import make_decorator, Response
 from server.status import make_result
 from models.interface import InterfaceModel
 from configs import db
+from util.graph_format import job_nodes_graph, interface_local_graph
 
 
 class InterfaceOperation(object):
@@ -44,14 +45,20 @@ class InterfaceOperation(object):
         # 任务流中任务依赖
         result = []
         if graph_type == 1:
-            result = InterfaceModel.get_interface_graph(db.etl_db, interface_id)
+            data = InterfaceModel.get_interface_graph(db.etl_db, interface_id)
+            result = job_nodes_graph(data)
         # 局部-任务流依赖
         elif graph_type == 2:
-            pass
+            # 任务流详情
+            detail = InterfaceModel.get_interface_detail(db.etl_db, interface_id)
+            # 前后置依赖
+            parent = InterfaceModel.get_interface_parent(db.etl_db, interface_id)
+            child = InterfaceModel.get_interface_child(db.etl_db, interface_id)
+            result = interface_local_graph(detail, parent, child)
         # 全局-任务流依赖
         elif graph_type == 3:
             pass
-        return Response(result=result, graph_type=graph_type)
+        return Response(result=result)
 
     @staticmethod
     @make_decorator

@@ -32,7 +32,6 @@ interface_list_response_success = api.response(200, '成功', api.model('interfa
 
 # 任务流图请求
 interface_graph = api.doc(params={
-    'interface_id': '任务流id',
     'graph_type': '图表类型: 1.任务流中任务依赖, 2.局部-任务流依赖, 3.全局-任务流依赖'
 })
 
