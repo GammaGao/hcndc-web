@@ -8,7 +8,7 @@ from server.decorators import make_decorator, Response
 from server.status import make_result
 from models.interface import InterfaceModel
 from configs import db
-from util.graph_format import job_nodes_graph, interface_local_graph
+from util.graph_format import job_nodes_graph, interface_local_graph, interface_global_graph
 
 
 class InterfaceOperation(object):
@@ -57,7 +57,12 @@ class InterfaceOperation(object):
             result = interface_local_graph(detail, parent, child)
         # 全局-任务流依赖
         elif graph_type == 3:
-            pass
+            # 任务流详情
+            detail = InterfaceModel.get_interface_detail(db.etl_db, interface_id)
+            # 所有前后置依赖
+            parent = InterfaceModel.get_interface_parent_all(db.etl_db)
+            child = InterfaceModel.get_interface_child_all(db.etl_db)
+            result = interface_global_graph(detail, parent, child)
         return Response(result=result)
 
     @staticmethod

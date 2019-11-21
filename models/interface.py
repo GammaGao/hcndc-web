@@ -284,6 +284,32 @@ class InterfaceModel(object):
         return result if result else []
 
     @staticmethod
+    def get_interface_parent_all(cursor):
+        """获取所有任务流前置依赖"""
+        command = '''
+        SELECT a.interface_id, c.interface_name, parent_id, b.interface_name AS parent_name
+        FROM tb_interface_parent AS a
+        LEFT JOIN tb_interface AS b ON a.parent_id = b.interface_id
+        LEFT JOIN tb_interface AS c ON a.interface_id = c.interface_id
+        WHERE a.is_deleted = 0
+        '''
+        result = cursor.query(command)
+        return result if result else []
+
+    @staticmethod
+    def get_interface_child_all(cursor):
+        """获取所有任务流后置依赖"""
+        command = '''
+        SELECT a.interface_id, c.interface_name, child_id, b.interface_name AS child_name
+        FROM tb_interface_child AS a
+        LEFT JOIN tb_interface AS b ON a.child_id = b.interface_id
+        LEFT JOIN tb_interface AS c ON a.interface_id = c.interface_id
+        WHERE a.is_deleted = 0
+        '''
+        result = cursor.query(command)
+        return result if result else []
+
+    @staticmethod
     def delete_job_parent(cursor, data):
         """删除任务流前置-批量"""
         command = '''
