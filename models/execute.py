@@ -126,9 +126,9 @@ class ExecuteModel(object):
     def add_execute_detail(cursor, data):
         """添加执行详情表"""
         command = '''
-        INSERT INTO tb_execute_detail(exec_id, job_id, in_degree, out_degree, params,
+        INSERT INTO tb_execute_detail(exec_id, job_id, in_degree, out_degree, params_value,
         server_host, server_dir, server_script, return_code, position, `level`, `status`, insert_time, update_time)
-        VALUES (:exec_id, :job_id, :in_degree, :out_degree, :params, :server_host, :server_dir, :server_script,
+        VALUES (:exec_id, :job_id, :in_degree, :out_degree, :params_value, :server_host, :server_dir, :server_script,
         :return_code, :position, :level, :status, :insert_time, :update_time)
         '''
         result = cursor.insert(command, data)
@@ -139,7 +139,7 @@ class ExecuteModel(object):
         """获取所有执行任务"""
         command = '''
         SELECT job_id, in_degree, out_degree, server_host, server_dir,
-        server_script, position, `level`, a.`status`, params, return_code
+        server_script, position, `level`, a.`status`, params_value, return_code
         FROM tb_execute_detail AS a
         -- 主表状态为运行中,失败(执行中存在错误),就绪
         INNER JOIN tb_execute AS b ON a.exec_id = b.exec_id AND b.`status` IN (1, -1, 3)
@@ -155,7 +155,7 @@ class ExecuteModel(object):
         """获取所有任务详情"""
         command = '''
         SELECT job_id, in_degree, out_degree, server_host, server_dir,
-        server_script, position, `level`, a.`status`, params, return_code
+        server_script, position, `level`, a.`status`, params_value, return_code
         FROM tb_execute_detail AS a
         INNER JOIN tb_execute AS b ON a.exec_id = b.exec_id
         WHERE a.exec_id = :exec_id
@@ -309,7 +309,7 @@ class ExecuteModel(object):
         """获取执行详情-by任务状态"""
         command = '''
         SELECT job_id, in_degree, out_degree, server_host, server_dir,
-        server_script, position, `level`, a.`status`, params, return_code, pid
+        server_script, position, `level`, a.`status`, params_value, return_code, pid
         FROM tb_execute_detail AS a
         INNER JOIN tb_execute AS b USING(exec_id)
         WHERE a.exec_id = :exec_id AND a.`status` = :status

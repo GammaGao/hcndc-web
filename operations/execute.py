@@ -54,7 +54,7 @@ class ExecuteOperation(object):
                         server_dir=nodes[job_id]['server_dir'],
                         server_script=nodes[job_id]['server_script'],
                         return_code=nodes[job_id]['return_code'],
-                        params=nodes[job_id]['params'].split(','),
+                        params=nodes[job_id]['params_value'].split(','),
                         status=nodes[job_id]['status']
                     )
                 except:
@@ -348,7 +348,7 @@ class ExecuteOperation(object):
                         server_dir=nodes[job_id]['server_dir'],
                         server_script=nodes[job_id]['server_script'],
                         return_code=nodes[job_id]['return_code'],
-                        params=nodes[job_id]['params'].split(','),
+                        params=nodes[job_id]['params_value'].split(','),
                         status=nodes[job_id]['status']
                     )
                 except:
@@ -426,7 +426,7 @@ class ExecuteOperation(object):
                             server_dir=job['server_dir'],
                             server_script=job['server_script'],
                             return_code=job['return_code'],
-                            params=job['params'].split(','),
+                            params=job['params_value'].split(','),
                             status=job['status']
                         )
                         log.info('分发任务: 执行id: %s, 任务id: %s' % (item, job_id))

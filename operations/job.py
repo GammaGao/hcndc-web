@@ -191,7 +191,7 @@ class JobOperation(object):
             'job_id': job_id,
             'in_degree': '',
             'out_degree': '',
-            'params': ','.join(params),
+            'params_value': ','.join(params),
             'server_host': job['server_host'],
             'server_dir': job['server_dir'],
             'server_script': job['server_script'],

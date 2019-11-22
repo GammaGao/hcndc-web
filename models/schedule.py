@@ -81,7 +81,7 @@ class ScheduleModel(object):
         UPDATE tb_execute_detail AS a, tb_jobs AS b, tb_exec_host AS c
         SET a.server_dir = b.server_dir, a.server_script = b.server_script,
         a.return_code = b.return_code, a.`status` = :status, a.server_host = c.server_host, 
-        a.params = :params, a.update_time = :update_time, pid = 0
+        a.params_value = :params_value, a.update_time = :update_time, pid = 0
         WHERE a.exec_id = :exec_id AND a.job_id = :job_id
         AND a.job_id = b.job_id
         AND b.server_id = c.server_id
@@ -90,7 +90,7 @@ class ScheduleModel(object):
             'exec_id': exec_id,
             'job_id': job_id,
             'status': status,
-            'params': params,
+            'params_value': params,
             'update_time': int(time.time())
         })
         return result
