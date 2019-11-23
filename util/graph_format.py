@@ -264,10 +264,10 @@ def interface_local_graph(detail, parent, child):
 
     def get_context_node(node_id):
         """获取上下文节点"""
-        # 反向查找: 正向查找亦可
+        # 获取父子节点
         parent_node = [i for i in child if i['child_id'] == node_id]
         child_node = [i for i in parent if i['parent_id'] == node_id]
-        # 父节点
+        # 父节点(局部拓扑情况下, 所有节点的父节点无需递归)
         for node_item in parent_node:
             # 添加入度
             nodes[node_id]['in'].add(node_item['interface_id'])
@@ -374,9 +374,9 @@ def interface_local_graph(detail, parent, child):
             layers[node['level']] = []
         layers[node['level']].append(node)
     # 3.构造连线
-    for node_id, node in nodes.items():
+    for _id, node in nodes.items():
         for out in node['out']:
-            links.append({'source': node_id, 'target': out})
+            links.append({'source': _id, 'target': out})
             # 不相邻层级
             if abs(node['level'] - nodes[out]['level']) != 1:
                 # 计算相差层级数
@@ -384,7 +384,7 @@ def interface_local_graph(detail, parent, child):
                 max_level = max(node['level'], nodes[out]['level'])
                 for transit_level in range(min_level, max_level):
                     # 添加过渡节点
-                    transit_id = '%s>%s>%s' % (node_id, nodes[out]['id'], str(transit_level))
+                    transit_id = '%s>%s>%s' % (_id, nodes[out]['id'], str(transit_level))
                     layers[transit_level].append({
                         'id': transit_id,
                         'x': 0,
@@ -444,7 +444,7 @@ def interface_global_graph(detail, parent, child):
 
     def get_context_node(node_id):
         """获取上下文节点"""
-        # 反向查找: 正向查找亦可
+        # 获取父子节点
         parent_node = [i for i in child if i['child_id'] == node_id]
         child_node = [i for i in parent if i['parent_id'] == node_id]
         # 父节点
@@ -556,16 +556,16 @@ def interface_global_graph(detail, parent, child):
             layers[node['level']] = []
         layers[node['level']].append(node)
     # 3.构造连线
-    for node_id, node in nodes.items():
+    for _id, node in nodes.items():
         for out in node['out']:
-            links.append({'source': node_id, 'target': out})
+            links.append({'source': _id, 'target': out})
             # 不相邻层级
             if abs(node['level'] - nodes[out]['level']) != 1:
                 min_level = min(node['level'], nodes[out]['level']) + 1
                 max_level = max(node['level'], nodes[out]['level'])
                 for transit_level in range(min_level, max_level):
                     # 添加过渡节点
-                    transit_id = '%s>%s>%s' % (node_id, nodes[out]['id'], str(transit_level))
+                    transit_id = '%s>%s>%s' % (_id, nodes[out]['id'], str(transit_level))
                     layers[transit_level].append({
                         'id': transit_id,
                         'x': 0,

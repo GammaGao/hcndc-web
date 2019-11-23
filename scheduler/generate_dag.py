@@ -3,12 +3,102 @@
 
 from models.schedule import ScheduleModel
 from models.execute import ExecuteModel
+from models.interface import InterfaceModel
 from configs import db
 from operations.job import JobOperation
 
 
-def generate_dag_by_dispatch_id(dispatch_id):
-    """根据调度id生成dag模型"""
+def generate_interface_dag_by_dispatch(dispatch_id):
+    """获取所有执行任务流数据结构"""
+
+    def get_context_node(node_id):
+        """获取上下文节点"""
+        parent_node = [i for i in child if i['child_id'] == node_id]
+        child_node = [i for i in parent if i['parent_id'] == node_id]
+        # 父节点
+        for node_item in parent_node:
+            # 添加入度
+            nodes[node_id]['in'].add(node_item['interface_id'])
+            if node_item['interface_id'] not in nodes:
+                # 添加节点
+                nodes[node_item['interface_id']] = {
+                    'id': node_item['interface_id'],
+                    'name': node_item['interface_name'],
+                    'run_time': node_item['run_time'].strftime('%Y-%m-%d') if node_item['run_time'] else None,
+                    'in': set(),
+                    'out': {node_id},
+                    'level': 0
+                }
+        # 子节点
+        for node_item in child_node:
+            # 添加出度
+            nodes[node_id]['out'].add(node_item['interface_id'])
+            if node_item['interface_id'] not in nodes:
+                # 添加节点
+                nodes[node_item['interface_id']] = {
+                    'id': node_item['interface_id'],
+                    'name': node_item['interface_name'],
+                    'run_time': node_item['run_time'].strftime('%Y-%m-%d') if node_item['run_time'] else None,
+                    'in': {node_id},
+                    'out': set(),
+                    'level': 0
+                }
+                # 递归节点
+                get_context_node(node_item['interface_id'])
+
+    # 任务流详情
+    detail = InterfaceModel.get_interface_detail_by_dispatch_id(db.etl_db, dispatch_id)
+    # 前后置依赖
+    parent = InterfaceModel.get_interface_parent_all(db.etl_db)
+    child = InterfaceModel.get_interface_child_all(db.etl_db)
+    nodes = {}
+    # 0.预处理: id统一为字符串
+    # 父节点
+    for item in parent:
+        item['interface_id'] = str(item['interface_id'])
+        item['parent_id'] = str(item['parent_id']) if item['parent_id'] else None
+    # 当前节点
+    detail['interface_id'] = str(detail['interface_id'])
+    # 子节点
+    for item in child:
+        item['interface_id'] = str(item['interface_id'])
+        item['child_id'] = str(item['child_id']) if item['child_id'] else None
+    # 1.构造节点
+    # 当前节点
+    nodes[detail['interface_id']] = {
+        'id': detail['interface_id'],
+        'name': detail['interface_name'],
+        'run_time': detail['run_time'].strftime('%Y-%m-%d') if detail['run_time'] else None,
+        'in': set(),
+        'out': set(),
+        'level': 0
+    }
+    # 节点上下文递归
+    get_context_node(detail['interface_id'])
+    # 2.计算节点层级
+    node_queue = []
+    # 找出开始节点
+    for _, node in nodes.items():
+        node_queue.append(node) if not node['in'] else None
+    # 计算层级
+    index = 0
+    while index < len(node_queue):
+        node = node_queue[index]
+        if node['in']:
+            level = 0
+            for key in node['in']:
+                level = max(level, nodes[key]['level'])
+            node['level'] = level + 1
+        # 添加队列
+        for out_id in node['out']:
+            if out_id not in map(lambda x: x['id'], node_queue):
+                node_queue.append(nodes[out_id])
+        index += 1
+    return nodes
+
+
+def generate_job_dag_by_dispatch(dispatch_id):
+    """生成执行任务数据结构"""
     # 任务流预警
     dispatch_model = ScheduleModel.get_interface_detail(db.etl_db, dispatch_id)
     if not dispatch_model:
@@ -16,7 +106,6 @@ def generate_dag_by_dispatch_id(dispatch_id):
     # 获取调度任务
     nodes = {}
     job_list = ScheduleModel.get_run_job_detail(db.etl_db, dispatch_model['interface_id'])
-
     for job in job_list:
         # 获取任务参数
         params = JobOperation.get_job_params(db.etl_db, job['job_id'])
@@ -99,8 +188,8 @@ def generate_dag_by_dispatch_id(dispatch_id):
     return {'nodes': nodes, 'source': source}
 
 
-def generate_dag_by_exec_id(exec_id):
-    """根据执行id生成dag模型"""
+def get_job_dag_by_exec_id(exec_id):
+    """获取可执行任务数据结构"""
     # 获取执行任务(执行状态为运行中,失败[执行中存在错误],就绪)
     source = ExecuteModel.get_execute_jobs(db.etl_db, exec_id)
     for job in source:
@@ -122,8 +211,8 @@ def generate_dag_by_exec_id(exec_id):
     return {'nodes': nodes, 'source': source}
 
 
-def get_all_jobs_by_exec_id(exec_id):
-    """根据执行id生成dag模型-所有任务详情"""
+def get_all_jobs_dag_by_exec_id(exec_id):
+    """获取所有执行任务数据结构"""
     # 获取执行所有任务
     source = ExecuteModel.get_execute_jobs_all(db.etl_db, exec_id)
     for job in source:

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from server.decorators import make_decorator, Response
-from scheduler.generate_dag import generate_dag_by_exec_id, get_all_jobs_by_exec_id
+from scheduler.generate_dag import get_job_dag_by_exec_id, get_all_jobs_dag_by_exec_id
 from rpc.rpc_client import Connection
 from configs import config, log, db
 from models.execute import ExecuteModel
@@ -26,7 +26,7 @@ class ExecuteOperation(object):
         distribute_job = []
         if status == 'succeeded':
             # 推进流程
-            result = generate_dag_by_exec_id(exec_id)
+            result = get_job_dag_by_exec_id(exec_id)
             nodes = result['nodes']
             # 遍历所有节点
             for job_id in nodes:
@@ -293,7 +293,7 @@ class ExecuteOperation(object):
                 # 修改调度表状态为[运行中]
                 ExecuteModel.update_execute_status(db.etl_db, item, 1)
             # 获取调度详情
-            result = get_all_jobs_by_exec_id(item)
+            result = get_all_jobs_dag_by_exec_id(item)
             nodes = result['nodes']
             # 找出失败节点
             failed_nodes = {job_id: nodes[job_id] for job_id in nodes if nodes[job_id]['status'] == 'failed'}
@@ -307,7 +307,7 @@ class ExecuteOperation(object):
                     # 修改执行详情表状态为[待运行]
                     ScheduleModel.update_exec_job_reset(db.etl_db, item, job_id, 'preparing', ','.join(params))
             # 重新获取调度详情
-            result = get_all_jobs_by_exec_id(item)
+            result = get_all_jobs_dag_by_exec_id(item)
             nodes = result['nodes']
             # 找到[待运行]节点
             preparing_nodes = {job_id: nodes[job_id] for job_id in nodes if nodes[job_id]['status'] == 'preparing'}
@@ -372,7 +372,7 @@ class ExecuteOperation(object):
         """重置执行任务"""
         for item in exec_id:
             # 获取调度详情
-            result = get_all_jobs_by_exec_id(item)
+            result = get_all_jobs_dag_by_exec_id(item)
             nodes = result['nodes']
             # 重置节点参数
             for job_id in nodes:
@@ -393,7 +393,7 @@ class ExecuteOperation(object):
         """启动执行任务"""
         for item in exec_id:
             # 推进流程
-            result = generate_dag_by_exec_id(item)
+            result = get_job_dag_by_exec_id(item)
             nodes = result['nodes']
             # 修改数据库, 分布式锁
             with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):

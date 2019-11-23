@@ -3,10 +3,9 @@
 
 import time
 
-from scheduler.generate_dag import generate_dag_by_dispatch_id
+from scheduler.generate_dag import generate_job_dag_by_dispatch, generate_interface_dag_by_dispatch
 from models.execute import ExecuteModel
 from models.schedule import ScheduleModel
-from models.interface import InterfaceModel
 from configs import db
 from rpc.rpc_client import Connection
 from configs import config, log
@@ -16,9 +15,9 @@ from conn.mysql_lock import MysqlLock
 def get_dispatch_job(dispatch_id):
     """执行调度主方法-获取调度任务"""
     # 获取前置任务流
-    parent_interface = InterfaceModel.get_interface_parent_by_dispatch_id(db.etl_db, dispatch_id)
+    interface_nodes = generate_interface_dag_by_dispatch(dispatch_id)
     # 获取任务流参数
-    result = generate_dag_by_dispatch_id(dispatch_id)
+    result = generate_job_dag_by_dispatch(dispatch_id)
     if not result:
         return
     source = result['source']

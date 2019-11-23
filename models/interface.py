@@ -265,7 +265,8 @@ class InterfaceModel(object):
     def get_interface_parent_all(cursor):
         """获取所有任务流前置依赖"""
         command = '''
-        SELECT a.interface_id, c.interface_name, parent_id, b.interface_name AS parent_name
+        SELECT a.interface_id, c.interface_name, c.run_time, parent_id, b.interface_name AS parent_name,
+        b.run_time AS parent_time
         FROM tb_interface_parent AS a
         LEFT JOIN tb_interface AS b ON a.parent_id = b.interface_id
         LEFT JOIN tb_interface AS c ON a.interface_id = c.interface_id
@@ -278,7 +279,8 @@ class InterfaceModel(object):
     def get_interface_child_all(cursor):
         """获取所有任务流后置依赖"""
         command = '''
-        SELECT parent_id AS interface_id, c.interface_name, a.interface_id AS child_id, b.interface_name AS child_name
+        SELECT parent_id AS interface_id, c.interface_name, c.run_time, a.interface_id AS child_id,
+        b.interface_name AS child_name, b.run_time AS child_time
         FROM tb_interface_parent AS a
         LEFT JOIN tb_interface AS b ON a.interface_id = b.interface_id
         LEFT JOIN tb_interface AS c ON a.parent_id = c.interface_id
@@ -309,17 +311,16 @@ class InterfaceModel(object):
         return result
 
     @staticmethod
-    def get_interface_parent_by_dispatch_id(cursor, dispatch_id):
-        """获取任务流前置依赖by调度id"""
+    def get_interface_detail_by_dispatch_id(cursor, dispatch_id):
+        """获取任务流详情by调度id"""
         command = '''
-        SELECT b.interface_id, b.parent_id, c.run_time
+        SELECT b.interface_id, b.interface_name, b.run_time
         FROM tb_dispatch AS a
-        LEFT JOIN tb_interface_parent AS b ON a.interface_id = b.interface_id AND b.is_deleted = 0
-        LEFT JOIN tb_interface AS c ON b.parent_id = c.interface_id AND c.is_deleted = 0
+        LEFT JOIN tb_interface AS b ON a.interface_id = b.interface_id AND b.is_deleted = 0
         WHERE dispatch_id = :dispatch_id AND `status` = 1
         '''
-        result = cursor.query(command, {
+        result = cursor.query_one(command, {
             'dispatch_id': dispatch_id
         })
-        return result if result else []
+        return result if result else {}
 
