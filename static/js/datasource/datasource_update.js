@@ -40,7 +40,7 @@
                     if (result.status === 200) {
                         that.datasource_detail_init(result.data)
                     } else {
-                        layer.alert('请求数据源详情API异常', {icon: 5});
+                        layer.alert('请求数据源详情API异常', {icon: 5, shift: 6});
                     }
                 }
             });
@@ -78,12 +78,12 @@
                             if (result.status === 200) {
                                 layer.msg('连接成功', {icon: 6});
                             } else {
-                                layer.msg(sprintf('连接失败[%s]', result.msg), {icon: 5});
+                                layer.msg(sprintf('连接失败[%s]', result.msg), {icon: 5, shift: 6});
                             }
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.msg(sprintf('连接失败[%s]', result.msg), {icon: 5});
+                            layer.msg(sprintf('连接失败[%s]', result.msg), {icon: 5, shift: 6});
                         }
                     })
                 });
@@ -104,12 +104,12 @@
                                     parent.layer.close(index);
                                 }, 2000);
                             } else {
-                                layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5});
+                                layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5, shift: 6});
                             }
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5});
+                            layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5, shift: 6});
                         }
                     });
                 });

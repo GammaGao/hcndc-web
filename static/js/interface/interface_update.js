@@ -79,12 +79,12 @@
                                     parent.layer.close(index);
                                 }, 2000);
                             } else {
-                                layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5});
+                                layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5, shift: 6});
                             }
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5});
+                            layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5, shift: 6});
                         }
                     });
                 });

@@ -327,7 +327,7 @@
                         else if (res.status && res.status === 401) {
                             let err_msg = res.data.err_msg;
                             let msg = err_msg.join('</br>');
-                            layer.alert(msg, {icon: 5});
+                            layer.alert(msg, {icon: 5, shift: 6});
                         }
                         // 文件类型错误
                         else {
@@ -389,7 +389,7 @@
                             } else {
                                 let delete_status = check_data.filter(item => item.is_deleted !== 0);
                                 if (delete_status.length > 0) {
-                                    layer.msg('存在已删除任务, 不能执行', {icon: 5});
+                                    layer.msg('存在已删除任务, 不能执行', {icon: 5, shift: 6});
                                     break
                                 } else {
                                     let job_id_arr = [];
@@ -413,13 +413,13 @@
                                                         }
                                                     })
                                                 } else {
-                                                    layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5});
+                                                    layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5, shift: 6});
                                                 }
                                             }
                                             ,
                                             error: function (error) {
                                                 let result = error.responseJSON;
-                                                layer.msg(sprintf('删除失败[%s]', result.msg), {icon: 5});
+                                                layer.msg(sprintf('删除失败[%s]', result.msg), {icon: 5, shift: 6});
                                             }
                                         });
                                     });
@@ -495,7 +495,7 @@
                                             tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
                                             tr.find('td[data-field="run"] div').html('<button class="layui-btn layui-btn-disabled layui-btn-xs" disabled="disabled">立即执行</button>');
                                         } else {
-                                            layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5});
+                                            layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5, shift: 6});
                                         }
 
                                     },
@@ -533,7 +533,7 @@
                                                 }
                                             });
                                         } else {
-                                            layer.msg(sprintf('执行失败[%s]', result.msg), {icon: 5});
+                                            layer.msg(sprintf('执行失败[%s]', result.msg), {icon: 5, shift: 6});
                                         }
                                     },
                                     error: function (error) {

@@ -67,7 +67,7 @@
                     if (result.status === 200) {
                         that.param_detail_init(result.data)
                     } else {
-                        layer.alert('请求参数详情API异常', {icon: 5});
+                        layer.alert('请求参数详情API异常', {icon: 5, shift: 6});
                     }
                 }
             });
@@ -84,7 +84,6 @@
                     'source_id': data.source_id,
                     'param_value': data.param_value,
                     'param_desc': data.param_desc,
-                    'param_mark': data.param_mark,
                     'is_deleted': data.is_deleted === 1
                 });
                 // 数据源选择 && 数据源SQL测试
@@ -130,6 +129,10 @@
                         layer.msg('请选择数据源', {icon: 5, shift: 6});
                         return
                     }
+                    if (Number(data.param_type) === 2) {
+                        layer.msg('不可修改[上下文参数]', {icon: 5, shift: 6});
+                        return
+                    }
                     $.ajax({
                         url: BASE.uri.params.test_api,
                         contentType: "application/json; charset=utf-8",
@@ -139,12 +142,12 @@
                             if (result.status === 200) {
                                 layer.msg(sprintf('成功, 参数值[%s]', result.data.text), {icon: 6});
                             } else {
-                                layer.alert(sprintf('测试失败[%s]', result.msg), {icon: 5});
+                                layer.alert(sprintf('测试失败[%s]', result.msg), {icon: 5, shift: 6});
                             }
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.alert(sprintf('测试失败[%s]', result.msg), {icon: 5});
+                            layer.alert(sprintf('测试失败[%s]', result.msg), {icon: 5, shift: 6});
                         }
                     });
                 });
@@ -171,12 +174,12 @@
                                     parent.layer.close(index);
                                 }, 2000);
                             } else {
-                                layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5});
+                                layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5, shift: 6});
                             }
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5});
+                            layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5, shift: 6});
                         }
                     });
                 });

@@ -91,14 +91,14 @@
                         data: JSON.stringify(data),
                         success: function (result) {
                             if (result.status === 200) {
-                                layer.msg(sprintf('成功, 参数值[%s]', result.data.text), {icon: 6});
+                                layer.msg(sprintf('成功, 参数值[%s]', result.data.text), {icon: 6, shift: 6});
                             } else {
-                                layer.alert(sprintf('测试失败[%s]', result.msg), {icon: 5});
+                                layer.alert(sprintf('测试失败[%s]', result.msg), {icon: 5, shift: 6});
                             }
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.alert(sprintf('测试失败[%s]', result.msg), {icon: 5});
+                            layer.alert(sprintf('测试失败[%s]', result.msg), {icon: 5, shift: 6});
                         }
                     });
                 });
@@ -109,6 +109,10 @@
                     data.index_id = $('input[name=index_name]').attr('value');
                     if (Number(data.param_type) === 1 && Number(data.source_id) === 0) {
                         layer.msg('请选择数据源', {icon: 5, shift: 6});
+                        return
+                    }
+                    if (Number(data.param_type) === 2) {
+                        layer.msg('不可新增[上下文参数]', {icon: 5, shift: 6});
                         return
                     }
                     $.ajax({
@@ -125,12 +129,12 @@
                                     parent.layer.close(index);
                                 }, 2000);
                             } else {
-                                layer.msg(sprintf('新增失败[%s]', result.msg), {icon: 5});
+                                layer.msg(sprintf('新增失败[%s]', result.msg), {icon: 5, shift: 6});
                             }
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.msg(sprintf('新增失败[%s]', result.msg), {icon: 5});
+                            layer.msg(sprintf('新增失败[%s]', result.msg), {icon: 5, shift: 6});
                         }
                     });
                 });

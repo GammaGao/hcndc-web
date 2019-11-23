@@ -297,7 +297,7 @@
                         case 'stop':
                             let stop_status = check_data.filter(item => item.status !== 1);
                             if (stop_status.length > 0) {
-                                layer.msg('存在非[运行中]执行任务, 不能执行', {icon: 5});
+                                layer.msg('存在非[运行中]执行任务, 不能执行', {icon: 5, shift: 6});
                                 break
                             } else {
                                 let execute_arr = [];
@@ -318,7 +318,7 @@
                                                     window.location.reload();
                                                 }, 2000);
                                             } else {
-                                                layer.msg(sprintf('中止失败[%s]', result.msg), {icon: 5});
+                                                layer.msg(sprintf('中止失败[%s]', result.msg), {icon: 5, shift: 6});
                                             }
                                         },
                                         error: function (error) {
@@ -333,7 +333,7 @@
                         case 'restart':
                             let restart_status = check_data.filter(item => item.status !== 2 && item.status !== -1);
                             if (restart_status.length > 0) {
-                                layer.msg('存在非[失败]或[中断]执行任务, 不能执行', {icon: 5});
+                                layer.msg('存在非[失败]或[中断]执行任务, 不能执行', {icon: 5, shift: 6});
                                 break
                             } else {
                                 let execute_arr = [];
@@ -354,12 +354,12 @@
                                                     window.location.reload();
                                                 }, 2000);
                                             } else {
-                                                layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5});
+                                                layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5, shift: 6});
                                             }
                                         },
                                         error: function (error) {
                                             let result = error.responseJSON;
-                                            layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5});
+                                            layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5, shift: 6});
                                         }
                                     });
                                 })
@@ -369,7 +369,7 @@
                         case 'reset':
                             let reset_status = check_data.filter(item => item.status !== 2 && item.status !== -1);
                             if (reset_status.length > 0) {
-                                layer.msg('存在非[失败]或[中断]执行任务, 不能执行', {icon: 5});
+                                layer.msg('存在非[失败]或[中断]执行任务, 不能执行', {icon: 5, shift: 6});
                                 break
                             } else {
                                 let execute_arr = [];
@@ -390,7 +390,7 @@
                                                     window.location.reload();
                                                 }, 2000);
                                             } else {
-                                                layer.msg(sprintf('重置失败[%s]', result.msg), {icon: 5});
+                                                layer.msg(sprintf('重置失败[%s]', result.msg), {icon: 5, shift: 6});
                                             }
                                         },
                                         error: function (error) {
@@ -405,7 +405,7 @@
                         case 'start':
                             let start_status = check_data.filter(item => item.status !== 3);
                             if (start_status.length > 0) {
-                                layer.msg('存在非[就绪]执行任务, 不能执行', {icon: 5});
+                                layer.msg('存在非[就绪]执行任务, 不能执行', {icon: 5, shift: 6});
                                 break
                             } else {
                                 let execute_arr = [];
@@ -423,7 +423,7 @@
                                                 window.location.reload();
                                             }, 2000);
                                         } else {
-                                            layer.msg(sprintf('启动失败[%s]', result.msg), {icon: 5});
+                                            layer.msg(sprintf('启动失败[%s]', result.msg), {icon: 5, shift: 6});
                                         }
                                     },
                                     error: function (error) {
@@ -474,7 +474,7 @@
                                                 window.location.reload();
                                             }, 2000);
                                         } else {
-                                            layer.msg(sprintf('中止失败[%s]', result.msg), {icon: 5});
+                                            layer.msg(sprintf('中止失败[%s]', result.msg), {icon: 5, shift: 6});
                                         }
                                     },
                                     error: function (error) {
@@ -510,12 +510,12 @@
                                                 window.location.reload();
                                             }, 2000);
                                         } else {
-                                            layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5});
+                                            layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5, shift: 6});
                                         }
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
-                                        layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5});
+                                        layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5, shift: 6});
                                     }
                                 });
                             })
@@ -535,7 +535,7 @@
                                             window.location.reload();
                                         }, 2000);
                                     } else {
-                                        layer.msg(sprintf('重置失败[%s]', result.msg), {icon: 5});
+                                        layer.msg(sprintf('重置失败[%s]', result.msg), {icon: 5, shift: 6});
                                     }
                                 },
                                 error: function (error) {

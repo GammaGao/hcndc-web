@@ -42,13 +42,13 @@ class ParamsOperation(object):
 
     @staticmethod
     @make_decorator
-    def add_params_detail(param_type, param_name, param_index, source_id, param_value, param_desc, param_mark, user_id):
+    def add_params_detail(param_type, param_name, param_index, source_id, param_value, param_desc, user_id):
         """新增参数"""
         # 参数名称查重
         if ParamsModel.get_params_detail_by_name(db.etl_db, param_name):
             abort(400, **make_result(status=400, msg='参数名称重复, 已存在数据库中'))
         param_id = ParamsModel.add_params_detail(db.etl_db, param_type, param_name, param_index, source_id, param_value,
-                                                 param_desc, param_mark, user_id)
+                                                 param_desc, user_id)
         return Response(param_id=param_id)
 
     @staticmethod
@@ -61,7 +61,7 @@ class ParamsOperation(object):
     @staticmethod
     @make_decorator
     def update_params_detail(param_id, param_type, param_name, param_index, source_id, param_value, param_desc,
-                             param_mark, is_deleted, user_id):
+                             is_deleted, user_id):
         """修改参数详情"""
         # 参数名称查重
         param_detail = ParamsModel.get_params_detail_by_name(db.etl_db, param_name)
@@ -69,7 +69,7 @@ class ParamsOperation(object):
             abort(400, **make_result(status=400, msg='参数名称重复, 已存在数据库中'))
         # 修改参数
         ParamsModel.update_params_detail(db.etl_db, param_id, param_type, param_name, param_index, source_id,
-                                         param_value, param_desc, param_mark, is_deleted, user_id)
+                                         param_value, param_desc, is_deleted, user_id)
         return Response(param_id=param_id)
 
     @staticmethod

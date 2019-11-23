@@ -19,24 +19,22 @@ params_list_request = api.doc(params={
 
 # 参数新增请求
 params_add_request = api.doc(body=api.model('params_add_request', {
-    'param_type': fields.Integer(description='参数类型: 0.静态参数, 1.SQL参数, 2.上下文参数'),
+    'param_type': fields.Integer(description='参数类型: 0.静态参数, 1.SQL参数'),
     'param_name': fields.String(description='参数名称'),
     'param_index': fields.String(description='参数目录'),
     'source_id': fields.Integer(description='数据源id'),
     'param_value': fields.String(description='参数值: 静态值或SQL查询'),
-    'param_desc': fields.String(description='描述'),
-    'param_mark': fields.Integer(description='参数权限标识: 0.全部操作, 1.禁止改动')
+    'param_desc': fields.String(description='描述')
 }, description='参数新增请求'))
 
 # 参数修改请求
 params_update_request = api.doc(body=api.model('params_update_request', {
-    'param_type': fields.Integer(description='参数类型: 0.静态参数, 1.SQL参数, 2.上下文参数'),
+    'param_type': fields.Integer(description='参数类型: 0.静态参数, 1.SQL参数'),
     'param_name': fields.String(description='参数名称'),
     'param_index': fields.String(description='参数目录'),
     'source_id': fields.Integer(description='数据源id'),
     'param_value': fields.String(description='参数值: 静态值或SQL查询'),
     'param_desc': fields.String(description='描述'),
-    'param_mark': fields.Integer(description='参数权限标识: 0.全部操作, 1.禁止改动'),
     'is_deleted': fields.Integer(description='是否删除: 0.正常, 1.删除')
 }, description='参数修改请求'))
 

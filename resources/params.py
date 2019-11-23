@@ -41,11 +41,11 @@ class ParamsAdd(Resource):
     @params_add_request
     @ParamsFilter.filter_add_data(param_id=int)
     @ParamsOperation.add_params_detail(param_type=int, param_name=str, param_index=str, source_id=int, param_value=str,
-                                       param_desc=str, param_mark=int, user_id=int)
+                                       param_desc=str, user_id=int)
     @ParamsVerify.verify_add_param(param_type=int, param_name=str, param_index=str, source_id=int, param_value=str,
-                                   param_desc=str, param_mark=int, user_id=int)
+                                   param_desc=str, user_id=int)
     @PermissionVerify.verify_write_permission(param_type=int, param_name=str, param_index=str, source_id=int,
-                                              param_value=str, param_desc=str, param_mark=int)
+                                              param_value=str, param_desc=str)
     def post():
         """新增参数"""
         payload = get_payload()
@@ -55,8 +55,7 @@ class ParamsAdd(Resource):
             param_index=payload.get('param_index', ''),
             source_id=int(payload.get('source_id', 0)),
             param_value=payload.get('param_value', ''),
-            param_desc=payload.get('param_desc', ''),
-            param_mark=int(payload.get('param_mark', 0))
+            param_desc=payload.get('param_desc', '')
         )
         log.info('新增参数[params: %s]' % str(params))
         return params
@@ -76,11 +75,11 @@ class ParamsDetail(Resource):
     @params_update_request
     @ParamsFilter.filter_update_data(param_id=int)
     @ParamsOperation.update_params_detail(param_id=int, param_type=int, param_name=str, param_index=str, source_id=int,
-                                          param_value=str, param_desc=str, param_mark=int, is_deleted=int, user_id=int)
+                                          param_value=str, param_desc=str, is_deleted=int, user_id=int)
     @ParamsVerify.verify_update_param(param_id=int, param_type=int, param_name=str, param_index=str, source_id=int,
-                                      param_value=str, param_desc=str, param_mark=int, is_deleted=int, user_id=int)
+                                      param_value=str, param_desc=str, is_deleted=int, user_id=int)
     @PermissionVerify.verify_write_permission(param_id=int, param_type=int, param_name=str, param_index=str,
-                                              source_id=int, param_value=str, param_desc=str, param_mark=int,
+                                              source_id=int, param_value=str, param_desc=str,
                                               is_deleted=int)
     def put(param_id):
         """修改参数"""
@@ -93,7 +92,6 @@ class ParamsDetail(Resource):
             source_id=int(payload.get('source_id', 0)),
             param_value=payload.get('param_value', ''),
             param_desc=payload.get('param_desc', ''),
-            param_mark=int(payload.get('param_mark', 0)),
             is_deleted=int(payload.get('is_deleted', 0))
         )
         log.info('修改参数[params: %s]' % str(params))

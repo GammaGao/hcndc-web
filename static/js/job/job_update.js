@@ -191,7 +191,7 @@
                                     parent.layer.close(index);
                                 }, 2000);
                             } else {
-                                layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5});
+                                layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5, shift: 6});
                             }
                             // 禁止多次提交
                             // $('button[lay-filter=job-save]').attr('class', 'layui-btn layui-btn-disabled');
@@ -199,7 +199,7 @@
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5});
+                            layer.msg(sprintf('修改失败[%s]', result.msg), {icon: 5, shift: 6});
                         }
                     });
                 });

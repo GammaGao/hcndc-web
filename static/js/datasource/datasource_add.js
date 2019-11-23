@@ -44,12 +44,12 @@
                             if (result.status === 200) {
                                 layer.msg('连接成功', {icon: 6});
                             } else {
-                                layer.msg(sprintf('连接失败[%s]', result.msg), {icon: 5});
+                                layer.msg(sprintf('连接失败[%s]', result.msg), {icon: 5, shift: 6});
                             }
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.msg(sprintf('连接失败[%s]', result.msg), {icon: 5});
+                            layer.msg(sprintf('连接失败[%s]', result.msg), {icon: 5, shift: 6});
                         }
                     })
                 });
@@ -70,12 +70,12 @@
                                     parent.layer.close(index);
                                 }, 2000);
                             } else {
-                                layer.msg(sprintf('新增失败[%s]', result.msg), {icon: 5});
+                                layer.msg(sprintf('新增失败[%s]', result.msg), {icon: 5, shift: 6});
                             }
                         },
                         error: function (error) {
                             let result = error.responseJSON;
-                            layer.msg(sprintf('新增失败[%s]', result.msg), {icon: 5});
+                            layer.msg(sprintf('新增失败[%s]', result.msg), {icon: 5, shift: 6});
                         }
                     });
                 });

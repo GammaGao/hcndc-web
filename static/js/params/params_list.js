@@ -257,8 +257,8 @@
                         templet: function (data) {
                             let html = [];
                             html.push('<div class="layui-btn-group">');
-                            // 修改权限
-                            if (data.param_mark === 0) {
+                            // [上下文参数]不可修改, 删除
+                            if (data.param_type === 0 || data.param_type === 1) {
                                 html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
                                 // 未删除
                                 if (data.is_deleted === 0) {
@@ -267,7 +267,6 @@
                                     html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">删除</button>');
                                 }
                             }
-
                             html.push('</div>');
                             return html.join('');
                         }
@@ -320,7 +319,7 @@
                         else if (res.status && res.status === 401) {
                             let err_msg = res.data.err_msg;
                             let msg = err_msg.join('</br>');
-                            layer.alert(msg, {icon: 5});
+                            layer.alert(msg, {icon: 5, shift: 6});
                         }
                         // 文件类型错误
                         else {
@@ -359,14 +358,14 @@
                         // 修改
                         case 'update':
                             if (check_data.length === 0) {
-                                layer.msg('请选择一行', {icon: 5});
+                                layer.msg('请选择一行', {icon: 5, shift: 6});
                             } else if (check_data.length > 1) {
-                                layer.msg('只能同时编辑一个', {icon: 5})
+                                layer.msg('只能同时编辑一个', {icon: 5, shift: 6})
                             } else {
                                 let data = check_data[0];
                                 // 判断可编辑状态
-                                if (data.param_mark === 1) {
-                                    layer.msg('该参数不可删改', {icon: 5});
+                                if (data.param_type === 2) {
+                                    layer.msg('[上下文参数]不可删改', {icon: 5, shift: 6});
                                     return
                                 }
                                 layer.open({
@@ -387,9 +386,9 @@
                             if (check_data.length === 0) {
                                 layer.msg('请选择一行');
                             } else {
-                                let delete_status = check_data.filter(item => item.is_deleted !== 0);
+                                let delete_status = check_data.filter(item => item.is_deleted !== 0 || item.param_type === 2);
                                 if (delete_status.length > 0) {
-                                    layer.msg('存在已删除参数, 不能执行', {icon: 5});
+                                    layer.msg('存在已删除或上下文参数, 不能执行', {icon: 5, shift: 6});
                                     break
                                 } else {
                                     let param_id_arr = [];
@@ -413,13 +412,13 @@
                                                         }
                                                     })
                                                 } else {
-                                                    layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5});
+                                                    layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5, shift: 6});
                                                 }
                                             }
                                             ,
                                             error: function (error) {
                                                 let result = error.responseJSON;
-                                                layer.msg(sprintf('删除失败[%s]', result.msg), {icon: 5});
+                                                layer.msg(sprintf('删除失败[%s]', result.msg), {icon: 5, shift: 6});
                                             }
                                         });
                                     });
@@ -445,8 +444,8 @@
                         // 修改
                         case 'update':
                             // 判断可编辑状态
-                            if (data.param_mark === 1) {
-                                layer.msg('该参数不可删改', {icon: 5});
+                            if (data.param_type === 2) {
+                                layer.msg('该参数不可删改', {icon: 5, shift: 6});
                                 return
                             }
                             layer.open({
@@ -479,7 +478,7 @@
                                             $(tr.find('td[data-field="operation"] div button:eq(1)')).addClass('layui-btn-disabled');
                                             tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
                                         } else {
-                                            layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5});
+                                            layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5, shift: 6});
                                         }
                                     },
                                     error: function (error) {
