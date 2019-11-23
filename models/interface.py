@@ -308,3 +308,18 @@ class InterfaceModel(object):
         result = cursor.insert(command, args=data)
         return result
 
+    @staticmethod
+    def get_interface_parent_by_dispatch_id(cursor, dispatch_id):
+        """获取任务流前置依赖by调度id"""
+        command = '''
+        SELECT b.interface_id, b.parent_id, c.run_time
+        FROM tb_dispatch AS a
+        LEFT JOIN tb_interface_parent AS b ON a.interface_id = b.interface_id AND b.is_deleted = 0
+        LEFT JOIN tb_interface AS c ON b.parent_id = c.interface_id AND c.is_deleted = 0
+        WHERE dispatch_id = :dispatch_id AND `status` = 1
+        '''
+        result = cursor.query(command, {
+            'dispatch_id': dispatch_id
+        })
+        return result if result else []
+

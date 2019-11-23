@@ -52,8 +52,8 @@ class InterfaceOperation(object):
             # 任务流详情
             detail = InterfaceModel.get_interface_detail(db.etl_db, interface_id)
             # 前后置依赖
-            parent = InterfaceModel.get_interface_parent(db.etl_db, interface_id)
-            child = InterfaceModel.get_interface_child(db.etl_db, interface_id)
+            parent = InterfaceModel.get_interface_parent_all(db.etl_db)
+            child = InterfaceModel.get_interface_child_all(db.etl_db)
             result = interface_local_graph(detail, parent, child)
         # 全局-任务流依赖
         elif graph_type == 3:

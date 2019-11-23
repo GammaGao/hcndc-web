@@ -24,9 +24,6 @@ def job_nodes_graph(job_nodes):
         job['prep_id'] = str(job['prep_id']) if job['prep_id'] else None
     # 1.构造节点
     for job in job_nodes:
-        # 直连边
-        # if job['job_id'] and job['prep_id']:
-        #     links.append({'source': job['prep_id'], 'target': job['job_id']})
         # 目标节点
         if job['job_id'] and job['interface_id']:
             if job['job_id'] not in nodes:
@@ -95,35 +92,20 @@ def job_nodes_graph(job_nodes):
     for job in job_nodes:
         # 有依赖关系
         if job['job_id'] and job['prep_id']:
-            # 相邻层级
-            if abs(nodes[job['job_id']]['level'] - nodes[job['prep_id']]['level']) == 1:
-                links.append({'source': job['prep_id'], 'target': job['job_id']})
-            else:
-                source_node = job['prep_id']
-                min_transit = min(nodes[job['job_id']]['level'], nodes[source_node]['level']) + 1
-                max_transit = max(nodes[job['job_id']]['level'], nodes[source_node]['level'])
-                for transit_level in range(min_transit, max_transit):
+            links.append({'source': job['prep_id'], 'target': job['job_id']})
+            # 不相邻层级
+            if abs(nodes[job['job_id']]['level'] - nodes[job['prep_id']]['level']) != 1:
+                # 计算相差层级数
+                min_level = min(nodes[job['job_id']]['level'], nodes[job['prep_id']]['level']) + 1
+                max_level = max(nodes[job['job_id']]['level'], nodes[job['prep_id']]['level'])
+                for transit_level in range(min_level, max_level):
                     # 添加过渡节点
-                    transit_id = source_node + '>' + job['job_id'] + '>' + str(transit_level)
-                    nodes[transit_id] = {
+                    transit_id = '%s>%s>%s' % (job['prep_id'], job['job_id'], str(transit_level))
+                    layers[transit_level].append({
                         'id': transit_id,
-                        'name': '',
-                        'itemStyle': None,
-                        'symbolSize': 1,
                         'x': 0,
-                        'y': 0,
-                        'label': {'show': True},
-                        'category': 0,
-                        'in': set(),
-                        'out': set(),
-                        'level': transit_level
-                    }
-                    layers[transit_level].append(nodes[transit_id])
-                    # 添加过渡边
-                    links.append({'source': source_node, 'target': transit_id})
-                    source_node = transit_id
-                # 添加结束边
-                links.append({'source': source_node, 'target': job['job_id']})
+                        'y': 0
+                    })
     # 4.计算坐标
     for level in range(max_layer + 1):
         # 该层所有节点
@@ -163,7 +145,7 @@ def job_nodes_graph(job_nodes):
     interface_dict = {}
     for index, value in enumerate(interface_id):
         interface_dict[value] = index
-    categories = [{'name': '任务流' + str(category) if category else '虚拟节点'} for category in interface_id]
+    categories = [{'name': '任务流' + str(category) if category else '-'} for category in interface_id]
     for node in nodes:
         node['category'] = interface_dict[node['category']]
     return {'nodes': nodes, 'links': links, 'categories': categories}
@@ -218,35 +200,21 @@ def execute_nodes_graph(job_nodes):
     for job in job_nodes:
         # 有依赖关系
         in_degree = job['in_degree'].split(',') if job['in_degree'] else []
-        # 相邻层级
         for source_node in in_degree:
-            if abs(nodes[job['job_id']]['level'] - nodes[source_node]['level']) == 1:
-                links.append({'source': source_node, 'target': job['job_id']})
-            else:
-                min_transit = min(nodes[job['job_id']]['level'], nodes[source_node]['level']) + 1
-                max_transit = max(nodes[job['job_id']]['level'], nodes[source_node]['level'])
-                for transit_level in range(min_transit, max_transit):
+            links.append({'source': source_node, 'target': job['job_id']})
+            # 不相邻层级
+            if abs(nodes[job['job_id']]['level'] - nodes[source_node]['level']) != 1:
+                # 计算相差层级数
+                min_level = min(nodes[job['job_id']]['level'], nodes[source_node]['level']) + 1
+                max_level = max(nodes[job['job_id']]['level'], nodes[source_node]['level'])
+                for transit_level in range(min_level, max_level):
                     # 添加过渡节点
-                    transit_id = source_node + '>' + job['job_id'] + '>' + str(transit_level)
-                    nodes[transit_id] = {
+                    transit_id = '%s>%s>%s' % (source_node, job['job_id'], str(transit_level))
+                    layers[transit_level].append({
                         'id': transit_id,
-                        'name': '',
-                        'itemStyle': None,
-                        'symbolSize': 1,
                         'x': 0,
-                        'y': 0,
-                        'label': {'show': True},
-                        'category': '虚拟节点',
-                        'in': set(),
-                        'out': set(),
-                        'level': transit_level
-                    }
-                    layers[transit_level].append(nodes[transit_id])
-                    # 添加过渡边
-                    links.append({'source': source_node, 'target': transit_id})
-                    source_node = transit_id
-                # 添加结束边
-                links.append({'source': source_node, 'target': job['job_id']})
+                        'y': 0
+                    })
     # 4.计算坐标
     for level in range(max_layer + 1):
         # x坐标
@@ -286,15 +254,60 @@ def execute_nodes_graph(job_nodes):
         {'name': '运行中'},
         {'name': '成功'},
         {'name': '失败'},
-        {'name': '外部节点'},
-        {'name': '虚拟节点'}
-
+        {'name': '外部节点'}
     ]
     return {'nodes': nodes, 'links': links, 'categories': categories}
 
 
 def interface_local_graph(detail, parent, child):
     """任务流局部拓扑"""
+
+    def get_context_node(node_id):
+        """获取上下文节点"""
+        # 反向查找: 正向查找亦可
+        parent_node = [i for i in child if i['child_id'] == node_id]
+        child_node = [i for i in parent if i['parent_id'] == node_id]
+        # 父节点
+        for node_item in parent_node:
+            # 添加入度
+            nodes[node_id]['in'].add(node_item['interface_id'])
+            if node_item['interface_id'] not in nodes:
+                # 添加节点
+                nodes[node_item['interface_id']] = {
+                    'id': node_item['interface_id'],
+                    'name': node_item['interface_name'],
+                    'itemStyle': None,
+                    'symbolSize': symbol_size,
+                    'x': 0,
+                    'y': 0,
+                    'label': {'show': True},
+                    'category': node_item['interface_id'],
+                    'in': set(),
+                    'out': {node_id},
+                    'level': 0
+                }
+        # 子节点
+        for node_item in child_node:
+            # 添加出度
+            nodes[node_id]['out'].add(node_item['interface_id'])
+            if node_item['interface_id'] not in nodes:
+                # 添加节点
+                nodes[node_item['interface_id']] = {
+                    'id': node_item['interface_id'],
+                    'name': node_item['interface_name'],
+                    'itemStyle': None,
+                    'symbolSize': symbol_size,
+                    'x': 0,
+                    'y': 0,
+                    'label': {'show': True},
+                    'category': node_item['interface_id'],
+                    'in': {node_id},
+                    'out': set(),
+                    'level': 0
+                }
+                # 递归节点
+                get_context_node(node_item['interface_id'])
+
     nodes = {}
     links = []
     # 层级对象
@@ -306,63 +319,81 @@ def interface_local_graph(detail, parent, child):
     horizontal_margin = 20 * (1 + 1 / length) if length > 1 else 10
     # y坐标间距
     vertical_margin = length
-    # 1.构造节点: id统一为字符串
+    # 0.预处理: id统一为字符串
     # 父节点
     for item in parent:
         item['interface_id'] = str(item['interface_id'])
         item['parent_id'] = str(item['parent_id']) if item['parent_id'] else None
-        nodes[item['parent_id']] = {
-            'id': item['parent_id'],
-            'name': item['parent_name'],
-            'itemStyle': None,
-            'symbolSize': symbol_size,
-            'x': 0,
-            'y': 0,
-            'label': {'show': True},
-            'category': item['parent_id'],
-            'level': 0
-        }
+    # 当前节点
+    detail['interface_id'] = str(detail['interface_id'])
+    # 子节点
+    for item in child:
+        item['interface_id'] = str(item['interface_id'])
+        item['child_id'] = str(item['child_id']) if item['child_id'] else None
+    # 1.构造节点
     # 当前节点
     nodes[detail['interface_id']] = {
-        'id': str(detail['interface_id']),
+        'id': detail['interface_id'],
         'name': detail['interface_name'],
         'itemStyle': None,
         'symbolSize': symbol_size,
         'x': 0,
         'y': 0,
         'label': {'show': True},
-        'category': str(detail['interface_id']),
-        'level': 1
+        'category': detail['interface_id'],
+        'in': set(),
+        'out': set(),
+        'level': 0
     }
-    # 子节点
-    for item in child:
-        item['interface_id'] = str(item['interface_id'])
-        item['child_id'] = str(item['child_id']) if item['child_id'] else None
-        nodes[item['child_id']] = {
-            'id': item['child_id'],
-            'name': item['child_name'],
-            'itemStyle': None,
-            'symbolSize': symbol_size,
-            'x': 0,
-            'y': 0,
-            'label': {'show': True},
-            'category': item['child_id'],
-            'level': 2
-        }
-    # 2.构造连线
-    for item in parent:
-        links.append({'source': item['parent_id'], 'target': item['interface_id']})
-    for item in child:
-        links.append({'source': item['interface_id'], 'target': item['child_id']})
-    # 3.填充层级对象
+    # 节点上下文递归
+    get_context_node(detail['interface_id'])
+    # 2.计算节点层级
+    node_queue = []
+    # 找出开始节点
+    for _, node in nodes.items():
+        node_queue.append(node) if not node['in'] else None
+    # 计算层级
+    index = 0
+    while index < len(node_queue):
+        node = node_queue[index]
+        if node['in']:
+            level = 0
+            for key in node['in']:
+                level = max(level, nodes[key]['level'])
+            node['level'] = level + 1
+        # 添加队列
+        for out_id in node['out']:
+            if out_id not in map(lambda x: x['id'], node_queue):
+                node_queue.append(nodes[out_id])
+        index += 1
+    # 最大层级
+    max_layer = max(j['level'] for i, j in nodes.items())
+    # 填充层级对象
     for _, node in nodes.items():
         if node['level'] not in layers:
             layers[node['level']] = []
         layers[node['level']].append(node)
-    # 3.计算坐标
-    for level in range(3):
+    # 3.构造连线
+    for node_id, node in nodes.items():
+        for out in node['out']:
+            links.append({'source': node_id, 'target': out})
+            # 不相邻层级
+            if abs(node['level'] - nodes[out]['level']) != 1:
+                # 计算相差层级数
+                min_level = min(node['level'], nodes[out]['level']) + 1
+                max_level = max(node['level'], nodes[out]['level'])
+                for transit_level in range(min_level, max_level):
+                    # 添加过渡节点
+                    transit_id = '%s>%s>%s' % (node_id, nodes[out]['id'], str(transit_level))
+                    layers[transit_level].append({
+                        'id': transit_id,
+                        'x': 0,
+                        'y': 0
+                    })
+    # 4.计算坐标
+    for level in range(max_layer + 1):
         # 该层所有节点
-        layer = layers.get(level, [])
+        layer = layers[level]
         # x坐标
         ranges = {
             'start': 0,
@@ -382,15 +413,18 @@ def interface_local_graph(detail, parent, child):
                 layer[j]['x'] = left + horizontal_margin / 2
                 left += horizontal_margin
     # y坐标
-    for level in range(3):
-        for node in layers.get(level, []):
+    for level in range(max_layer + 1):
+        for node in layers[level]:
             node['y'] = vertical_margin * level
     # 5.数据整理
+    for _, node in nodes.items():
+        node.pop('in')
+        node.pop('out')
     # 按层级排序
     nodes = [j for i, j in nodes.items()]
     nodes.sort(key=lambda x: x['level'])
     # 6.节点任务流分类
-    interface_id = list(set(node['category'] for node in nodes))
+    interface_id = list(set(node['category'] for node in nodes if node['category']))
     interface_id.sort(key=lambda x: int(x))
     # 当前任务流id
     curr_interface_id = str(detail['interface_id'])
@@ -398,7 +432,7 @@ def interface_local_graph(detail, parent, child):
     for index, value in enumerate(interface_id):
         interface_dict[value] = index
     categories = [{
-        'name': '当前任务流:' + category if category == curr_interface_id else '任务流:' + str(category) if category else '-'
+        'name': '当前任务流:' + category if category == curr_interface_id else '任务流:' + str(category)
     } for category in interface_id]
     for node in nodes:
         node['category'] = interface_dict[node['category']]
@@ -407,6 +441,7 @@ def interface_local_graph(detail, parent, child):
 
 def interface_global_graph(detail, parent, child):
     """任务流全局拓扑"""
+
     def get_context_node(node_id):
         """获取上下文节点"""
         # 反向查找: 正向查找亦可
@@ -521,9 +556,21 @@ def interface_global_graph(detail, parent, child):
             layers[node['level']] = []
         layers[node['level']].append(node)
     # 3.构造连线
-    for _, node in nodes.items():
+    for node_id, node in nodes.items():
         for out in node['out']:
-            links.append({'source': node['id'], 'target': out})
+            links.append({'source': node_id, 'target': out})
+            # 不相邻层级
+            if abs(node['level'] - nodes[out]['level']) != 1:
+                min_level = min(node['level'], nodes[out]['level']) + 1
+                max_level = max(node['level'], nodes[out]['level'])
+                for transit_level in range(min_level, max_level):
+                    # 添加过渡节点
+                    transit_id = '%s>%s>%s' % (node_id, nodes[out]['id'], str(transit_level))
+                    layers[transit_level].append({
+                        'id': transit_id,
+                        'x': 0,
+                        'y': 0
+                    })
     # 4.计算坐标
     for level in range(max_layer + 1):
         # 该层所有节点
@@ -558,7 +605,7 @@ def interface_global_graph(detail, parent, child):
     nodes = [j for i, j in nodes.items()]
     nodes.sort(key=lambda x: x['level'])
     # 6.节点任务流分类
-    interface_id = list(set(node['category'] for node in nodes))
+    interface_id = list(set(node['category'] for node in nodes if node['category']))
     interface_id.sort(key=lambda x: int(x))
     # 当前任务流id
     curr_interface_id = str(detail['interface_id'])
@@ -566,7 +613,7 @@ def interface_global_graph(detail, parent, child):
     for index, value in enumerate(interface_id):
         interface_dict[value] = index
     categories = [{
-        'name': '当前任务流:' + category if category == curr_interface_id else '任务流:' + str(category) if category else '-'
+        'name': '当前任务流:' + category if category == curr_interface_id else '任务流:' + str(category)
     } for category in interface_id]
     for node in nodes:
         node['category'] = interface_dict[node['category']]
