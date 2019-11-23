@@ -69,10 +69,13 @@ def InterfaceUpload():
     file_type = {'xlsx', 'xls', 'csv'}
     # 异常类型
     err_type = {
-        0: '第%s行[任务流名称]参数不为字符串类型',
-        1: '第%s行[任务流描述]参数不为字符串类型',
-        2: '第%s行[任务流目录]参数不为字符串类型',
-        4: '第%s行[重试次数]参数不为整型'
+        0: '第%s行[序号]参数不为整型',
+        1: '第%s行[任务流名称]参数不为字符串类型',
+        2: '第%s行[任务流描述]参数不为字符串类型',
+        3: '第%s行[任务流目录]参数不为字符串类型',
+        5: '第%s行[重试次数]参数不为整型',
+        6: '第%s行[依赖任务流序号(本次新建任务流)]参数不为整型或没按逗号分隔',
+        7: '第%s行[依赖任务流id(已有任务流)]参数不为空或整型或没按逗号分隔'
     }
     file = request.files['file']
     # 获取文件名
@@ -83,6 +86,8 @@ def InterfaceUpload():
         # 保存文件到upload目录
         file_path = os.path.join(file_dir, file_name)
         file.save(file_path)
+        # 异常原因
+        err_msg = []
         # excel文件
         if file_suffix in {'xlsx', 'xls'}:
             data = xlrd.open_workbook(file_path)
@@ -91,11 +96,18 @@ def InterfaceUpload():
             # 从第2行开始读取
             data = []
             for i in range(1, sheet.nrows):
-                # 取前5列
-                item = sheet.row_values(i)[:5]
-                # 日期格式转换
-                item[3] = xlrd.xldate_as_tuple(item[3], 0)
-                item[3] = datetime.date(*item[3][:3]).strftime('%Y-%m-%d')
+                # 取前8列
+                item = sheet.row_values(i)[:8]
+                try:
+                    # 日期格式转换
+                    if item[4]:
+                        item[4] = xlrd.xldate_as_tuple(item[4], 0)
+                        item[4] = datetime.date(*item[4][:3]).strftime('%Y-%m-%d')
+                    else:
+                        item[4] = None
+                except:
+                    item[4] = None
+                    err_msg.append('第%s行[数据日期]参数格式错误' % (i + 1))
                 data.append(item)
         # csv文件
         else:
@@ -104,46 +116,63 @@ def InterfaceUpload():
                 reader = csv.reader(csv_file)
                 for index, line in enumerate(reader):
                     if index > 0:
-                        # 取前5列
-                        item = line[:5]
-                        # 日期格式转换
-                        date_value = re.findall(r'(\d{4}).(\d{1,2}).(\d{1,2})', item[3])
-                        if date_value:
-                            item[3] = '%04d-%02d-%02d' % tuple(int(item) for item in date_value[0])
-                        else:
-                            item[3] = ''
-                        data.append(line[:5])
-
-        # 异常原因
-        err_msg = []
+                        # 取前8列
+                        item = line[:8]
+                        try:
+                            # 日期格式转换
+                            date_value = re.findall(r'(\d{4}).(\d{1,2}).(\d{1,2})', item[4])
+                            if date_value:
+                                item[4] = '%04d-%02d-%02d' % tuple(int(item) for item in date_value[0])
+                            else:
+                                item[4] = None
+                        except:
+                            item[4] = None
+                            err_msg.append('第%s行[数据日期]参数格式错误' % (index + 1))
+                        data.append(item)
+        # 任务流id列表
+        interface_result = InterfaceModel.get_interface_id_list(db.etl_db)
+        interface_ids = [i['interface_id'] for i in interface_result]
         # 文件为空
         if not data:
             err_msg.append('文件为空')
+        # [依赖任务流序号(本次新建任务流)]列表
+        curr_interface_num = []
         for index, row in enumerate(data):
             # Excel行号
             row_num = index + 2
             # 校验列数
-            if len(row) < 5:
-                err_msg.append('第%s行参数个数小于5个' % row_num)
+            if len(row) < 8:
+                err_msg.append('第%s行参数个数小于8个' % row_num)
             else:
                 # 校验并处理每列参数
                 for i, param in enumerate(row):
                     try:
                         # int类型参数
-                        if i in [4]:
+                        if i in [0, 5]:
                             row[i] = int(param)
+                            # 添加[依赖任务流序号(本次新建任务流)]
+                            if i == 0:
+                                curr_interface_num.append(row[i])
                         # 字符串类型参数
-                        elif i in [0, 1, 2]:
+                        elif i in [1, 2, 3]:
                             row[i] = str(param)
+                        # 依赖任务流
+                        elif i in [6, 7]:
+                            if isinstance(param, str):
+                                if param != '':
+                                    row[i] = [int(i) for i in str(param).split(',')]
+                                else:
+                                    row[i] = []
+                            else:
+                                row[i] = [int(param)]
                     except:
                         err_msg.append(err_type[i] % row_num)
-
                 for i, param in enumerate(row):
                     # [任务流名称]判空
-                    if i == 0 and param == '':
+                    if i == 1 and param == '':
                         err_msg.append('第%s行[任务流名称]参数不得为空' % row_num)
                     # [任务流名称]数据库查重
-                    if i == 0 and param != '':
+                    if i == 1 and param != '':
                         if InterfaceModel.get_interface_detail_by_name(db.etl_db, param):
                             err_msg.append('第%s行[任务流名称]参数已存在数据库中' % row_num)
                     # [任务流目录]判空
@@ -152,6 +181,21 @@ def InterfaceUpload():
                     # [重试次数]次数限制
                     if i == 3 and isinstance(param, int) and (param < 0 or param > 10):
                         err_msg.append('第%s行[重试次数]参数请限制在0-10之内' % row_num)
+                    # [依赖任务流序号(本次新建任务流)]判空
+                    if i == 6 and isinstance(param, list):
+                        for item in param:
+                            if item not in curr_interface_num:
+                                err_msg.append('第%s行[依赖任务流序号(本次新建任务流)][%s]不存在' % (row_num, item))
+                    # [依赖任务流id(已有任务流)]数据库判空
+                    if i == 7 and isinstance(param, list):
+                        for item in param:
+                            if item not in interface_ids:
+                                err_msg.append('第%s行[依赖任务流id(已有任务流)][%s]不存在' % (row_num, item))
+
+        # [序号]是否重复
+        serial_num = [row[0] for row in data]
+        if len(serial_num) != len(set(serial_num)):
+            err_msg.append('该文件中[序号]存在重复')
 
         # [任务流名称]文件内查重
         serial_name = [row[0] for row in data]
@@ -167,20 +211,38 @@ def InterfaceUpload():
             # 用户id
             user_info = curr_session.get_info()
             user_id = user_info['id']
-            flow_data = []
+            # 依赖任务流序号 -> 任务流id映射
+            interface_map = {}
             for item in data:
-                flow_data.append({
-                    'interface_name': item[0],
-                    'interface_desc': item[1],
-                    'interface_index': item[2],
-                    'run_time': item[3],
-                    'retry': item[4],
-                    'user_id': user_id,
-                    'insert_time': int(time.time()),
-                    'update_time': int(time.time())
-                })
-            # 新增任务流
-            InterfaceModel.add_interface_many(db.etl_db, flow_data)
+                # 新增任务流
+                interface_id = InterfaceModel.add_interface(db.etl_db, item[1], item[2], item[3], item[4], item[5],
+                                                            user_id)
+                # 添加映射
+                interface_map[item[0]] = interface_id
+                # 表格数据中新增任务流id字段
+                item.append(interface_id)
+            # 新增任务流依赖
+            parent_arr = []
+            for line in data:
+                parent_interface = []
+                # [依赖任务流序号(本次新建任务流)]映射
+                if line[6]:
+                    parent_interface = [interface_map[i] for i in line[6]]
+                # [依赖任务流id(已有任务流)]
+                if line[7]:
+                    # 合并数组
+                    parent_interface += line[7]
+                for parent_id in parent_interface:
+                    parent_arr.append({
+                        # 最后一位为新增的任务id字段
+                        'interface_id': line[len(line) - 1],
+                        'parent_id': parent_id,
+                        'insert_time': int(time.time()),
+                        'update_time': int(time.time()),
+                        'creator_id': user_id,
+                        'updater_id': user_id
+                    })
+            InterfaceModel.add_interface_parent(db.etl_db, parent_arr) if parent_arr else None
             # 删除文件
             os.remove(file_path)
             return jsonify({'status': 200, 'msg': '成功', 'data': {}})

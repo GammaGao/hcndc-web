@@ -114,8 +114,6 @@ def JobUpload():
         # 服务器id列表
         exec_host_result = ExecHostModel.get_exec_host_all(db.etl_db)
         exec_host_ids = [i['server_id'] for i in exec_host_result]
-        # 依赖任务序号(本次新建任务)列表
-        curr_job_num = []
         # 依赖任务id(已有任务)列表
         job_result = JobModel.get_job_list_all(db.etl_db)
         job_ids = [i['job_id'] for i in job_result]
@@ -125,6 +123,8 @@ def JobUpload():
         # 文件为空
         if not data:
             err_msg.append('文件为空')
+        # [依赖任务序号(本次新建任务)]列表
+        curr_job_num = []
         for index, row in enumerate(data):
             # Excel行号
             row_num = index + 2
@@ -138,6 +138,9 @@ def JobUpload():
                         # int类型参数
                         if i in [0, 1, 4, 11]:
                             row[i] = int(param)
+                            # 添加[依赖任务序号(本次新建任务)]
+                            if i == 0:
+                                curr_job_num.append(row[i])
                         # 字符串类型参数
                         elif i in [2, 3, 5, 6, 7]:
                             row[i] = str(param)
@@ -152,11 +155,7 @@ def JobUpload():
                                 row[i] = [int(param)]
                     except:
                         err_msg.append(err_type[i] % row_num)
-
                 for i, param in enumerate(row):
-                    # 添加任务[序号]
-                    if i == 0 and isinstance(param, int):
-                        curr_job_num.append(param)
                     # [所属任务流id]判空
                     if i == 1 and isinstance(param, int):
                         if param not in interface_ids:
@@ -217,10 +216,11 @@ def JobUpload():
             user_id = user_info['id']
             # 依赖任务序号 -> 任务id映射
             job_map = {}
-            # 新增任务详情
             for line in data:
+                # 新增任务详情
                 job_id = JobModel.add_job_detail(db.etl_db, line[2], line[1], line[3], line[5], line[4], line[6],
                                                  line[7], line[11], user_id)
+                # 添加映射
                 job_map[line[0]] = job_id
                 # 表格数据中新增任务id字段
                 line.append(job_id)
@@ -243,8 +243,7 @@ def JobUpload():
                         'insert_time': int(time.time()),
                         'update_time': int(time.time())
                     })
-            if prep_data:
-                JobModel.add_job_prep(db.etl_db, prep_data)
+            JobModel.add_job_prep(db.etl_db, prep_data) if prep_data else None
             # 新增任务参数
             job_params = []
             for line in data:
@@ -257,8 +256,7 @@ def JobUpload():
                         'update_time': int(time.time()),
                         'user_id': user_id
                     })
-            if job_params:
-                JobModel.add_job_param(db.etl_db, job_params)
+            JobModel.add_job_param(db.etl_db, job_params) if job_params else None
             # 删除文件
             os.remove(file_path)
             return jsonify({'status': 200, 'msg': '成功', 'data': {}})

@@ -147,18 +147,6 @@ class InterfaceModel(object):
         result = cursor.insert(command, args=data)
         return result
 
-    @staticmethod
-    def add_interface_many(cursor, data):
-        """批量新增任务流"""
-        command = '''
-        INSERT INTO tb_interface(interface_name, interface_desc, interface_index,
-        run_time, insert_time, update_time, retry, creator_id, updater_id)
-        VALUES (:interface_name, :interface_desc, :interface_index,
-        :run_time, :insert_time, :update_time, :retry, :user_id, :user_id)
-        '''
-
-        result = cursor.insert(command, args=data)
-        return result
 
     @staticmethod
     def get_job_prep_by_interface(cursor, interface_id):

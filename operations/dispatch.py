@@ -12,7 +12,6 @@ from models.dispatch import DispatchModel, DispatchAlertModel
 from scheduler.handler import SchedulerHandler
 from server.decorators import make_decorator, Response
 from server.status import make_result
-from models.schedule import ScheduleModel
 
 
 class DispatchOperation(object):
