@@ -32,6 +32,8 @@ def get_dispatch_job(dispatch_id):
         return
     # 添加执行主表和详情表至数据库
     exec_id = add_exec_record(dispatch_id, source)
+    # 添加执行任务流依赖至数据库
+    add_exec_interface_rely(exec_id, interface_nodes)
     # rpc分发任务
     for job in source:
         if job['level'] == 0 and job['position'] == 1:
@@ -62,9 +64,10 @@ def get_dispatch_job(dispatch_id):
                 return
 
 
-def add_exec_record(dispatch_id, source):
+def add_exec_record(dispatch_id, source, exec_type=1):
+    """添加执行表和执行详情表"""
     # 添加执行表
-    exec_id = ExecuteModel.add_execute(db.etl_db, 1, dispatch_id)
+    exec_id = ExecuteModel.add_execute(db.etl_db, exec_type, dispatch_id)
     data = []
     for i in source:
         data.append({
@@ -84,6 +87,24 @@ def add_exec_record(dispatch_id, source):
             'update_time': int(time.time())
         })
     # 添加执行详情表
-    if data:
-        ExecuteModel.add_execute_detail(db.etl_db, data)
+    ExecuteModel.add_execute_detail(db.etl_db, data) if data else None
     return exec_id
+
+
+def add_exec_interface_rely(exec_id, interface_nodes):
+    """添加执行任务流依赖表"""
+    data = []
+    for _, item in interface_nodes.items():
+        data.append({
+            'exec_id': exec_id,
+            'interface_id': item['id'],
+            'in_degree': ','.join(item['in']) if item['in'] else '',
+            'out_degree': ','.join(item['out']) if item['out'] else '',
+            'run_time': item['run_time'],
+            'level': item['level'],
+            'is_start': item.get('is_start', 0),
+            'insert_time': int(time.time()),
+            'update_time': int(time.time())
+        })
+    # 添加执行任务流依赖
+    ExecuteModel.add_exec_interface_rely(db.etl_db, data) if data else None

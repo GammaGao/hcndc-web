@@ -339,10 +339,13 @@ class ExecuteModel(object):
     def get_execute_log(cursor, exec_id):
         """获取执行日志"""
         command = '''
-        SELECT job_id, job_name,`level`, message
+        SELECT job_id, job_name, `level`, message
         FROM tb_schedule_detail_logs
         LEFT JOIN tb_jobs USING(job_id)
         WHERE exec_id = :exec_id
+        -- 全局日志只显示5行
+        GROUP BY CONCAT(job_id, id %% 5)
+        ORDER BY id
         '''
         result = cursor.query(command, {
             'exec_id': exec_id
@@ -408,4 +411,16 @@ class ExecuteModel(object):
         result = cursor.query_one(command, {
             'exec_id': exec_id
         })
+        return result
+
+    @staticmethod
+    def add_exec_interface_rely(cursor, data):
+        """添加执行任务流依赖表"""
+        command = '''
+        INSERT INTO tb_execute_interface_rely(exec_id, interface_id, in_degree, out_degree,
+        run_time, `level`, is_start, insert_time, update_time)
+        VALUES (:exec_id, :interface_id, :in_degree, :out_degree,
+        :run_time, :level, :is_start, :insert_time, :update_time)
+        '''
+        result = cursor.insert(command, args=data)
         return result

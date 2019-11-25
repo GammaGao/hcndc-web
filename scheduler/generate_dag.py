@@ -9,7 +9,14 @@ from operations.job import JobOperation
 
 
 def generate_interface_dag_by_dispatch(dispatch_id):
-    """获取所有执行任务流数据结构"""
+    """
+    获取执行任务流前后依赖关系
+    0.预处理: 任务流详情和全部依赖关系, id统一为字符串
+    1.构造节点: 节点获取一层父节点, 递归子节点
+    2.计算节点层级: 找出开始节点(无入度), 入度和当前节点最大层级+1为当前节点层级, 队列中添加出度
+    :param dispatch_id: 调度id
+    :return: 任务流依赖关系
+    """
 
     def get_context_node(node_id):
         """获取上下文节点"""
@@ -71,6 +78,7 @@ def generate_interface_dag_by_dispatch(dispatch_id):
         'run_time': detail['run_time'].strftime('%Y-%m-%d') if detail['run_time'] else None,
         'in': set(),
         'out': set(),
+        'is_start': 1,
         'level': 0
     }
     # 节点上下文递归

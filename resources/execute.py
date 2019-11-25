@@ -168,7 +168,7 @@ class ExecuteAction(Resource):
 class ExecuteLog(Resource):
     @staticmethod
     @execute_log_request
-    @ExecuteFilter.filter_get_execute_log(result=list)
+    @ExecuteFilter.filter_get_execute_log(result=list, job_id=int)
     @ExecuteOperation.get_execute_log(exec_id=int, job_id=int)
     @ExecuteVerify.verify_get_execute_log(exec_id=int, job_id=int)
     def get():

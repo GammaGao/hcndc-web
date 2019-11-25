@@ -83,16 +83,19 @@ class ExecuteFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_get_execute_log(result):
+    def filter_get_execute_log(result, job_id):
         """获取执行日志"""
         group_result = {}
         for item in result:
             group_result.setdefault(item['job_id'], {'job_name': item['job_name'], 'message': ''})
-            group_result[item['job_id']]['message'] = group_result[item['job_id']]['message'] \
-                                                      + '[%s] %s<br>' % (item['level'], item['message'])
+            group_result[item['job_id']]['message'] += '[%s] %s<br>' % (item['level'], item['message'])
         result = []
         for key, item in group_result.items():
-            result.append({'job_id': key, 'job_name': item['job_name'], 'message': item['message']})
+            result.append({
+                'job_id': key,
+                'job_name': item['job_name'],
+                'message': item['message'] + '...' if not job_id else item['message']
+            })
         return {'status': 200, 'msg': '成功', 'data': result}, 200
 
     @staticmethod

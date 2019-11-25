@@ -233,9 +233,10 @@ class ExecuteOperation(object):
         """获取执行日志"""
         if job_id:
             result = ExecuteModel.get_execute_log_by_job(db.etl_db, exec_id, job_id)
+        # 全局日志只显示5行
         else:
             result = ExecuteModel.get_execute_log(db.etl_db, exec_id)
-        return Response(result=result)
+        return Response(result=result, job_id=job_id)
 
     @staticmethod
     @make_decorator
