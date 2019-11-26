@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from server.decorators import make_decorator, Response
-from scheduler.generate_dag import get_job_dag_by_exec_id, get_all_jobs_dag_by_exec_id
+from scheduler.generate_dag import get_job_dag_by_exec_id, get_all_jobs_dag_by_exec_id, get_interface_dag_by_exec_id
 from rpc.rpc_client import Connection
 from configs import config, log, db
 from models.execute import ExecuteModel
@@ -113,6 +113,25 @@ class ExecuteOperation(object):
             # 修改数据库, 分布式锁
             with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
                 ExecuteModel.update_execute_status(db.etl_db, exec_id, exec_status)
+        # 成功时运行后置任务流
+        if exec_status == 0:
+            # 推进流程
+            result = get_interface_dag_by_exec_id(exec_id)
+            nodes = result['nodes']
+            # 遍历所有节点
+            for interface_id in nodes:
+                # 出度
+                for out_id in nodes[interface_id]['out_degree']:
+                    flag = True
+                    # 出度的入度数据日期和状态是否成功
+                    for in_id in nodes[out_id]['in_degree']:
+                        # 排除外部依赖
+                        if nodes[in_id]['position'] == 1 and nodes[in_id]['status'] != 'succeeded':
+                            flag = False
+                            break
+                    # 获取所有层级可执行任务
+                    if flag and nodes[out_id]['position'] == 1 and nodes[out_id]['status'] in ('preparing', 'ready'):
+                        distribute_job.append(out_id)
 
         return Response(distribute_job=distribute_job, msg='成功')
 

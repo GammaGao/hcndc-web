@@ -21,21 +21,6 @@ class ExecuteModel(object):
         return result
 
     @staticmethod
-    def add_execute_success(cursor, exec_type, dispatch_id):
-        """添加执行表-任务流为空时成功状态"""
-        command = '''
-        INSERT INTO tb_execute(exec_type, dispatch_id, `status`, insert_time, update_time)
-        VALUES (:exec_type, :dispatch_id, 0, :insert_time, :update_time)
-        '''
-        result = cursor.insert(command, {
-            'exec_type': exec_type,
-            'dispatch_id': dispatch_id,
-            'insert_time': int(time.time()),
-            'update_time': int(time.time())
-        })
-        return result
-
-    @staticmethod
     def update_execute_status(cursor, exec_id, status):
         """修改调度执行表状态"""
         command = '''
@@ -126,10 +111,10 @@ class ExecuteModel(object):
     def add_execute_detail(cursor, data):
         """添加执行详情表"""
         command = '''
-        INSERT INTO tb_execute_detail(exec_id, job_id, in_degree, out_degree, params_value,
+        INSERT INTO tb_execute_detail(exec_id, interface_id, job_id, in_degree, out_degree, params_value,
         server_host, server_dir, server_script, return_code, position, `level`, `status`, insert_time, update_time)
-        VALUES (:exec_id, :job_id, :in_degree, :out_degree, :params_value, :server_host, :server_dir, :server_script,
-        :return_code, :position, :level, :status, :insert_time, :update_time)
+        VALUES (:exec_id, :interface_id, :job_id, :in_degree, :out_degree, :params_value, :server_host, :server_dir,
+        :server_script, :return_code, :position, :level, :status, :insert_time, :update_time)
         '''
         result = cursor.insert(command, data)
         return result
@@ -414,13 +399,40 @@ class ExecuteModel(object):
         return result
 
     @staticmethod
-    def add_exec_interface_rely(cursor, data):
+    def add_exec_interface(cursor, data):
         """添加执行任务流依赖表"""
         command = '''
-        INSERT INTO tb_execute_interface_rely(exec_id, interface_id, in_degree, out_degree,
-        run_time, `level`, is_start, insert_time, update_time)
-        VALUES (:exec_id, :interface_id, :in_degree, :out_degree,
-        :run_time, :level, :is_start, :insert_time, :update_time)
+        INSERT INTO tb_execute_interface(exec_id, interface_id, in_degree, out_degree,
+        `level`, `status`, insert_time, update_time)
+        VALUES (:exec_id, :interface_id, :in_degree, :out_degree, :level, :status, :insert_time, :update_time)
         '''
         result = cursor.insert(command, args=data)
+        return result
+
+    @staticmethod
+    def get_exec_interface_by_exec_id(cursor, exec_id):
+        """获取执行任务流依赖表by执行id"""
+        command = '''
+        SELECT interface_id, in_degree, out_degree, run_time, `level`, `status`
+        FROM tb_execute_interface
+        WHERE exec_id = :exec_id
+        '''
+        result = cursor.query(command, {
+            'exec_id': exec_id
+        })
+        return result if result else []
+
+    @staticmethod
+    def update_exec_interface_status(cursor, exec_id, interface_id, status):
+        """修改执行任务流状态"""
+        command = '''
+        UPDATE tb_execute_interface
+        SET status = :status, update_time = :update_time
+        WHERE exec_id = :exec_id, interface_id = :interface_id
+        '''
+        result = cursor.update(command, {
+            'exec_id': exec_id,
+            'interface_id': interface_id,
+            'status': status
+        })
         return result

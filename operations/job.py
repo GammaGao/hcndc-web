@@ -264,9 +264,9 @@ class JobOperation(object):
                 # 任务名称
                 elif item['param_value'] == '$job_name':
                     params.append(job['job_name'])
-                # 数据日期
+                # 数据日期(该参数需要传递, 变量代替)
                 elif item['param_value'] == '$date':
-                    params.append(job['run_time'].strftime('%Y-%m-%d'))
+                    params.append('$date')
         return params
 
     @staticmethod

@@ -3,24 +3,25 @@
 
 import time
 
-class ScheduleModel(object):
-    @staticmethod
-    def get_interface_detail(cursor, dispatch_id):
-        """获取任务流预警详情"""
-        command = '''
-        SELECT a.interface_id, b.interface_name, retry, b.run_time,
-        c.config_id AS success_alert, d.config_id AS failed_alert
-        FROM tb_dispatch AS a
-        LEFT JOIN tb_interface AS b ON a.interface_id = b.interface_id AND b.is_deleted = 0
-        LEFT JOIN tb_dispatch_alert AS c ON a.dispatch_id = c.dispatch_id AND c.is_deleted = 0 AND c.alert_type = 1
-        LEFT JOIN tb_dispatch_alert AS d ON a.dispatch_id = d.dispatch_id AND d.is_deleted = 0 AND d.alert_type = 2
-        WHERE a.dispatch_id = :dispatch_id AND a.`status` != 0
-        '''
 
-        result = cursor.query_one(command, {
-            'dispatch_id': dispatch_id
-        })
-        return result if result else {}
+class ScheduleModel(object):
+    # @staticmethod
+    # def get_interface_detail(cursor, interface_id):
+    #     """获取任务流预警详情"""
+    #     command = '''
+    #     SELECT a.interface_id, b.interface_name, retry, b.run_time,
+    #     c.config_id AS success_alert, d.config_id AS failed_alert
+    #     FROM tb_dispatch AS a
+    #     LEFT JOIN tb_interface AS b ON a.interface_id = b.interface_id AND b.is_deleted = 0
+    #     LEFT JOIN tb_dispatch_alert AS c ON a.dispatch_id = c.dispatch_id AND c.is_deleted = 0 AND c.alert_type = 1
+    #     LEFT JOIN tb_dispatch_alert AS d ON a.dispatch_id = d.dispatch_id AND d.is_deleted = 0 AND d.alert_type = 2
+    #     WHERE a.dispatch_id = :dispatch_id AND a.`status` != 0
+    #     '''
+    #
+    #     result = cursor.query_one(command, {
+    #         'dispatch_id': dispatch_id
+    #     })
+    #     return result if result else {}
 
     @staticmethod
     def get_run_job_detail(cursor, interface_id):

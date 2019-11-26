@@ -262,30 +262,31 @@ def execute_nodes_graph(job_nodes):
 def interface_local_graph(detail, parent, child):
     """任务流局部拓扑"""
 
-    def get_context_node(node_id):
+    def get_context_node(node_id, is_parent=True):
         """获取上下文节点"""
         # 获取父子节点
         parent_node = [i for i in child if i['child_id'] == node_id]
         child_node = [i for i in parent if i['parent_id'] == node_id]
-        # 父节点(局部拓扑情况下, 所有节点的父节点无需递归)
-        for node_item in parent_node:
-            # 添加入度
-            nodes[node_id]['in'].add(node_item['interface_id'])
-            if node_item['interface_id'] not in nodes:
-                # 添加节点
-                nodes[node_item['interface_id']] = {
-                    'id': node_item['interface_id'],
-                    'name': node_item['interface_name'],
-                    'itemStyle': None,
-                    'symbolSize': symbol_size,
-                    'x': 0,
-                    'y': 0,
-                    'label': {'show': True},
-                    'category': node_item['interface_id'],
-                    'in': set(),
-                    'out': {node_id},
-                    'level': 0
-                }
+        # 父节点(局部拓扑情况下, 所有节点的父节点无需递归, 初始节点不添加父节点)
+        if is_parent:
+            for node_item in parent_node:
+                # 添加入度
+                nodes[node_id]['in'].add(node_item['interface_id'])
+                if node_item['interface_id'] not in nodes:
+                    # 添加节点
+                    nodes[node_item['interface_id']] = {
+                        'id': node_item['interface_id'],
+                        'name': node_item['interface_name'],
+                        'itemStyle': None,
+                        'symbolSize': symbol_size,
+                        'x': 0,
+                        'y': 0,
+                        'label': {'show': True},
+                        'category': node_item['interface_id'],
+                        'in': set(),
+                        'out': {node_id},
+                        'level': 0
+                    }
         # 子节点
         for node_item in child_node:
             # 添加出度
@@ -346,7 +347,7 @@ def interface_local_graph(detail, parent, child):
         'level': 0
     }
     # 节点上下文递归
-    get_context_node(detail['interface_id'])
+    get_context_node(detail['interface_id'], is_parent=False)
     # 2.计算节点层级
     node_queue = []
     # 找出开始节点
