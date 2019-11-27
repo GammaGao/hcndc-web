@@ -51,43 +51,41 @@ class ExecuteModel(object):
         return result
 
     @staticmethod
-    def update_interface_account_by_execute_id(cursor, exec_id, run_time):
-        """修改调度执行表账期-执行id"""
+    def update_interface_run_time(cursor, interface_id, run_time):
+        """修改调度执行表账期-"""
         command = '''
-        UPDATE tb_interface a
-        LEFT JOIN tb_dispatch b USING(interface_id)
-        LEFT JOIN tb_execute c USING(dispatch_id)
-        SET a.run_time = :run_time
-        WHERE c.exec_id = :exec_id
+        UPDATE tb_interface
+        SET run_time = :run_time, update_time = :update_time
+        WHERE interface_id = :interface_id
         '''
         result = cursor.update(command, {
-            'exec_id': exec_id,
-            'run_time': run_time
+            'interface_id': interface_id,
+            'run_time': run_time,
+            'update_time': int(time.time())
         })
         return result
 
     @staticmethod
-    def update_interface_account_by_dispatch_id(cursor, dispatch_id, run_time):
-        """修改调度执行表账期-调度id"""
-        command = '''
-        UPDATE tb_interface a
-        LEFT JOIN tb_dispatch b USING(interface_id)
-        SET a.run_time = :run_time
-        WHERE b.dispatch_id = :dispatch_id
-        '''
-        result = cursor.update(command, {
-            'dispatch_id': dispatch_id,
-            'run_time': run_time
-        })
-        return result
-
-    @staticmethod
-    def get_execute_detail_status(cursor, exec_id):
+    def get_execute_detail_status(cursor, interface_id, exec_id):
         """获取执行详情任务状态"""
         command = '''
         SELECT `status`
         FROM tb_execute_detail
-        WHERE exec_id = :exec_id AND position = 1
+        WHERE exec_id = :exec_id AND interface_id = :interface_id
+        '''
+        result = cursor.query(command, {
+            'exec_id': exec_id,
+            'interface_id': interface_id
+        })
+        return [i['status'] for i in result] if result else []
+
+    @staticmethod
+    def get_execute_interface_status(cursor, exec_id):
+        """获取执行任务流状态"""
+        command = '''
+        SELECT `status`
+        FROM tb_execute_interface
+        WHERE exec_id = :exec_id
         '''
         result = cursor.query(command, {
             'exec_id': exec_id
@@ -120,7 +118,7 @@ class ExecuteModel(object):
         return result
 
     @staticmethod
-    def get_execute_jobs(cursor, exec_id):
+    def get_execute_jobs(cursor, exec_id, interface_id):
         """获取所有执行任务"""
         command = '''
         SELECT job_id, in_degree, out_degree, server_host, server_dir,
@@ -128,10 +126,11 @@ class ExecuteModel(object):
         FROM tb_execute_detail AS a
         -- 主表状态为运行中,失败(执行中存在错误),就绪
         INNER JOIN tb_execute AS b ON a.exec_id = b.exec_id AND b.`status` IN (1, -1, 3)
-        WHERE a.exec_id = :exec_id
+        WHERE a.exec_id = :exec_id AND a.interface_id = :interface_id
         '''
         result = cursor.query(command, {
-            'exec_id': exec_id
+            'exec_id': exec_id,
+            'interface_id': interface_id
         })
         return result if result else []
 
@@ -413,7 +412,7 @@ class ExecuteModel(object):
     def get_exec_interface_by_exec_id(cursor, exec_id):
         """获取执行任务流依赖表by执行id"""
         command = '''
-        SELECT interface_id, in_degree, out_degree, run_time, `level`, `status`
+        SELECT interface_id, in_degree, out_degree, `level`, `status`
         FROM tb_execute_interface
         WHERE exec_id = :exec_id
         '''
@@ -428,11 +427,12 @@ class ExecuteModel(object):
         command = '''
         UPDATE tb_execute_interface
         SET status = :status, update_time = :update_time
-        WHERE exec_id = :exec_id, interface_id = :interface_id
+        WHERE exec_id = :exec_id AND interface_id = :interface_id
         '''
         result = cursor.update(command, {
             'exec_id': exec_id,
             'interface_id': interface_id,
-            'status': status
+            'status': status,
+            'update_time': int(time.time())
         })
         return result

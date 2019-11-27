@@ -53,6 +53,22 @@ class InterfaceModel(object):
         return result if result else {}
 
     @staticmethod
+    def get_interface_detail_last_execute(cursor, interface_id):
+        """获取最后一次执行任务流详情"""
+        command = '''
+        SELECT a.interface_id, interface_name, run_time, retry, b.`status`
+        FROM tb_interface AS a
+        LEFT JOIN tb_execute_interface AS b ON a.interface_id = b.interface_id
+        WHERE a.interface_id = :interface_id AND a.is_deleted = 0
+        ORDER BY b.id
+        LIMIT 1
+        '''
+        result = cursor.query_one(command, {
+            'interface_id': interface_id
+        })
+        return result if result else {}
+
+    @staticmethod
     def get_interface_detail_by_name(cursor, interface_name):
         """获取任务流详情by任务流名称"""
         command = '''

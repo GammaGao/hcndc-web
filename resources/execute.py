@@ -15,13 +15,14 @@ from document.execute import *
 class ExecuteCallBack(Resource):
     @staticmethod
     @callback_request
-    @ExecuteFilter.filter_callback(distribute_job=list, msg=str)
-    @ExecuteOperation.get_execute_job(exec_id=int, job_id=int, status=str)
-    @ExecuteVerify.verify_callback(exec_id=int, job_id=int, status=str)
+    @ExecuteFilter.filter_callback(msg=str)
+    @ExecuteOperation.get_execute_job(exec_id=int, interface_id=int, job_id=int, status=str)
+    @ExecuteVerify.verify_callback(exec_id=int, interface_id=int, job_id=int, status=str)
     def get():
         """执行服务任务回调"""
         params = Response(
             exec_id=int(get_arg('exec_id', 0)),
+            interface_id=int(get_arg('interface_id', 0)),
             job_id=int(get_arg('job_id', 0)),
             status=get_arg('status', '')
         )

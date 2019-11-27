@@ -27,7 +27,7 @@ class ScheduleModel(object):
     def get_run_job_detail(cursor, interface_id):
         """获取运行任务详情"""
         command = '''
-        SELECT a.job_id, a.job_name, c.prep_id, b.server_host, a.server_dir, a.server_script, run_period, return_code
+        SELECT a.job_id, a.job_name, c.prep_id, b.server_host, a.server_dir, a.server_script, return_code
         FROM tb_jobs AS a
         LEFT JOIN tb_exec_host AS b ON a.server_id = b.server_id AND b.is_deleted = 0
         -- 依赖作业
@@ -46,12 +46,19 @@ class ScheduleModel(object):
         return result if result else []
 
     @staticmethod
-    def get_prep_job_detail(cursor, job_id):
-        """获取依赖任务详情"""
+    def get_run_job_detail_by_id(cursor, job_id):
+        """获取运行任务详情by任务id"""
         command = '''
-        SELECT a.job_id, b.server_host, a.server_dir, a.server_script, run_period
+        SELECT a.job_id, a.job_name, c.prep_id, b.server_host, a.server_dir, a.server_script, return_code
         FROM tb_jobs AS a
         LEFT JOIN tb_exec_host AS b ON a.server_id = b.server_id AND b.is_deleted = 0
+        -- 依赖作业
+        LEFT JOIN (
+        SELECT job_id, GROUP_CONCAT(prep_id) AS prep_id
+        FROM tb_job_prep
+        WHERE is_deleted = 0 AND job_id = :job_id
+        GROUP BY job_id
+        ) AS c ON a.job_id = c.job_id
         WHERE a.job_id = :job_id AND a.is_deleted = 0
         '''
         result = cursor.query_one(command, {
@@ -60,15 +67,16 @@ class ScheduleModel(object):
         return result if result else {}
 
     @staticmethod
-    def update_exec_job_status(cursor, exec_id, job_id, status):
+    def update_exec_job_status(cursor, exec_id, interface_id, job_id, status):
         """修改执行任务状态"""
         command = '''
         UPDATE tb_execute_detail
         SET status = :status, update_time = :update_time, pid = 0
-        WHERE exec_id = :exec_id AND job_id = :job_id
+        WHERE exec_id = :exec_id AND interface_id = :interface_id AND job_id = :job_id
         '''
         result = cursor.update(command, {
             'exec_id': exec_id,
+            'interface_id': interface_id,
             'job_id': job_id,
             'status': status,
             'update_time': int(time.time())
@@ -112,15 +120,16 @@ class ScheduleModel(object):
         return result
 
     @staticmethod
-    def add_exec_detail_job(cursor, exec_id, job_id, level, server_dir, server_script, message, type):
+    def add_exec_detail_job(cursor, exec_id, interface_id, job_id, level, server_dir, server_script, message, type):
         """添加执行任务详情日志"""
         command = '''
-        INSERT INTO tb_schedule_detail_logs(exec_id, job_id, `level`,
+        INSERT INTO tb_schedule_detail_logs(exec_id, interface_id, job_id, `level`,
         server_dir, server_script, `message`, `type`, insert_time)
-        VALUES (:exec_id, :job_id, :level, :server_dir, :server_script, :message, :type, :insert_time)
+        VALUES (:exec_id, :interface_id, :job_id, :level, :server_dir, :server_script, :message, :type, :insert_time)
         '''
         result = cursor.insert(command, {
             'exec_id': exec_id,
+            'interface_id': interface_id,
             'job_id': job_id,
             'level': level,
             'server_dir': server_dir,

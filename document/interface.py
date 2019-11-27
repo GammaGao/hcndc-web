@@ -25,7 +25,6 @@ interface_list_response_success = api.response(200, '成功', api.model('interfa
         'user_name': fields.String(description='创建者'),
         'interface_name': fields.String(description='任务流名称'),
         'interface_desc': fields.String(description='任务流描述'),
-        'run_period': fields.String(description='账期'),
         'is_deleted': fields.Integer(description='是否删除: 0否, 1是'),
     }), description='任务流列表返回值')
 }))

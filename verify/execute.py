@@ -10,15 +10,17 @@ from server.status import make_result
 class ExecuteVerify(object):
     @staticmethod
     @make_decorator
-    def verify_callback(exec_id, job_id, status):
+    def verify_callback(exec_id, interface_id, job_id, status):
         """验证回调函数"""
         if not exec_id:
             abort(400, **make_result(status=400, msg='执行id不存在'))
+        if not interface_id:
+            abort(400, **make_result(status=400, msg='执行流id不存在'))
         if not job_id:
             abort(400, **make_result(status=400, msg='任务id不存在'))
         if not status:
             abort(400, **make_result(status=400, msg='任务状态'))
-        return Response(exec_id=exec_id, job_id=job_id, status=status)
+        return Response(exec_id=exec_id, interface_id=interface_id, job_id=job_id, status=status)
 
     @staticmethod
     @make_decorator

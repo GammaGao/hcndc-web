@@ -11,9 +11,9 @@ from util.graph_format import execute_nodes_graph
 class ExecuteFilter(object):
     @staticmethod
     @make_decorator
-    def filter_callback(distribute_job, msg):
+    def filter_callback(msg):
         """执行服务任务回调"""
-        return {'status': 200, 'msg': msg, 'data': distribute_job}, 200
+        return {'status': 200, 'msg': msg, 'data': {}}, 200
 
     @staticmethod
     @make_decorator

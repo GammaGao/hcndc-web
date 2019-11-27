@@ -124,8 +124,8 @@ def generate_job_dag_by_interface(interface_id):
             'server_script': job['server_script'],
             'params_value': params_value,
             'return_code': job['return_code'],
+            'status': 'preparing',
             'position': 1,
-            'run_period': job['run_period'],
             'level': 0
         }
     # 获取外部依赖
@@ -133,44 +133,35 @@ def generate_job_dag_by_interface(interface_id):
     all_ids = []
     for job in job_list:
         in_ids.append(job['job_id'])
-        if job['prep_id']:
-            all_ids.extend(int(i) for i in job['prep_id'].split(','))
-
+        all_ids.extend(int(i) for i in job['prep_id'].split(',')) if job['prep_id'] else None
     for prep_id in set(all_ids) - set(in_ids):
-        prep_job = ScheduleModel.get_prep_job_detail(db.etl_db, prep_id)
+        prep_job = ScheduleModel.get_run_job_detail_by_id(db.etl_db, prep_id)
+        # 获取任务参数
+        params_value = JobOperation.get_job_params(db.etl_db, prep_id)
         nodes[prep_job['job_id']] = {
             'id': prep_job['job_id'],
             'in': [],
             'out': [],
+            'server_host': prep_job['server_host'],
+            'server_dir': prep_job['server_dir'],
+            'server_script': prep_job['server_script'],
+            'params_value': params_value,
+            'return_code': prep_job['return_code'],
+            'status': 'preparing',
             'position': 2,
-            'run_period': prep_job['run_period'],
             'level': 0
         }
-    # 任务状态
-    source = []
-    for _, job in nodes.items():
-        status = 'preparing'
-        for prep_id in job['in']:
-            # 任务依赖未满足
-            if job['run_period'] and job['run_period'] > nodes[prep_id]['run_period']:
-                status = 'ready'
-                break
-        # 外部依赖
-        if job['position'] == 2:
-            status = ''
-        job['status'] = status
-        source.append(job)
+    # 层级数组
+    node_queue = []
     # 出度
-    for node in source:
+    for _, node in nodes.items():
         for from_id in node['in']:
             from_node = nodes[from_id]
             from_node['out'].append(node['id'])
-    # 层级数组
-    node_queue = []
-    # 找出开始节点(外部节点亦为开始节点)
-    for node in source:
+        # 找出开始节点(外部节点亦为开始节点)
         if not node['in']:
             node_queue.append(node)
+
     # 计算层级
     index = 0
     while index < len(node_queue):
@@ -189,15 +180,13 @@ def generate_job_dag_by_interface(interface_id):
                 node_queue.append(nodes[out_id])
         index += 1
 
-    # 按层级排序
-    source.sort(key=lambda x: x['level'])
-    return {'nodes': nodes, 'source': source}
+    return [job for _, job in nodes.items()]
 
 
-def get_job_dag_by_exec_id(exec_id):
+def get_job_dag_by_exec_id(exec_id, interface_id):
     """获取可执行任务数据结构"""
     # 获取执行任务(执行状态为运行中,失败[执行中存在错误],就绪)
-    source = ExecuteModel.get_execute_jobs(db.etl_db, exec_id)
+    source = ExecuteModel.get_execute_jobs(db.etl_db, exec_id, interface_id)
     for job in source:
         # 入度
         if not job['in_degree']:
@@ -214,7 +203,7 @@ def get_job_dag_by_exec_id(exec_id):
     nodes = {}
     for job in source:
         nodes[job['job_id']] = job
-    return {'nodes': nodes, 'source': source}
+    return nodes
 
 
 def get_interface_dag_by_exec_id(exec_id):
@@ -236,6 +225,7 @@ def get_interface_dag_by_exec_id(exec_id):
     nodes = {}
     for item in source:
         nodes[item['interface_id']] = item
+    return nodes
 
 
 def get_all_jobs_dag_by_exec_id(exec_id):
