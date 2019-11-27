@@ -10,22 +10,22 @@
     <fieldset class="layui-elem-field layui-field-title">
         <legend>任务流详情</legend>
     </fieldset>
-    <div class="layui-tab layui-tab-brief">
+    <div class="layui-tab layui-tab-brief" lay-filter="detail-tab">
         <ul class="layui-tab-title">
-            <li class="layui-this">任务依赖</li>
-            <li>局部-任务流依赖</li>
-            <li>全局-任务流依赖</li>
+            <li class="layui-this" data-load="1">任务依赖</li>
+            <li data-load="0">局部-任务流依赖</li>
+            <li data-load="0">全局-任务流依赖</li>
         </ul>
         <div class="layui-tab-content">
             <div class="layui-tab-item layui-show">
                 <!-- 任务依赖矢量图 -->
                 <div class="svg-div" id="svg-div"></div>
             </div>
-            <div class="layui-tab-item layui-show">
+            <div class="layui-tab-item">
                 <!-- 局部-任务流依赖 -->
                 <div class="svg-div" id="local-graph"></div>
             </div>
-            <div class="layui-tab-item layui-show">
+            <div class="layui-tab-item">
                 <!-- 全局-任务流依赖 -->
                 <div class="svg-div" id="global-graph"></div>
             </div>

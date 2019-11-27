@@ -315,7 +315,7 @@
                             }
                             // 就绪
                             else if (data.status === 3) {
-                                html.push('<a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="start" style="background-color: #5FB878">启动</a>');
+                                html.push('<a class="layui-btn layui-btn-sm SUCCEEDED" lay-event="start">启动</a>');
                             }
                             html.push('</div>');
                             return html.join('');

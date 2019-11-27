@@ -16,23 +16,28 @@
     <fieldset class="layui-elem-field layui-field-title">
         <legend>执行详情</legend>
     </fieldset>
-    <div class="layui-tab layui-tab-brief">
+    <div class="layui-tab layui-tab-brief" lay-filter="detail-tab">
         <ul class="layui-tab-title">
-            <li class="layui-this">任务拓扑</li>
-            <li>任务列表</li>
-            <li>运行日志</li>
+            <li class="layui-this" data-load="1">任务流拓扑</li>
+            <li data-load="0">任务拓扑</li>
+            <li data-load="0">任务列表</li>
+            <li data-load="0">运行日志</li>
         </ul>
         <div class="layui-tab-content">
             <div class="layui-tab-item layui-show">
-                <!-- 矢量图 -->
+                <!-- 任务流拓扑 -->
+                <div></div>
+            </div>
+            <div class="layui-tab-item layui-show">
+                <!-- 任务拓扑 -->
                 <div class="svg-div" id="svg-div"></div>
             </div>
             <div class="layui-tab-item">
-                <!-- 执行详情表 -->
+                <!-- 任务列表 -->
                 <div id="exec-detail" lay-filter="exec-detail"></div>
             </div>
             <div class="layui-tab-item">
-                <!-- 执行日志 -->
+                <!-- 运行日志 -->
                 <div id="exec-log" lay-filter="exec-log"></div>
             </div>
         </div>

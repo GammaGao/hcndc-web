@@ -3,15 +3,39 @@
  */
 (function () {
     let Controller = function () {
+        // Tab切换事件
+        this.tab_change_event();
         // 任务依赖svg渲染
         this.job_prep_init();
         // 局部-任务流依赖svg渲染
-        this.local_interface_init();
-        // 全局-任务流依赖svg渲染
-        this.global_interface_init();
+        // this.local_interface_init();
+        // // 全局-任务流依赖svg渲染
+        // this.global_interface_init();
     };
 
     Controller.prototype = {
+        // Tab切换事件
+        tab_change_event: function () {
+            let that = this;
+            layui.use(['element'], function () {
+                let element = layui.element;
+                element.on('tab(detail-tab)', function (data) {
+                    if (data.index === 0 && this.getAttribute('data-load') === '0') {
+                        this.setAttribute('data-load', '1');
+                        // 任务依赖svg渲染
+                        return that.job_prep_init();
+                    } else if (data.index === 1 && this.getAttribute('data-load') === '0') {
+                        this.setAttribute('data-load', '1');
+                        // 局部-任务流依赖svg渲染
+                        return that.local_interface_init();
+                    } else if (data.index === 2 && this.getAttribute('data-load') === '0') {
+                        this.setAttribute('data-load', '1');
+                        // 全局-任务流依赖svg渲染
+                        return that.global_interface_init();
+                    }
+                });
+            });
+        },
         // 任务依赖svg渲染
         job_prep_init: function () {
             $.ajax({
@@ -21,7 +45,7 @@
                 success: function (response) {
                     let dom = document.getElementById('svg-div');
                     let myChart = echarts.init(dom, 'light');
-                    myChart.hideLoading();
+                    // myChart.hideLoading();
 
                     let graph = response.data;
                     let categories = graph.categories;
@@ -83,7 +107,7 @@
                 success: function (response) {
                     let dom = document.getElementById('local-graph');
                     let myChart = echarts.init(dom, 'light');
-                    myChart.hideLoading();
+                    // myChart.hideLoading();
 
                     let graph = response.data;
                     let categories = graph.categories;
@@ -145,7 +169,7 @@
                 success: function (response) {
                     let dom = document.getElementById('global-graph');
                     let myChart = echarts.init(dom, 'light');
-                    myChart.hideLoading();
+                    // myChart.hideLoading();
 
                     let graph = response.data;
                     let categories = graph.categories;

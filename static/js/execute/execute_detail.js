@@ -8,14 +8,42 @@
 
     Controller.prototype = {
         init: function () {
+            // Tab切换事件
+            this.tab_change_event();
             // 表格数据初始化
-            this.table_data_load({});
-            // 执行任务拓扑结构渲染
-            this.exec_graph_init();
-            // 日志数据渲染
-            this.log_data_load();
+            // this.table_data_load({});
+            // // 执行任务拓扑结构渲染
+            // this.exec_graph_init();
+            // // 日志数据渲染
+            // this.log_data_load();
             // UI组件渲染
             // this.restart('run_date');
+        },
+        // Tab切换事件
+        tab_change_event: function () {
+            let that = this;
+            layui.use(['element'], function () {
+                let element = layui.element;
+                element.on('tab(detail-tab)', function (data) {
+                    if (data.index === 0 && this.getAttribute('data-load') === '0') {
+                        this.setAttribute('data-load', '1');
+                        // TODO 添加任务流拓扑渲染
+                        return ;
+                    } else if (data.index === 1 && this.getAttribute('data-load') === '0') {
+                        this.setAttribute('data-load', '1');
+                        // 执行任务拓扑结构渲染
+                        return that.exec_graph_init();
+                    } else if (data.index === 2 && this.getAttribute('data-load') === '0') {
+                        this.setAttribute('data-load', '1');
+                        // 表格数据初始化
+                        return that.table_data_load({});
+                    } else if (data.index === 3 && this.getAttribute('data-load') === '0') {
+                        this.setAttribute('data-load', '1');
+                        // 日志数据渲染
+                        return that.log_data_load();
+                    }
+                });
+            });
         },
         // 表格组件渲染
         table_data_load: function (data) {
@@ -35,21 +63,12 @@
                     cols: [[{
                         field: "job_id",
                         title: "任务id",
-                        width: '5%',
+                        width: '8%',
                         sort: true
-                    }, {
-                        field: "server_host",
-                        title: "服务器ip"
-                    }, {
-                        field: "server_dir",
-                        title: "脚本目录"
-                    }, {
-                        field: "server_script",
-                        title: "脚本命令"
                     }, {
                         field: "position",
                         title: "外部依赖",
-                        width: '6%',
+                        width: '8%',
                         templet: function (data) {
                             if (data.position === 2) {
                                 return '<span class="layui-badge layui-bg-green">是</span>';
@@ -59,16 +78,20 @@
                         }
                     }, {
                         field: "insert_time",
-                        title: "开始时间"
+                        title: "开始时间",
+                        width: '15%'
                     }, {
                         field: "update_time",
-                        title: "结束时间"
+                        title: "结束时间",
+                        width: '15%'
                     }, {
                         field: "timedelta",
-                        title: "时长"
+                        title: "时长",
+                        width: '8%'
                     }, {
                         field: "status",
                         title: "状态",
+                        width: '8%',
                         templet: function (data) {
                             switch (data.status) {
                                 case 'ready':
@@ -91,37 +114,26 @@
                         field: "timeline",
                         title: "时间线",
                         templet: function (data) {
+                            let html = ['<div class="flow-progress">',
+                                '<div class="flow-progress-bar %s" ',
+                                'style="margin-left: ',
+                                data.margin_left,
+                                '; width: ',
+                                data.width,
+                                ';"></div></div>'].join('');
                             switch (data.status) {
                                 case 'ready':
-                                    return '<div class="flow-progress">' +
-                                        '<div class="flow-progress-bar READY" ' +
-                                        'style="margin-left: ' + data.margin_left +
-                                        '; width: ' + data.width + ';"></div></div>';
+                                    return sprintf(html, 'READY');
                                 case 'preparing':
-                                    return '<div class="flow-progress">' +
-                                        '<div class="flow-progress-bar PREPARING" ' +
-                                        'style="margin-left: ' + data.margin_left +
-                                        '; width: ' + data.width + ';"></div></div>';
+                                    return sprintf(html, 'PREPARING');
                                 case 'running':
-                                    return '<div class="flow-progress">' +
-                                        '<div class="flow-progress-bar RUNNING" ' +
-                                        'style="margin-left: ' + data.margin_left +
-                                        '; width: ' + data.width + ';"></div></div>';
+                                    return sprintf(html, 'RUNNING');
                                 case 'succeeded':
-                                    return '<div class="flow-progress">' +
-                                        '<div class="flow-progress-bar SUCCEEDED" ' +
-                                        'style="margin-left: ' + data.margin_left +
-                                        '; width: ' + data.width + ';"></div></div>';
+                                    return sprintf(html, 'SUCCEEDED');
                                 case 'failed':
-                                    return '<div class="flow-progress">' +
-                                        '<div class="flow-progress-bar FAILED" ' +
-                                        'style="margin-left: ' + data.margin_left +
-                                        '; width: ' + data.width + ';"></div></div>';
+                                    return sprintf(html, 'FAILED');
                                 default:
-                                    return '<div class="flow-progress">' +
-                                        '<div class="flow-progress-bar" ' +
-                                        'style="margin-left: ' + data.margin_left +
-                                        '; width: ' + data.width + ';"></div></div>';
+                                    return sprintf(html, '');
                             }
                         }
                     }, {
