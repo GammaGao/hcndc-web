@@ -50,7 +50,8 @@ execute_log_request = api.doc(params={
 
 # 执行拓扑结构请求
 execute_graph_request = api.doc(params={
-    'exec_id': '执行id'
+    'exec_id': '执行id',
+    'interface_id': '任务流id: 0.全部, 其他:其他任务流内拓扑'
 })
 
 # 中止执行任务请求

@@ -203,7 +203,7 @@ class ExecuteOperation(object):
         4.查看调度任务表中当前执行流的任务状态, 如果存在失败, exec_status = -1; 如果全部成功, exec_status = 0; else运行中exec_status = 1
         5.查看调度任务表中所有执行流的任务状态, 如果存在失败, interface_status = -1; 如果全部成功, interface_status = 0; else运行中interface_status = 1
         6.查询执行主表当前状态, 非中断条件下修改调度表状态(允许失败条件下继续执行, master_status != 2)
-          修改执行当前任务流状态(exec_status)[成功/失败/运行]
+          修改执行当前任务流状态(exec_status)[成功/失败/运行]13
           修改执执行主表状态(interface_status)[成功/失败/运行]
         7.如果当前任务流全部成功(exec_status = 0), 修改账期为T, 获取出度任务流中符合条件的任务
           (出度的入度状态为1或3, 出度的入度数据日期>=出度任务流数据日期)
@@ -414,10 +414,16 @@ class ExecuteOperation(object):
 
     @staticmethod
     @make_decorator
-    def get_execute_graph(exec_id):
+    def get_execute_graph(exec_id, interface_id):
         """获取执行拓扑结构"""
-        job_nodes = ExecuteModel.get_execute_graph(db.etl_db, exec_id)
-        return Response(job_nodes=job_nodes)
+        # 任务流拓扑
+        if not interface_id:
+            result = ExecuteModel.get_execute_interface_graph(db.etl_db, exec_id)
+            data_type = 1
+        else:
+            result = ExecuteModel.get_execute_jobs_graph(db.etl_db, exec_id, interface_id)
+            data_type = 2
+        return Response(result=result, data_type=data_type)
 
     @staticmethod
     @make_decorator
@@ -619,6 +625,14 @@ class ExecuteOperation(object):
                         log.error(err_msg, exc_info=True)
 
         return Response(exec_id=exec_id)
+
+    @staticmethod
+    @make_decorator
+    def get_execute_interface_list(exec_id):
+        """获取该执行下的任务流列表"""
+        result = ExecuteModel.get_execute_interface_graph(db.etl_db, exec_id)
+        return Response(result=result)
+
 
 # # 查看调度执行表中当前执行流的状态
 # status_list = ExecuteModel.get_execute_detail_status(db.etl_db, interface_id, exec_id)

@@ -75,6 +75,20 @@ class ExecuteHistory(Resource):
         return params
 
 
+class ExecuteInterfaceList(Resource):
+    @staticmethod
+    @ExecuteFilter.filter_get_execute_interface_list(result=list)
+    @ExecuteOperation.get_execute_interface_list(exec_id=int)
+    @ExecuteVerify.verify_get_execute_interface_list(exec_id=int)
+    def get():
+        """获取该执行下的任务流列表"""
+        params = Response(
+            exec_id=int(get_arg('exec_id', 0))
+        )
+        log.info('获取该执行下的任务流列表[params: %s]' % str(params))
+        return params
+
+
 class ExecuteJob(Resource):
     @staticmethod
     @execute_job_request
@@ -185,12 +199,15 @@ class ExecuteLog(Resource):
 class ExecuteGraph(Resource):
     @staticmethod
     @execute_graph_request
-    @ExecuteFilter.filter_get_execute_graph(job_nodes=list)
-    @ExecuteOperation.get_execute_graph(exec_id=int)
-    @ExecuteVerify.verify_get_execute_graph(exec_id=int)
+    @ExecuteFilter.filter_get_execute_graph(result=list, data_type=int)
+    @ExecuteOperation.get_execute_graph(exec_id=int, interface_id=int)
+    @ExecuteVerify.verify_get_execute_graph(exec_id=int, interface_id=int)
     def get():
         """获取执行拓扑结构"""
-        params = Response(exec_id=int(get_arg('exec_id', 0)))
+        params = Response(
+            exec_id=int(get_arg('exec_id', 0)),
+            interface_id=int(get_arg('interface_id', 0))
+        )
         log.info('获取执行拓扑结构[params: %s]' % str(params))
         return params
 
@@ -199,6 +216,7 @@ ns = api.namespace('execute', description='执行')
 ns.add_resource(ExecuteCallBack, '/callback/')
 ns.add_resource(ExecuteFlow, '/flow/api/')
 ns.add_resource(ExecuteHistory, '/history/api/')
+ns.add_resource(ExecuteInterfaceList, '/interface/list/api/')
 ns.add_resource(ExecuteJob, '/job/api/')
 ns.add_resource(ExecuteDetail, '/detail/api/<int:exec_id>/')
 ns.add_resource(ExecuteAction, '/action/api/')

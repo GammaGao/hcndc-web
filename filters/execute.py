@@ -86,12 +86,16 @@ class ExecuteFilter(object):
     def filter_get_execute_log(result, job_id):
         """获取执行日志"""
         group_result = {}
+        # 任务日志分组聚合
         for item in result:
-            group_result.setdefault(item['job_id'], {'job_name': item['job_name'], 'message': ''})
+            group_result.setdefault(item['job_id'], {
+                'interface_id': item['interface_id'], 'job_name': item['job_name'], 'message': ''
+            })
             group_result[item['job_id']]['message'] += '[%s] %s<br>' % (item['level'], item['message'])
         result = []
         for key, item in group_result.items():
             result.append({
+                'interface_id': item['interface_id'],
                 'job_id': key,
                 'job_name': item['job_name'],
                 'message': item['message'] + '...' if not job_id else item['message']
@@ -100,10 +104,10 @@ class ExecuteFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_get_execute_graph(job_nodes):
+    def filter_get_execute_graph(result, data_type):
         """获取执行拓扑结构"""
         # 执行节点依赖渲染
-        data = execute_nodes_graph(job_nodes)
+        data = execute_nodes_graph(result, data_type)
         return {'status': 200, 'msg': '成功', 'data': data}, 200
 
     @staticmethod
@@ -132,3 +136,15 @@ class ExecuteFilter(object):
     def filter_start(exec_id):
         """启动执行任务"""
         return {'status': 200, 'msg': '成功', 'data': {'exec_id': exec_id}}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_get_execute_interface_list(result):
+        """获取该执行下的任务流列表"""
+        data = []
+        for item in result:
+            data.append({
+                'interface_id': item['id'],
+                'interface_name': item['name']
+            })
+        return {'status': 200, 'msg': '成功', 'data': data}, 200

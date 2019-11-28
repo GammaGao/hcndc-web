@@ -151,11 +151,18 @@ def job_nodes_graph(job_nodes):
     return {'nodes': nodes, 'links': links, 'categories': categories}
 
 
-def execute_nodes_graph(job_nodes):
+def execute_nodes_graph(result, data_type):
     """执行节点依赖"""
-    if not job_nodes:
+    if not result:
         return {'nodes': [], 'links': [], 'categories': []}
-    remakes = {
+    remakes_interface = {
+        0: '成功',
+        1: '运行中',
+        2: '中断',
+        3: '就绪',
+        -1: '失败'
+    }
+    remakes_jobs = {
         'ready': '等待依赖任务完成',
         'preparing': '待运行',
         'running': '运行中',
@@ -165,28 +172,32 @@ def execute_nodes_graph(job_nodes):
     nodes = {}
     links = []
     layers = {}
-    symbol_size = log(10, len(job_nodes)) * 40 if len(job_nodes) > 1 else 30
-    horizontal_margin = 20 * (1 + 1 / len(job_nodes)) if len(job_nodes) > 1 else 10
-    vertical_margin = len(job_nodes)
+    symbol_size = log(10, len(result)) * 40 if len(result) > 1 else 30
+    horizontal_margin = 20 * (1 + 1 / len(result)) if len(result) > 1 else 10
+    vertical_margin = len(result)
     # 0.预处理: id统一为字符串
-    for job in job_nodes:
-        job['job_id'] = str(job['job_id']) if job['job_id'] else None
+    for item in result:
+        item['id'] = str(item['id']) if item['id'] else None
     # 1.构造节点
-    for job in job_nodes:
+    for item in result:
         # 目标节点
-        if job['job_id'] not in nodes:
-            nodes[job['job_id']] = {
-                'id': job['job_id'],
-                'name': job['job_name'],
+        if item['id'] not in nodes:
+            if data_type == 1:
+                remakes = remakes_interface
+            else:
+                remakes = remakes_jobs
+            nodes[item['id']] = {
+                'id': item['id'],
+                'name': item['name'],
                 'itemStyle': None,
                 'symbolSize': symbol_size,
                 'x': 0,
                 'y': 0,
                 'label': {'show': True},
-                'category': remakes[job['status']] if job['status'] else '外部节点',
-                'in': job['in_degree'].split(',') if job['in_degree'] else [],
-                'out': job['out_degree'].split(',') if job['out_degree'] else [],
-                'level': job['level']
+                'category': remakes.get(item['status'], '其他'),
+                'in': item['in_degree'].split(',') if item['in_degree'] else [],
+                'out': item['out_degree'].split(',') if item['out_degree'] else [],
+                'level': item['level']
             }
     # 2.计算节点层级
     # 最大层级
@@ -197,19 +208,19 @@ def execute_nodes_graph(job_nodes):
             layers[node['level']] = []
         layers[node['level']].append(node)
     # 3.构造连线
-    for job in job_nodes:
+    for item in result:
         # 有依赖关系
-        in_degree = job['in_degree'].split(',') if job['in_degree'] else []
+        in_degree = item['in_degree'].split(',') if item['in_degree'] else []
         for source_node in in_degree:
-            links.append({'source': source_node, 'target': job['job_id']})
+            links.append({'source': source_node, 'target': item['id']})
             # 不相邻层级
-            if abs(nodes[job['job_id']]['level'] - nodes[source_node]['level']) != 1:
+            if abs(nodes[item['id']]['level'] - nodes[source_node]['level']) != 1:
                 # 计算相差层级数
-                min_level = min(nodes[job['job_id']]['level'], nodes[source_node]['level']) + 1
-                max_level = max(nodes[job['job_id']]['level'], nodes[source_node]['level'])
+                min_level = min(nodes[item['id']]['level'], nodes[source_node]['level']) + 1
+                max_level = max(nodes[item['id']]['level'], nodes[source_node]['level'])
                 for transit_level in range(min_level, max_level):
                     # 添加过渡节点
-                    transit_id = '%s>%s>%s' % (source_node, job['job_id'], str(transit_level))
+                    transit_id = '%s>%s>%s' % (source_node, item['id'], str(transit_level))
                     layers[transit_level].append({
                         'id': transit_id,
                         'x': 0,
@@ -248,15 +259,27 @@ def execute_nodes_graph(job_nodes):
     nodes = [j for i, j in nodes.items()]
     nodes.sort(key=lambda x: x['level'])
     # 6.节点任务流分类
-    categories = [
-        {'name': '等待依赖任务完成'},
-        {'name': '待运行'},
-        {'name': '运行中'},
-        {'name': '成功'},
-        {'name': '失败'},
-        {'name': '外部节点'}
-    ]
-    return {'nodes': nodes, 'links': links, 'categories': categories}
+    if data_type == 1:
+        categories = [
+            {'name': '成功'},
+            {'name': '运行中'},
+            {'name': '中断'},
+            {'name': '就绪'},
+            {'name': '失败'},
+            {'name': '其他'}
+        ]
+        color = ['#5CB85C', '#2fafcc', '#D9534F', '#F19153', '#ff5722', '#1E9FFF']
+    else:
+        categories = [
+            {'name': '等待依赖任务完成'},
+            {'name': '待运行'},
+            {'name': '运行中'},
+            {'name': '成功'},
+            {'name': '失败'},
+            {'name': '其他'}
+        ]
+        color = ['#FFB800', '#F19153', '#3398CC', '#5CB85C', '#D9534F', '#1E9FFF']
+    return {'nodes': nodes, 'links': links, 'categories': categories, 'color': color}
 
 
 def interface_local_graph(detail, parent, child):

@@ -103,7 +103,8 @@ let BASE = {
             'log': '/execute/log/',
             'log_api': '/execute/log/api/',
             'graph_api': '/execute/graph/api/',
-            'restart': '/execute/restart/'
+            'restart': '/execute/restart/',
+            'interface_list_api': '/execute/interface/list/api/'
         },
         base: {
             'exec_list': '/base/',

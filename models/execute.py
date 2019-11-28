@@ -275,12 +275,13 @@ class ExecuteModel(object):
     def get_execute_detail(cursor, exec_id):
         """获取执行详情"""
         command = '''
-        SELECT a.id, job_id, server_host, server_dir, server_script, position, a.`status`,
+        SELECT a.id, c.interface_id, job_id, job_name, a.server_host, a.server_dir, a.server_script, a.position, a.`status`,
         a.insert_time, a.update_time, a.update_time - a.insert_time AS timedelta,
         (a.insert_time - b.insert_time) / (b.update_time - b.insert_time) AS margin_left,
         (a.update_time - a.insert_time) / (b.update_time - b.insert_time) AS width
         FROM tb_execute_detail AS a
         LEFT JOIN tb_execute AS b USING(exec_id)
+        LEFT JOIN tb_jobs AS c USING(job_id)
         WHERE exec_id = :exec_id
         '''
         result = cursor.query(command, {
@@ -308,8 +309,8 @@ class ExecuteModel(object):
     def get_execute_log_by_job(cursor, exec_id, job_id):
         """获取任务执行日志"""
         command = '''
-        SELECT job_id, job_name,`level`, message
-        FROM tb_schedule_detail_logs
+        SELECT a.interface_id, job_id, job_name,`level`, message
+        FROM tb_schedule_detail_logs AS a
         LEFT JOIN tb_jobs USING(job_id)
         WHERE exec_id = :exec_id AND job_id = :job_id
         '''
@@ -323,9 +324,9 @@ class ExecuteModel(object):
     def get_execute_log(cursor, exec_id):
         """获取执行日志"""
         command = '''
-        SELECT job_id, job_name, `level`, message
-        FROM tb_schedule_detail_logs
-        LEFT JOIN tb_jobs USING(job_id)
+        SELECT a.interface_id, job_id, job_name, `level`, message
+        FROM tb_schedule_detail_logs AS a
+        LEFT JOIN tb_jobs AS b USING(job_id)
         WHERE exec_id = :exec_id
         -- 全局日志只显示5行
         GROUP BY CONCAT(job_id, id %% 5)
@@ -337,16 +338,32 @@ class ExecuteModel(object):
         return result if result else []
 
     @staticmethod
-    def get_execute_graph(cursor, exec_id):
-        """获取执行拓扑结构"""
+    def get_execute_interface_graph(cursor, exec_id):
+        """获取执行任务流拓扑结构"""
         command = '''
-        SELECT interface_id, job_id, job_name, in_degree, out_degree, `level`, `status`
-        FROM tb_execute_detail AS a
-        LEFT JOIN tb_jobs AS b USING(job_id)
+        SELECT interface_id AS id, interface_name AS name, in_degree, out_degree, `level`, `status`
+        FROM tb_execute_interface
+        LEFT JOIN tb_interface AS b USING(interface_id)
         WHERE exec_id = :exec_id
-        '''
+            '''
         result = cursor.query(command, {
             'exec_id': exec_id
+        })
+
+        return result if result else []
+
+    @staticmethod
+    def get_execute_jobs_graph(cursor, exec_id, interface_id):
+        """获取执行任务拓扑结构"""
+        command = '''
+        SELECT job_id AS id, job_name AS name, in_degree, out_degree, `level`, `status`
+        FROM tb_execute_detail AS a
+        LEFT JOIN tb_jobs AS b USING(job_id)
+        WHERE exec_id = :exec_id AND a.interface_id = :interface_id
+        '''
+        result = cursor.query(command, {
+            'exec_id': exec_id,
+            'interface_id': interface_id
         })
 
         return result if result else []

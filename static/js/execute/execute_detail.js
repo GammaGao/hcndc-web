@@ -10,14 +10,8 @@
         init: function () {
             // Tab切换事件
             this.tab_change_event();
-            // 表格数据初始化
-            // this.table_data_load({});
-            // // 执行任务拓扑结构渲染
-            // this.exec_graph_init();
-            // // 日志数据渲染
-            // this.log_data_load();
-            // UI组件渲染
-            // this.restart('run_date');
+            // 执行任务拓扑结构渲染
+            this.exec_graph_init();
         },
         // Tab切换事件
         tab_change_event: function () {
@@ -27,12 +21,16 @@
                 element.on('tab(detail-tab)', function (data) {
                     if (data.index === 0 && this.getAttribute('data-load') === '0') {
                         this.setAttribute('data-load', '1');
-                        // TODO 添加任务流拓扑渲染
-                        return ;
+                        // 执行任务流拓扑结构渲染
+                        return that.exec_graph_init();
                     } else if (data.index === 1 && this.getAttribute('data-load') === '0') {
                         this.setAttribute('data-load', '1');
                         // 执行任务拓扑结构渲染
-                        return that.exec_graph_init();
+                        // 任务流ID渲染
+                        that.interface_list_id();
+                        // 执行任务拓扑结构渲染
+                        that.form_event();
+                        return
                     } else if (data.index === 2 && this.getAttribute('data-load') === '0') {
                         this.setAttribute('data-load', '1');
                         // 表格数据初始化
@@ -42,6 +40,40 @@
                         // 日志数据渲染
                         return that.log_data_load();
                     }
+                });
+            });
+        },
+        // 任务流ID渲染
+        interface_list_id: function () {
+            let that = this;
+            $.ajax({
+                url: BASE.uri.execute.interface_list_api,
+                type: 'get',
+                data: {'exec_id': window.exec_id},
+                success: function (res) {
+                    layui.use('form', function () {
+                        let form = layui.form;
+                        let html = [];
+                        for (let i = 0; i < res.data.length; i++) {
+                            html.push('<option value="' + res.data[i].interface_id + '">' + res.data[i].interface_name + '</option>')
+                        }
+                        $('select[name=interface_id]').append(html.join(''));
+                        form.render('select');
+                        // 初始化渲染执行任务拓扑结构
+                        if (res.data.length > 0) {
+                            that.exec_graph_job_init(res.data[0].interface_id);
+                        }
+                    })
+                }
+            })
+        },
+        // 执行任务拓扑结构渲染
+        form_event: function () {
+            let that = this;
+            layui.use('form', function () {
+                let form = layui.form;
+                form.on('select(interface_select)', function (data) {
+                    that.exec_graph_job_init(data.value);
                 });
             });
         },
@@ -61,9 +93,13 @@
                     url: BASE.uri.execute.detail_api + window.exec_id + '/',
                     where: data,
                     cols: [[{
-                        field: "job_id",
-                        title: "任务id",
+                        field: "interface_id",
+                        title: "任务流id",
                         width: '8%',
+                        sort: true
+                    }, {
+                        field: "job_name",
+                        title: "任务名称",
                         sort: true
                     }, {
                         field: "position",
@@ -140,11 +176,7 @@
                         field: "operation",
                         title: "操作",
                         templet: function (data) {
-                            if (data.position === 2) {
-                                return '';
-                            } else {
-                                return '<a class="layui-btn layui-btn-sm" lay-event="detail">详情日志</a>';
-                            }
+                            return '<a class="layui-btn layui-btn-sm" lay-event="detail">详情日志</a>';
                         }
                     }]],
                     response: {
@@ -170,21 +202,78 @@
                 })
             })
         },
-        // 执行任务拓扑结构渲染
+        // 执行任务流拓扑结构渲染
         exec_graph_init: function () {
             $.ajax({
                 url: BASE.uri.execute.graph_api,
                 type: 'get',
                 data: {'exec_id': window.exec_id},
                 success: function (response) {
-                    dom = document.getElementById('svg-div');
-                    myChart = echarts.init(dom, 'light');
-                    myChart.hideLoading();
+                    let dom = document.getElementById('svg-div');
+                    let myChart = echarts.init(dom, 'light');
+                    let graph = response.data;
+                    let categories = graph.categories;
+                    let option = {
+                        title: {
+                            text: '任务流依赖',
+                            subtext: '默认布局',
+                            top: 'top',
+                            left: 'right'
+                        },
+                        tooltip: {formatter: '任务流: {b}'},
+                        legend: [{
+                            type: 'scroll',
+                            left: 30,
+                            orient: 'vertical',
+                            data: categories.map(function (a) {
+                                return a.name;
+                            })
+                        }],
+                        color: response.data.color,
+                        series: [{
+                            type: 'graph',
+                            layout: 'none',
+                            data: graph.nodes,
+                            links: graph.links,
+                            categories: categories,
+                            roam: true,
+                            edgeSymbol: ['none', 'arrow'],
+                            focusNodeAdjacency: true,
+                            itemStyle: {
+                                normal: {
+                                    borderColor: '#fff',
+                                    borderWidth: 1,
+                                    shadowBlur: 10,
+                                    shadowColor: 'rgba(0, 0, 0, 0.3)'
+                                }
+                            },
+                            lineStyle: {
+                                color: 'source',
+                            },
+                        }]
+                    };
 
-                    graph = response.data;
-                    categories = graph.categories;
-
-                    option = {
+                    myChart.setOption(option);
+                },
+                error: function (error) {
+                    let result = error.responseJSON;
+                    layer.alert(sprintf('任务流依赖渲染失败: %s', result.msg))
+                }
+            })
+        },
+        // 执行任务拓扑结构渲染
+        exec_graph_job_init: function (interface_id) {
+            $.ajax({
+                url: BASE.uri.execute.graph_api,
+                type: 'get',
+                data: {'exec_id': window.exec_id, 'interface_id': interface_id},
+                success: function (response) {
+                    let dom = document.getElementById('svg-job-div');
+                    let myChart = echarts.init(dom, 'light');
+                    myChart
+                    let graph = response.data;
+                    let categories = graph.categories;
+                    let option = {
                         title: {
                             text: '任务流中任务依赖',
                             subtext: '默认布局',
@@ -200,33 +289,30 @@
                                 return a.name;
                             })
                         }],
-                        color: ['#FFB800', '#F19153', '#3398CC', '#5CB85C', '#D9534F', '#1E9FFF', '#C9C9C9'],
-                        series: [
-                            {
-                                type: 'graph',
-                                layout: 'none',
-                                data: graph.nodes,
-                                links: graph.links,
-                                categories: categories,
-                                roam: true,
-                                edgeSymbol: ['none', 'arrow'],
-                                focusNodeAdjacency: true,
-                                itemStyle: {
-                                    normal: {
-                                        borderColor: '#fff',
-                                        borderWidth: 1,
-                                        shadowBlur: 10,
-                                        shadowColor: 'rgba(0, 0, 0, 0.3)'
-                                    }
-                                },
-                                lineStyle: {
-                                    color: 'source',
-                                },
-                            }
-                        ]
+                        color: response.data.color,
+                        series: [{
+                            type: 'graph',
+                            layout: 'none',
+                            data: graph.nodes,
+                            links: graph.links,
+                            categories: categories,
+                            roam: true,
+                            edgeSymbol: ['none', 'arrow'],
+                            focusNodeAdjacency: true,
+                            itemStyle: {
+                                normal: {
+                                    borderColor: '#fff',
+                                    borderWidth: 1,
+                                    shadowBlur: 10,
+                                    shadowColor: 'rgba(0, 0, 0, 0.3)'
+                                }
+                            },
+                            lineStyle: {
+                                color: 'source',
+                            },
+                        }]
                     };
-
-                    myChart.setOption(option);
+                    myChart.setOption(option, true);
                 },
                 error: function (error) {
                     let result = error.responseJSON;
@@ -247,6 +333,10 @@
                     url: BASE.uri.execute.log_api,
                     where: {'exec_id': window.exec_id},
                     cols: [[{
+                        field: "interface_id",
+                        title: "任务流ID",
+                        width: '8%'
+                    }, {
                         field: "job_id",
                         title: "任务ID",
                         width: '8%'

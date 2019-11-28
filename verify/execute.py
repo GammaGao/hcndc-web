@@ -84,11 +84,11 @@ class ExecuteVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_get_execute_graph(exec_id):
+    def verify_get_execute_graph(exec_id, interface_id):
         """获取执行拓扑结构"""
         if not exec_id:
             abort(400, **make_result(status=400, msg='执行id不得为空'))
-        return Response(exec_id=exec_id)
+        return Response(exec_id=exec_id, interface_id=interface_id)
 
     @staticmethod
     @make_decorator
@@ -123,3 +123,11 @@ class ExecuteVerify(object):
         if not exec_id:
             abort(400, **make_result(status=400, msg='执行id不得为空'))
         return Response(exec_id=exec_id, user_id=user_id)
+
+    @staticmethod
+    @make_decorator
+    def verify_get_execute_interface_list(exec_id):
+        """获取该执行下的任务流列表"""
+        if not exec_id:
+            abort(400, **make_result(status=400, msg='执行id不得为空'))
+        return Response(exec_id=exec_id)
