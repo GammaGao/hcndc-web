@@ -184,6 +184,18 @@
                         field: "dispatch_desc",
                         title: "调度描述"
                     }, {
+                        field: "exec_type",
+                        title: "执行类型",
+                        templet: function (data) {
+                            if (data.exec_type === 1) {
+                                return '<span class="layui-badge layui-bg-green">调度</span>'
+                            } else if (data.exec_type === 2) {
+                                return '<span class="layui-badge layui-bg-blue">手动</span>'
+                            } else {
+                                return '-'
+                            }
+                        }
+                    }, {
                         field: "status",
                         title: "运行状态",
                         width: '6%',

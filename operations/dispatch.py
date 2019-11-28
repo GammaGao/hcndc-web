@@ -10,6 +10,7 @@ from flask_restful import abort
 from configs import db, log
 from models.dispatch import DispatchModel, DispatchAlertModel
 from scheduler.handler import SchedulerHandler
+from scheduler.distribute_scheduler import get_dispatch_job
 from server.decorators import make_decorator, Response
 from server.status import make_result
 
@@ -129,9 +130,8 @@ class DispatchOperation(object):
     def run_dispatch(dispatch_id):
         """立即执行调度"""
         for item in dispatch_id:
-            run_id = 'scheduler_%s' % item
             try:
-                SchedulerHandler.run_job(run_id)
+                get_dispatch_job(item, 2)
             except Exception as e:
                 log.error('立即执行调度异常 [ERROR: %s]' % e, exc_info=True)
                 abort(400, **make_result(status=400, msg='立即执行调度异常'))

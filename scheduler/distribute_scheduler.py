@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import time
-from datetime import date, timedelta
 
 from scheduler.generate_dag import generate_job_dag_by_interface, generate_interface_dag_by_dispatch
 from models.execute import ExecuteModel
@@ -11,7 +10,7 @@ from configs import config, log
 from operations.execute import continue_execute_interface, rpc_push_job
 
 
-def get_dispatch_job(dispatch_id):
+def get_dispatch_job(dispatch_id, exec_type=1):
     """
     调度执行开始方法
     1.生成所有任务流依赖, 生成任务流所有任务详情
@@ -20,6 +19,7 @@ def get_dispatch_job(dispatch_id):
     4.RPC分发初始任务流中level=0的执行任务, 替换参数变量$date为T-1日期, 如果RPC异常, 修改执行任务状态[失败], 执行任务流状态[失败], 执行主表状态[失败]
     5.如果存在执行任务流为空, 获取下一个可执行任务流
     :param dispatch_id: 调度id
+    :param exec_type: 执行类型
     :return: None
     """
     # 获取执行任务流前后依赖关系
@@ -32,7 +32,7 @@ def get_dispatch_job(dispatch_id):
         jobs = generate_job_dag_by_interface(item['id'])
         job_nodes[item['id']] = jobs
     # 添加执行主表, 任务流表, 任务表至数据库
-    exec_id = add_exec_record(dispatch_id, interface_nodes, job_nodes)
+    exec_id = add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type)
     # 初始任务流
     start_interface = [_ for _, item in interface_nodes.items() if item['level'] == 0]
     # 开始执行初始任务流中的任务

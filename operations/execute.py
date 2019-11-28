@@ -80,13 +80,15 @@ def continue_execute_interface(exec_id, result=None):
     # 遍历所有节点
     for interface_id in interface_dict:
         # 当前任务流详情
-        current_detail = InterfaceModel.get_interface_detail_last_execute(db.etl_db, interface_id)
+        with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+            current_detail = InterfaceModel.get_interface_detail_last_execute(db.etl_db, interface_id)
         # 出度
         for out_id in interface_dict[interface_id]['out_degree']:
             # 出度的入度数据日期和状态是否成功
             flag = True
             for in_id in interface_dict[out_id]['in_degree']:
-                in_detail = InterfaceModel.get_interface_detail_last_execute(db.etl_db, in_id)
+                with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                    in_detail = InterfaceModel.get_interface_detail_last_execute(db.etl_db, in_id)
                 if in_detail['status'] != 0 or not in_detail['run_time'] \
                         or in_detail['run_time'] < current_detail['run_time']:
                     flag = False
