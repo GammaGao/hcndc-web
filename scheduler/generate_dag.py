@@ -106,6 +106,11 @@ def generate_interface_dag_by_dispatch(dispatch_id):
 def generate_job_dag_by_interface(interface_id):
     """
     生成任务流中执行任务数据结构
+    1.获取当前任务流下任务列表
+    2.获取任务列表中的参数
+    3.获取任务依赖的外部任务
+    4.获取依赖的外部任务的参数
+    5.计算层级
     :param interface_id: 任务流id
     :return:
     """

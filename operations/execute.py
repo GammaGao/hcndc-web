@@ -50,9 +50,11 @@ def continue_execute_interface(exec_id, result=None):
     """
     获取可执行任务流
     1.如果所有执行任务流都完成, 修改执行主表状态[成功]
-    2.遍历任务流
+    2.所有任务流都完成, 修改执行主表状态[成功], 返回退出
+    3.获取当前执行id下的任务流, 遍历任务流
     3.当前节点出度的所有入度成功, 出度的所有入度数据日期>=出度的数据日期, 节点出度的状态为待运行
-    4.获取可执行任务流下初始任务, 存在空任务流, 修改执行任务流状态[成功], 递归本方法; 否则修改执行任务流状态[运行中]
+    4.获取可执行任务流下初始任务, 存在空任务流, 修改执行任务流状态[成功], 递归本方法
+    5.否则修改执行任务流状态[运行中], 返回结果集
     :param result:
     :param exec_id:
     :return:
@@ -65,8 +67,6 @@ def continue_execute_interface(exec_id, result=None):
     # 推进流程
     with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
         interface_dict = get_interface_dag_by_exec_id(exec_id)
-    # 待运行任务流
-    ready_interface = [_ for _, item in interface_dict.items() if item['status'] == 3]
     # 已完成任务流
     complete_interface = [_ for _, item in interface_dict.items() if item['status'] == 0]
     # 所有任务流都完成
@@ -74,9 +74,7 @@ def continue_execute_interface(exec_id, result=None):
         # 修改执行主表状态[成功]
         with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
             ExecuteModel.update_execute_status(db.etl_db, exec_id, 0)
-    # 存在未执行任务流或所有任务流都完成
-    if not len(ready_interface) or len(complete_interface) == len(interface_dict):
-        return result
+        return
     # 遍历所有节点
     for interface_id in interface_dict:
         # 当前任务流详情
@@ -146,6 +144,7 @@ def rpc_push_job(exec_id, interface_id, job_id, server_host, port, params_value,
                  status):
     """
     RPC分发任务
+    1.替换$date变量
     :param exec_id: 执行id
     :param interface_id: 任务流id
     :param job_id: 任务id
@@ -199,13 +198,13 @@ class ExecuteOperation(object):
     def get_execute_job(exec_id, interface_id, job_id, status):
         """
         执行服务任务回调
-        1.修改详情表回调任务执行状态
+        1.修改详情表回调任务执行状态[成功/失败]
         2.如果执行任务状态成功, 获取当前任务流下一批执行任务(初始节点状态为'preparing'或'ready', 出度的入度==succeeded)
         3.RPC分发当前任务流中可执行的任务, 替换参数变量$date为T-1日期, 如果RPC异常, 修改执行任务状态[失败], 执行任务流状态[失败], 执行主表状态[失败]
         4.查看调度任务表中当前执行流的任务状态, 如果存在失败, exec_status = -1; 如果全部成功, exec_status = 0; else运行中exec_status = 1
         5.查看调度任务表中所有执行流的任务状态, 如果存在失败, interface_status = -1; 如果全部成功, interface_status = 0; else运行中interface_status = 1
         6.查询执行主表当前状态, 非中断条件下修改调度表状态(允许失败条件下继续执行, master_status != 2)
-          修改执行当前任务流状态(exec_status)[成功/失败/运行]13
+          修改执行当前任务流状态(exec_status)[成功/失败/运行]
           修改执执行主表状态(interface_status)[成功/失败/运行]
         7.如果当前任务流全部成功(exec_status = 0), 修改账期为T, 获取出度任务流中符合条件的任务
           (出度的入度状态为1或3, 出度的入度数据日期>=出度任务流数据日期)
