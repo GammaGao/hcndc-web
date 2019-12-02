@@ -56,17 +56,27 @@ class InterfaceModel(object):
     def get_interface_detail_last_execute(cursor, interface_id):
         """获取最后一次执行任务流详情"""
         command = '''
-        SELECT a.interface_id, interface_name, run_time, retry, b.`status`
+        SELECT a.interface_id, interface_name, run_time, retry, b.`status`, c.`status` AS last_status
+        FROM tb_interface AS a
+        LEFT JOIN tb_execute_interface AS b ON a.interface_id = b.interface_id
+        LEFT JOIN (
+        -- 上一次执行状态
+        SELECT a.interface_id, b.`status`
         FROM tb_interface AS a
         LEFT JOIN tb_execute_interface AS b ON a.interface_id = b.interface_id
         WHERE a.interface_id = :interface_id AND a.is_deleted = 0
-        ORDER BY b.id
+        ORDER BY b.id DESC
+        LIMIT 1, 1
+        ) AS c ON a.interface_id = c.interface_id
+        WHERE a.interface_id = :interface_id AND a.is_deleted = 0
+        ORDER BY b.id DESC
         LIMIT 1
         '''
         result = cursor.query_one(command, {
             'interface_id': interface_id
         })
         return result if result else {}
+
 
     @staticmethod
     def get_interface_detail_by_name(cursor, interface_name):
@@ -333,7 +343,7 @@ class InterfaceModel(object):
         SELECT b.interface_id, b.interface_name, b.run_time
         FROM tb_dispatch AS a
         LEFT JOIN tb_interface AS b ON a.interface_id = b.interface_id AND b.is_deleted = 0
-        WHERE dispatch_id = :dispatch_id AND `status` = 1
+        WHERE dispatch_id = :dispatch_id AND `status` != 0
         '''
         result = cursor.query_one(command, {
             'dispatch_id': dispatch_id

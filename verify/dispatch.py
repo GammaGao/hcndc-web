@@ -68,11 +68,11 @@ class DispatchVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_run_dispatch(dispatch_id):
+    def verify_run_dispatch(dispatch_id, run_date, date_format, is_after):
         """立即执行调度任务"""
         if not dispatch_id:
             abort(400, **make_result(status=400, msg='调度id不存在'))
-        return Response(dispatch_id=dispatch_id)
+        return Response(dispatch_id=dispatch_id, run_date=run_date, date_format=date_format, is_after=is_after)
 
     @staticmethod
     @make_decorator
@@ -88,7 +88,8 @@ class DispatchVerify(object):
 class DispatchAlertVerify(object):
     @staticmethod
     @make_decorator
-    def verify_add_dispatch_alert(dispatch_id, alert_s, alert_f, conf_id_s, conf_id_f, user_id, send_mail_s, send_mail_f):
+    def verify_add_dispatch_alert(dispatch_id, alert_s, alert_f, conf_id_s, conf_id_f, user_id, send_mail_s,
+                                  send_mail_f):
         """新增调度预警"""
         if not dispatch_id:
             abort(400, **make_result(status=400, msg='调度id不得为空'))

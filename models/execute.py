@@ -6,15 +6,16 @@ import time
 
 class ExecuteModel(object):
     @staticmethod
-    def add_execute(cursor, exec_type, dispatch_id):
+    def add_execute(cursor, exec_type, dispatch_id, run_date):
         """添加执行表"""
         command = '''
-        INSERT INTO tb_execute(exec_type, dispatch_id, `status`, insert_time, update_time)
-        VALUES (:exec_type, :dispatch_id, 1, :insert_time, :update_time)
+        INSERT INTO tb_execute(exec_type, dispatch_id, `status`, run_date, insert_time, update_time)
+        VALUES (:exec_type, :dispatch_id, 1, :run_date, :insert_time, :update_time)
         '''
         result = cursor.insert(command, {
             'exec_type': exec_type,
             'dispatch_id': dispatch_id,
+            'run_date': run_date,
             'insert_time': int(time.time()),
             'update_time': int(time.time())
         })
@@ -94,7 +95,7 @@ class ExecuteModel(object):
 
     @staticmethod
     def get_execute_status(cursor, exec_id):
-        """获取执行表任务撞他"""
+        """获取执行表任务状态"""
         command = '''
         SELECT `status`
         FROM tb_execute
@@ -262,11 +263,11 @@ class ExecuteModel(object):
     def get_execute_job_log_count(cursor, condition):
         """获取手动执行任务日志数量"""
         command = '''
-            SELECT COUNT(*) AS count
-            FROM tb_execute AS a
-            LEFT JOIN tb_execute_detail AS b USING(exec_id)
-            WHERE exec_type = 2 %s
-            '''
+        SELECT COUNT(*) AS count
+        FROM tb_execute AS a
+        LEFT JOIN tb_execute_detail AS b USING(exec_id)
+        WHERE exec_type = 2 %s
+        '''
         command = command % condition
         result = cursor.query_one(command)
         return result['count'] if result else 0
@@ -405,7 +406,7 @@ class ExecuteModel(object):
     def get_exec_dispatch_id(cursor, exec_id):
         """获取执行表中调度id"""
         command = '''
-        SELECT exec_type, dispatch_id
+        SELECT exec_type, dispatch_id, run_date
         FROM tb_execute AS a
         WHERE a.exec_id = :exec_id
         '''

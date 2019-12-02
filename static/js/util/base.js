@@ -88,7 +88,8 @@ let BASE = {
             'add_api': '/dispatch/add/api/',
             'alert_add_api': '/dispatch/alert/add/api/',
             'alert_detail_api': '/dispatch/alert/detail/api/',
-            'run_api': '/dispatch/run/api/'
+            'run_api': '/dispatch/run/api/',
+            'run': '/dispatch/run/'
         },
         execute: {
             'job': '/execute/job/',

@@ -127,11 +127,11 @@ class DispatchOperation(object):
 
     @staticmethod
     @make_decorator
-    def run_dispatch(dispatch_id):
+    def run_dispatch(dispatch_id, run_date, date_format, is_after):
         """立即执行调度"""
         for item in dispatch_id:
             try:
-                get_dispatch_job(item, 2)
+                get_dispatch_job(item, 2, run_date, date_format, is_after)
             except Exception as e:
                 log.error('立即执行调度异常 [ERROR: %s]' % e, exc_info=True)
                 abort(400, **make_result(status=400, msg='立即执行调度异常'))
@@ -251,3 +251,10 @@ class DispatchAlertOperation(object):
             DispatchAlertModel.update_dispatch_alert_detail(db.etl_db, update_data)
 
         return Response(dispatch_id=dispatch_id)
+
+    @staticmethod
+    @make_decorator
+    def test(dispatch_id):
+        run_id = 'scheduler_%s' % dispatch_id
+        SchedulerHandler.run_job(run_id)
+        return None

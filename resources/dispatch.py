@@ -94,13 +94,18 @@ class DispatchAction(Resource):
     @staticmethod
     @dispatch_run_request
     @DispatchFilter.filter_run_dispatch(dispatch_id=list)
-    @DispatchOperation.run_dispatch(dispatch_id=list)
-    @DispatchVerify.verify_run_dispatch(dispatch_id=list)
-    @PermissionVerify.verify_execute_permission(dispatch_id=list)
+    @DispatchOperation.run_dispatch(dispatch_id=list, run_date=str, date_format=str, is_after=int)
+    @DispatchVerify.verify_run_dispatch(dispatch_id=list, run_date=str, date_format=str, is_after=int)
+    @PermissionVerify.verify_execute_permission(dispatch_id=list, run_date=str, date_format=str, is_after=int)
     def post():
         """立即执行调度任务"""
         payload = get_payload()
-        params = Response(dispatch_id=payload.get('dispatch_id', []))
+        params = Response(
+            dispatch_id=payload.get('dispatch_id', []),
+            run_date=payload.get('run_date', ''),
+            date_format=payload.get('date_format', ''),
+            is_after=int(payload.get('is_after', 1))
+        )
         log.info('立即执行调度任务[params: %s]' % str(params))
         return params
 
@@ -228,11 +233,20 @@ class DispatchAlertDetail(Resource):
         return params
 
 
+class DispatchTest(Resource):
+    @staticmethod
+    @DispatchAlertOperation.test(dispatch_id=int)
+    def get(dispatch_id):
+        params = Response(dispatch_id=dispatch_id)
+        return params
+
+
 ns = api.namespace('dispatch', description='调度')
 ns.add_resource(CrontabSearch, '/search/')
 ns.add_resource(DispatchList, '/list/api/')
 ns.add_resource(DispatchDetail, '/detail/api/<int:dispatch_id>/')
 ns.add_resource(DispatchAction, '/action/api/')
 ns.add_resource(DispatchAdd, '/add/api/')
+ns.add_resource(DispatchTest, '/test/<int:dispatch_id>/')
 ns.add_resource(DispatchAlertAdd, '/alert/add/api/')
 ns.add_resource(DispatchAlertDetail, '/alert/detail/api/<int:dispatch_id>/')

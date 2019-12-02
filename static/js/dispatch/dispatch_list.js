@@ -316,39 +316,13 @@
                             } else {
                                 let dispatch_id_arr = [];
                                 check_data.forEach(item => dispatch_id_arr.push(item.dispatch_id));
-                                layer.confirm('确定立即执行?', function (index) {
-                                    layer.close(index);
-                                    $.ajax({
-                                        url: BASE.uri.dispatch.action_api,
-                                        data: JSON.stringify({dispatch_id: dispatch_id_arr}),
-                                        contentType: "application/json; charset=utf-8",
-                                        type: 'post',
-                                        success: function (result) {
-                                            if (result.status === 200) {
-                                                layer.open({
-                                                    id: 'dispatch_run_success',
-                                                    btn: ['跳转', '留在本页'],
-                                                    title: '立即执行调度成功',
-                                                    content: '是否跳转至执行日志?',
-                                                    yes: function (index) {
-                                                        layer.close(index);
-                                                        window.location.href = BASE.uri.execute.flow;
-                                                    },
-                                                    btn2: function (index) {
-                                                        layer.close(index);
-                                                        // 刷新页面
-                                                        window.location.reload();
-                                                    }
-                                                });
-                                            } else {
-                                                layer.alert(sprintf('立即执行调度失败: [%s]', result.msg), {icon: 5});
-                                            }
-                                        },
-                                        error: function (error) {
-                                            let result = error.responseJSON;
-                                            layer.msg(sprintf('立即执行调度失败[%s]', result.msg), {icon: 5});
-                                        }
-                                    });
+                                layer.open({
+                                    type: 2,
+                                    anim: 5,
+                                    title: '立即执行',
+                                    maxmin: true,
+                                    area: ['60%', '80%'],
+                                    content: BASE.uri.dispatch.run + '?dispatch_id=' + dispatch_id_arr.join(',')
                                 });
                             }
                             break;
@@ -490,39 +464,13 @@
                     switch (event) {
                         // 立即执行
                         case 'run':
-                            layer.confirm('确定立即执行?', function (index) {
-                                layer.close(index);
-                                $.ajax({
-                                    url: BASE.uri.dispatch.action_api,
-                                    contentType: "application/json; charset=utf-8",
-                                    type: 'post',
-                                    data: JSON.stringify({dispatch_id: [data.dispatch_id]}),
-                                    success: function (result) {
-                                        if (result.status === 200) {
-                                            layer.open({
-                                                id: 'dispatch_run_success',
-                                                btn: ['跳转', '留在本页'],
-                                                title: '立即执行调度成功',
-                                                content: '是否跳转至执行日志?',
-                                                yes: function (index) {
-                                                    layer.close(index);
-                                                    window.location.href = BASE.uri.execute.flow;
-                                                },
-                                                btn2: function (index) {
-                                                    layer.close(index);
-                                                    // 刷新页面
-                                                    window.location.reload();
-                                                }
-                                            });
-                                        } else {
-                                            layer.alert(sprintf('立即执行调度失败: [%s]', result.msg), {icon: 5});
-                                        }
-                                    },
-                                    error: function (error) {
-                                        let result = error.responseJSON;
-                                        layer.msg(sprintf('立即执行调度失败[%s]', result.msg), {icon: 5});
-                                    }
-                                });
+                            layer.open({
+                                type: 2,
+                                anim: 5,
+                                title: '立即执行',
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.dispatch.run + '?dispatch_id=' + data.dispatch_id
                             });
                             break;
                         // 暂停

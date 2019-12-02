@@ -1,8 +1,10 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from configs import app
 from flask import render_template, session, redirect
+
+from configs import app
+from server.request import get_arg
 
 
 @app.route('/dispatch/')
@@ -26,4 +28,13 @@ def DispatchAdd():
     """新增调度"""
     if session.get('login'):
         return render_template('dispatch/dispatch_add.html')
+    return redirect('/login/')
+
+
+@app.route('/dispatch/run/')
+def DispatchRun():
+    """立即执行参数配置页面"""
+    dispatch_id = get_arg('dispatch_id', '')
+    if session.get('login'):
+        return render_template('dispatch/dispatch_start.html', dispatch_id=dispatch_id)
     return redirect('/login/')

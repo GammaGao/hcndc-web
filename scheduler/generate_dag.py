@@ -8,22 +8,23 @@ from configs import db
 from operations.job import JobOperation
 
 
-def generate_interface_dag_by_dispatch(dispatch_id):
+def generate_interface_dag_by_dispatch(dispatch_id, is_after=1):
     """
     获取执行任务流前后依赖关系
     0.预处理: 任务流详情和全部依赖关系, id统一为字符串
     1.构造节点: 节点获取一层父节点, 递归子节点
     2.计算节点层级: 找出开始节点(无入度), 入度和当前节点最大层级+1为当前节点层级, 队列中添加出度
     :param dispatch_id: 调度id
+    :param is_after: 是否触发后置任务流
     :return: 任务流依赖关系
     """
 
-    def get_context_node(node_id, is_parent=True):
+    def get_context_node(node_id, after=1, before=1):
         """获取上下文节点"""
         parent_node = [i for i in child if i['child_id'] == node_id]
         child_node = [i for i in parent if i['parent_id'] == node_id]
         # 父节点(局部拓扑情况下, 所有节点的父节点无需递归, 初始节点不添加父节点)
-        if is_parent:
+        if before:
             for node_item in parent_node:
                 # 添加入度
                 nodes[node_id]['in'].add(node_item['interface_id'])
@@ -37,20 +38,21 @@ def generate_interface_dag_by_dispatch(dispatch_id):
                         'level': 0
                     }
         # 子节点
-        for node_item in child_node:
-            # 添加出度
-            nodes[node_id]['out'].add(node_item['interface_id'])
-            if node_item['interface_id'] not in nodes:
-                # 添加节点
-                nodes[node_item['interface_id']] = {
-                    'id': node_item['interface_id'],
-                    'name': node_item['interface_name'],
-                    'in': {node_id},
-                    'out': set(),
-                    'level': 0
-                }
-                # 递归节点
-                get_context_node(node_item['interface_id'])
+        if after:
+            for node_item in child_node:
+                # 添加出度
+                nodes[node_id]['out'].add(node_item['interface_id'])
+                if node_item['interface_id'] not in nodes:
+                    # 添加节点
+                    nodes[node_item['interface_id']] = {
+                        'id': node_item['interface_id'],
+                        'name': node_item['interface_name'],
+                        'in': {node_id},
+                        'out': set(),
+                        'level': 0
+                    }
+                    # 递归节点
+                    get_context_node(node_item['interface_id'])
 
     # 任务流详情
     detail = InterfaceModel.get_interface_detail_by_dispatch_id(db.etl_db, dispatch_id)
@@ -80,7 +82,7 @@ def generate_interface_dag_by_dispatch(dispatch_id):
         'level': 0
     }
     # 节点上下文递归
-    get_context_node(detail['interface_id'], is_parent=False)
+    get_context_node(detail['interface_id'], after=is_after, before=0)
     # 2.计算节点层级
     node_queue = []
     # 找出开始节点

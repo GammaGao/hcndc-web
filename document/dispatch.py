@@ -73,7 +73,10 @@ dispatch_alert_update_request = api.doc(body=api.model('dispatch_alert_update_re
 
 # 立即执行调度任务请求
 dispatch_run_request = api.doc(body=api.model('dispatch_run_request', {
-    'dispatch_id': fields.List(fields.Integer, description='调度id列表')
+    'dispatch_id': fields.List(fields.Integer, description='调度id列表'),
+    'run_date': fields.String(description='数据日期'),
+    'date_format': fields.String(description='数据日期格式'),
+    'is_after': fields.Integer(description='是否触发后置任务流: 1.是, 0.否')
 }, description='立即执行调度请求'))
 
 # 调度任务暂停/恢复请求
