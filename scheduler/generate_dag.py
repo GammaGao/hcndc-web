@@ -205,11 +205,7 @@ def get_job_dag_by_exec_id(exec_id, interface_id):
             job['out_degree'] = []
         else:
             job['out_degree'] = [int(i) for i in job['out_degree'].split(',')]
-    # 按层级排序
-    source.sort(key=lambda x: x['level'])
-    nodes = {}
-    for job in source:
-        nodes[job['job_id']] = job
+    nodes = {job['job_id']: job for job in source}
     return nodes
 
 
@@ -227,18 +223,14 @@ def get_interface_dag_by_exec_id(exec_id):
             item['out_degree'] = []
         else:
             item['out_degree'] = [int(i) for i in item['out_degree'].split(',')]
-    # 按层级排序
-    source.sort(key=lambda x: x['level'])
-    nodes = {}
-    for item in source:
-        nodes[item['interface_id']] = item
+    nodes = {item['interface_id']: item for item in source}
     return nodes
 
 
-def get_all_jobs_dag_by_exec_id(exec_id):
+def get_all_jobs_dag_by_exec_id(exec_id, interface_id):
     """获取所有执行任务数据结构"""
     # 获取执行所有任务
-    source = ExecuteModel.get_execute_jobs_all(db.etl_db, exec_id)
+    source = ExecuteModel.get_execute_jobs_all(db.etl_db, exec_id, interface_id)
     for job in source:
         # 入度
         if not job['in_degree']:

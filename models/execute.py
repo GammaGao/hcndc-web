@@ -6,15 +6,16 @@ import time
 
 class ExecuteModel(object):
     @staticmethod
-    def add_execute(cursor, exec_type, dispatch_id, run_date):
+    def add_execute(cursor, exec_type, dispatch_id, run_date, is_after):
         """添加执行表"""
         command = '''
-        INSERT INTO tb_execute(exec_type, dispatch_id, `status`, run_date, insert_time, update_time)
-        VALUES (:exec_type, :dispatch_id, 1, :run_date, :insert_time, :update_time)
+        INSERT INTO tb_execute(exec_type, dispatch_id, `status`, run_date, is_after, insert_time, update_time)
+        VALUES (:exec_type, :dispatch_id, 1, :run_date, :is_after, :insert_time, :update_time)
         '''
         result = cursor.insert(command, {
             'exec_type': exec_type,
             'dispatch_id': dispatch_id,
+            'is_after': is_after,
             'run_date': run_date,
             'insert_time': int(time.time()),
             'update_time': int(time.time())
@@ -136,17 +137,18 @@ class ExecuteModel(object):
         return result if result else []
 
     @staticmethod
-    def get_execute_jobs_all(cursor, exec_id):
+    def get_execute_jobs_all(cursor, exec_id, interface_id):
         """获取所有任务详情"""
         command = '''
         SELECT job_id, in_degree, out_degree, server_host, server_dir,
         server_script, position, `level`, a.`status`, params_value, return_code
         FROM tb_execute_detail AS a
         INNER JOIN tb_execute AS b ON a.exec_id = b.exec_id
-        WHERE a.exec_id = :exec_id
+        WHERE a.exec_id = :exec_id AND interface_id = :interface_id
         '''
         result = cursor.query(command, {
-            'exec_id': exec_id
+            'exec_id': exec_id,
+            'interface_id': interface_id
         })
         return result if result else []
 
@@ -294,10 +296,11 @@ class ExecuteModel(object):
     def get_execute_detail_by_status(cursor, exec_id, status):
         """获取执行详情-by任务状态"""
         command = '''
-        SELECT job_id, in_degree, out_degree, server_host, server_dir,
-        server_script, position, `level`, a.`status`, params_value, return_code, pid
+        SELECT job_id, a.in_degree, a.out_degree, server_host, server_dir,
+        server_script, position, a.`level`, a.`status`, params_value, return_code, pid, interface_id
         FROM tb_execute_detail AS a
         INNER JOIN tb_execute AS b USING(exec_id)
+        INNER JOIN tb_execute_interface AS c USING(interface_id)
         WHERE a.exec_id = :exec_id AND a.`status` = :status
         '''
         result = cursor.query(command, {
@@ -406,7 +409,7 @@ class ExecuteModel(object):
     def get_exec_dispatch_id(cursor, exec_id):
         """获取执行表中调度id"""
         command = '''
-        SELECT exec_type, dispatch_id, run_date
+        SELECT exec_type, dispatch_id, run_date, is_after
         FROM tb_execute AS a
         WHERE a.exec_id = :exec_id
         '''

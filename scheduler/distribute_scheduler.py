@@ -16,9 +16,9 @@ def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='', is_a
     """
     调度执行开始方法
     1.生成所有任务流依赖(根据is_after参数, 确定递归深度), 生成任务流所有任务详情
-    2.添加执行主表, 执行任务流, 执行任务表
+    2.添加执行主表[运行中], 执行任务流[就绪], 修改执行详情表[待运行]
     3.获取初始任务流如果执行任务流为空, 则修改执行任务状态[成功](修改执行流账期, 修改执行任务流表记录);
-      执行任务流非空, 修改执行任务状态[运行中], 修改执行详情表状态[运行中]
+      执行任务流非空, 执行任务流状态[运行中], 修改执行详情表状态[运行中]
     4.RPC分发初始任务流中level=0的执行任务, 替换参数变量$date为T-1日期;
       如果RPC异常, 修改执行详情表状态[失败], 执行任务流状态[失败], 执行主表状态[失败]
     5.如果存在执行任务流为空, 获取下一个可执行任务流
@@ -43,7 +43,7 @@ def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='', is_a
         jobs = generate_job_dag_by_interface(item['id'])
         job_nodes[item['id']] = jobs
     # 添加执行主表, 任务流表, 任务表至数据库
-    exec_id = add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type, _date)
+    exec_id = add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type, _date, is_after)
     # 初始任务流
     start_interface = [_ for _, item in interface_nodes.items() if item['level'] == 0]
     # 开始执行初始任务流中的任务
@@ -88,10 +88,10 @@ def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='', is_a
                              nodes[job_id]['return_code'], nodes[job_id]['status'], run_date=_date)
 
 
-def add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type=1, run_date=''):
+def add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type=1, run_date='', is_after=1):
     """添加执行表和执行详情表"""
     # 添加执行表
-    exec_id = ExecuteModel.add_execute(db.etl_db, exec_type, dispatch_id, run_date)
+    exec_id = ExecuteModel.add_execute(db.etl_db, exec_type, dispatch_id, run_date, is_after)
     interface_arr = []
     for _, item in interface_nodes.items():
         interface_arr.append({
@@ -100,7 +100,7 @@ def add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type=1, run_da
             'in_degree': ','.join(item['in']) if item['in'] else '',
             'out_degree': ','.join(item['out']) if item['out'] else '',
             'level': item['level'],
-            'status': 1 if item.get('is_start', False) else 3,
+            'status': 3,
             'insert_time': int(time.time()),
             'update_time': int(time.time())
         })

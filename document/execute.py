@@ -61,8 +61,7 @@ execute_stop_requests = api.doc(body=api.model('execute_stop_requests', {
 
 # 断点重跑请求
 execute_restart_requests = api.doc(body=api.model('execute_restart_requests', {
-    'exec_id': fields.List(fields.Integer, description='执行ID列表'),
-    'prepose_rely': fields.Integer(description='检查任务流中任务前置依赖: 0.否, 1.是')
+    'exec_id': fields.List(fields.Integer, description='执行ID列表')
 }, description='断点重跑请求参数'))
 
 # 重置执行任务请求

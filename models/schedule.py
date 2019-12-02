@@ -84,22 +84,48 @@ class ScheduleModel(object):
         return result
 
     @staticmethod
-    def update_exec_job_reset(cursor, exec_id, job_id, status, params):
+    def update_exec_job_reset(cursor, exec_id, interface_id, job_id, status, job):
         """断点重跑时修改执行任务"""
         command = '''
-        UPDATE tb_execute_detail AS a, tb_jobs AS b, tb_exec_host AS c
-        SET a.server_dir = b.server_dir, a.server_script = b.server_script,
-        a.return_code = b.return_code, a.`status` = :status, a.server_host = c.server_host, 
-        a.params_value = :params_value, a.update_time = :update_time, pid = 0
-        WHERE a.exec_id = :exec_id AND a.job_id = :job_id
-        AND a.job_id = b.job_id
-        AND b.server_id = c.server_id
+        UPDATE tb_execute_detail
+        SET server_dir = :server_dir, server_script = :server_script, in_degree = :in_degree,
+        out_degree = :out_degree, return_code = :return_code, `status` = :status, `level` = :level,
+        server_host = :server_host, params_value = :params_value, update_time = :update_time, pid = 0
+        WHERE exec_id = :exec_id AND interface_id = :interface_id AND job_id = :job_id
         '''
         result = cursor.update(command, {
             'exec_id': exec_id,
+            'interface_id': interface_id,
             'job_id': job_id,
             'status': status,
-            'params_value': params,
+            'level': job['level'],
+            'server_dir': job['server_dir'],
+            'server_script': job['server_script'],
+            'in_degree': ','.join(str(i) for i in job['in']) if job['in'] else '',
+            'out_degree': ','.join(str(i) for i in job['out']) if job['out'] else '',
+            'return_code': job['return_code'],
+            'server_host': job['server_host'],
+            'params_value': ','.join(job['params_value']) if job['params_value'] else '',
+            'update_time': int(time.time())
+        })
+        return result
+
+    @staticmethod
+    def update_exec_interface_reset(cursor, exec_id, interface_id, status, interface):
+        """断点重跑时修改执行任务流"""
+        command = '''
+        UPDATE tb_execute_interface
+        SET in_degree = :in_degree, out_degree = :out_degree, `status` = :status,
+        `level` = :level, update_time = :update_time
+        WHERE exec_id = :exec_id AND interface_id = :interface_id
+        '''
+        result = cursor.update(command, {
+            'exec_id': exec_id,
+            'interface_id': interface_id,
+            'status': status,
+            'in_degree': ','.join(str(i) for i in interface['in']) if interface['in'] else '',
+            'out_degree': ','.join(str(i) for i in interface['out']) if interface['out'] else '',
+            'level': interface['level'],
             'update_time': int(time.time())
         })
         return result

@@ -100,13 +100,11 @@ class ExecuteVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_restart_execute(exec_id, prepose_rely, user_id):
+    def verify_restart_execute(exec_id, user_id):
         """断点续跑"""
         if not exec_id:
             abort(400, **make_result(status=400, msg='执行id不得为空'))
-        if prepose_rely < 0 or prepose_rely > 1:
-            abort(400, **make_result(status=400, msg='检查任务流中任务前置依赖参数错误'))
-        return Response(exec_id=exec_id, prepose_rely=prepose_rely, user_id=user_id)
+        return Response(exec_id=exec_id, user_id=user_id)
 
     @staticmethod
     @make_decorator

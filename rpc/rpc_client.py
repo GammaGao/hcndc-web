@@ -22,7 +22,7 @@ class Connection(object):
 
     def disconnect(self):
         """关闭RPC连接"""
-        self.conn.close()
+        self.conn and self.conn.close()
 
 
 class ConnectionPool(object):

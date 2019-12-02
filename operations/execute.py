@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 from server.decorators import make_decorator, Response
-from scheduler.generate_dag import get_job_dag_by_exec_id, get_all_jobs_dag_by_exec_id, get_interface_dag_by_exec_id
+from scheduler.generate_dag import get_job_dag_by_exec_id, get_all_jobs_dag_by_exec_id, get_interface_dag_by_exec_id, \
+    generate_job_dag_by_interface, generate_interface_dag_by_dispatch
 from rpc.rpc_client import Connection
 from configs import config, log, db
 from models.execute import ExecuteModel
@@ -197,6 +198,7 @@ def rpc_push_job(exec_id, interface_id, job_id, server_host, port, params_value,
             params=[item if item != '$date' else run_time for item in params],
             status=status
         )
+        client.disconnect()
         return ''
     except:
         err_msg = 'rpc连接异常: host: %s, port: %s' % (server_host, port)
@@ -470,7 +472,13 @@ class ExecuteOperation(object):
     @staticmethod
     @make_decorator
     def stop_execute_job(exec_id, user_id):
-        """中止执行任务"""
+        """
+        中止执行任务
+        1.修改调度主表状态为[中断]
+        2.获取正在执行任务
+        3.rpc分发-停止任务
+        4.修改执行详情表为[失败], 修改执行任务流状态[中断]
+        """
         msg = []
         for item in exec_id:
             # 修改数据库, 分布式锁
@@ -493,7 +501,10 @@ class ExecuteOperation(object):
                         # 修改数据库, 分布式锁
                         with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
                             # 修改执行详情表为[失败]
-                            ScheduleModel.update_exec_job_status(db.etl_db, item, execute['job_id'], 'failed')
+                            ScheduleModel.update_exec_job_status(db.etl_db, item, execute['interface_id'],
+                                                                 execute['job_id'], 'failed')
+                            # 修改执行任务流状态[中断]
+                            ExecuteModel.update_exec_interface_status(db.etl_db, item, execute['interface_id'], 2)
                         log.info('rpc分发-停止任务: 执行id: %s, 任务id: %s' % (item, execute['job_id']))
                 except:
                     err_msg = 'rpc分发-停止任务异常: host: %s, port: %s, 执行id: %s, 任务id: %s' % (
@@ -508,85 +519,84 @@ class ExecuteOperation(object):
 
     @staticmethod
     @make_decorator
-    def restart_execute_job(exec_id, prepose_rely, user_id):
-        """断点续跑"""
+    def restart_execute_job(exec_id, user_id):
+        """
+        断点续跑
+        1.修改调度主表状态为[运行中]
+        2.获取调度任务流参数, 调度信息, 找出[中断/失败]任务流
+        3.获取调度任务流详情(所有执行任务), 找出失败任务, 重新生成任务流下所有任务详情
+        4.重置失败任务参数, 修改执行详情表参数, 状态为[待运行]
+        4.重新生成任务流依赖, 修改执行任务流参数, 状态[运行中]
+        5.重新获取调度详情, 找到[运行中]任务流, 重新获取调度任务流详情, 找到运行任务(状态[待运行], 入度执行成功)
+        6.去重, RPC分发任务
+        """
         for item in exec_id:
             # 修改数据库, 分布式锁
             with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
                 # 修改调度表状态为[运行中]
                 ExecuteModel.update_execute_status(db.etl_db, item, 1)
-            # 获取调度详情
-            result = get_all_jobs_dag_by_exec_id(item)
-            nodes = result['nodes']
-            # 找出失败节点
-            failed_nodes = {job_id: nodes[job_id] for job_id in nodes if nodes[job_id]['status'] == 'failed'}
-            # 重置失败节点参数
-            for job_id in set(failed_nodes):
-                log.info('重置失败节点参数: 执行id: %s, 任务id: %s' % (item, job_id))
-                # 获取任务参数
-                params = JobOperation.get_job_params(db.etl_db, job_id)
-                # 修改数据库, 分布式锁
-                with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
-                    # 修改执行详情表状态为[待运行]
-                    ScheduleModel.update_exec_job_reset(db.etl_db, item, job_id, 'preparing', ','.join(params))
-            # 重新获取调度详情
-            result = get_all_jobs_dag_by_exec_id(item)
-            nodes = result['nodes']
-            # 找到[待运行]节点
-            preparing_nodes = {job_id: nodes[job_id] for job_id in nodes if nodes[job_id]['status'] == 'preparing'}
-            rerun_job = []
-            for job_id in preparing_nodes:
-                flag = True
-                # 入度
-                for in_id in nodes[job_id]['in_degree']:
-                    # 节点的入度是否全部成功
-                    if nodes[in_id]['status'] != 'succeeded':
-                        flag = False
-                        break
-                if flag:
-                    rerun_job.append(job_id)
-                # TODO 考虑前置依赖(代码中无不考虑前置依赖部分代码)
-                # if prepose_rely:
-                #     flag = True
-                #     # 入度
-                #     for in_id in nodes[job_id]['in_degree']:
-                #         # 节点的入度是否全部成功
-                #         if nodes[in_id]['position'] == 1 and nodes[in_id]['status'] != 'succeeded':
-                #             flag = False
-                #             break
-                #     if flag:
-                #         rerun_job.append(job_id)
-                # # 不考虑前置依赖
-                # else:
-                #     rerun_job.append(job_id)
-            # 去重, 分发任务
-            for job_id in set(rerun_job):
-                log.info('分发任务: 执行id: %s, 任务id: %s' % (item, job_id))
-                try:
-                    # rpc分发任务
-                    client = Connection(nodes[job_id]['server_host'], config.exec.port)
-                    client.rpc.execute(
-                        exec_id=item,
-                        job_id=job_id,
-                        server_dir=nodes[job_id]['server_dir'],
-                        server_script=nodes[job_id]['server_script'],
-                        return_code=nodes[job_id]['return_code'],
-                        params=nodes[job_id]['params_value'].split(','),
-                        status=nodes[job_id]['status']
-                    )
-                except:
-                    err_msg = 'rpc连接异常: host: %s, port: %s' % (nodes[job_id]['server_host'], config.exec.port)
-                    # 添加执行任务详情日志
-                    ScheduleModel.add_exec_detail_job(db.etl_db, item, job_id, 'ERROR', nodes[job_id]['server_dir'],
-                                                      nodes[job_id]['server_script'], err_msg, 3)
+                # 获取任务流参数
+                interface_dict = get_interface_dag_by_exec_id(exec_id)
+            # 获取调度信息
+            dispatch = ExecuteModel.get_exec_dispatch_id(db.etl_db, item)
+            # 中断/失败任务流
+            error_interface = [_ for _, item in interface_dict.items() if item['status'] in (2, -1)]
+            # 获取调度任务流详情
+            for interface_id in set(error_interface):
+                # 获取所有执行任务
+                result = get_all_jobs_dag_by_exec_id(item, interface_id)
+                nodes = result['nodes']
+                # 找出失败任务
+                failed_nodes = {job_id: item for job_id, item in nodes.items() if item['status'] == 'failed'}
+                # 生成任务流下所有任务详情
+                job_list = {item['id']: item for item in generate_job_dag_by_interface(interface_id)}
+                # 重置失败任务参数
+                for job_id in set(failed_nodes):
+                    log.info('重置失败任务参数: 执行id: %s, 任务流id: %s, 任务id: %s' % (item, interface_id, job_id))
+                    job = job_list[job_id]
                     # 修改数据库, 分布式锁
                     with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
-                        # 修改执行详情表状态[失败]
-                        ScheduleModel.update_exec_job_status(db.etl_db, item, job_id, 'failed')
-                        # 修改执行主表状态[失败]
-                        ExecuteModel.update_execute_status(db.etl_db, item, -1)
-                    log.error(err_msg, exc_info=True)
-                    return Response(msg=err_msg)
+                        # 修改执行详情表参数, 状态为[待运行]
+                        ScheduleModel.update_exec_job_reset(db.etl_db, item, interface_id, job_id, 'preparing', job)
+                # 重新生成任务流依赖
+                interface_list = generate_interface_dag_by_dispatch(dispatch['dispatch_id'], dispatch['is_after'])
+                interface = interface_list[str(interface_id)]
+                # 修改数据库, 分布式锁
+                with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
+                    # 修改执行任务流参数, 状态[运行中]
+                    log.info('重置失败任务流参数: 执行id: %s, 任务流id: %s' % (item, interface_id))
+                    ScheduleModel.update_exec_interface_reset(db.etl_db, exec_id, interface['id'], 1, interface)
+            # 重新获取调度详情
+            interface_list = get_interface_dag_by_exec_id(item)
+            # 找到[运行中]任务流
+            running_nodes = {_: interface for _, interface in interface_list.items() if interface['status'] == 1}
+            for interface_id, node in running_nodes.items():
+                # 重新获取调度任务流详情
+                result = get_all_jobs_dag_by_exec_id(item, interface_id)
+                nodes = result['nodes']
+                # 找到[待运行]任务
+                preparing_nodes = {_: job for _, job in nodes.items() if job['status'] == 'preparing'}
+                rerun_job = []
+                for job_id in preparing_nodes:
+                    flag = True
+                    # 入度
+                    for in_id in nodes[job_id]['in_degree']:
+                        # 节点的入度是否全部成功
+                        if nodes[in_id]['status'] != 'succeeded':
+                            flag = False
+                            break
+                    if flag:
+                        rerun_job.append(job_id)
+                # 去重, 分发任务
+                for job_id in set(rerun_job):
+                    log.info('分发任务: 执行id: %s, 任务id: %s' % (item, job_id))
+                    push_msg = rpc_push_job(item, interface_id, job_id, nodes[job_id]['server_host'],
+                                            config.exec.port, nodes[job_id]['params_value'],
+                                            nodes[job_id]['server_dir'], nodes[job_id]['server_script'],
+                                            nodes[job_id]['return_code'], nodes[job_id]['status'],
+                                            run_date=dispatch['run_date'])
+                    if push_msg:
+                        return Response(msg=push_msg)
         return Response(msg='成功')
 
     @staticmethod
