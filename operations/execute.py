@@ -628,21 +628,21 @@ class ExecuteOperation(object):
             ExecuteModel.add_execute_by_id(db.etl_db, exec_id, dispatch['exec_type'], dispatch['dispatch_id'],
                                            dispatch['run_date'], dispatch['is_after'])
             interface_arr = []
-            for _, item in interface_nodes.items():
+            for _, val in interface_nodes.items():
                 interface_arr.append({
                     'exec_id': exec_id,
-                    'interface_id': item['id'],
-                    'in_degree': ','.join(item['in']) if item['in'] else '',
-                    'out_degree': ','.join(item['out']) if item['out'] else '',
-                    'level': item['level'],
+                    'interface_id': val['id'],
+                    'in_degree': ','.join(val['in']) if val['in'] else '',
+                    'out_degree': ','.join(val['out']) if val['out'] else '',
+                    'level': val['level'],
                     'status': 3,
                     'insert_time': int(time.time()),
                     'update_time': int(time.time())
                 })
             ExecuteModel.add_exec_interface(db.etl_db, interface_arr) if interface_arr else None
             data = []
-            for _, item in job_nodes.items():
-                for job in item:
+            for _, val in job_nodes.items():
+                for job in val:
                     data.append({
                         'exec_id': exec_id,
                         'interface_id': _,
@@ -667,59 +667,74 @@ class ExecuteOperation(object):
     @staticmethod
     @make_decorator
     def start_execute_job(exec_id, user_id):
-        """启动执行任务"""
+        """
+        启动执行任务
+        1.获取调度详情
+        2.修改执行主表状态为[运行中]
+        3.获取起始任务流(默认任务流状态为3: 就绪), 获取所有起始任务流下所有任务
+        4.开始执行初始任务流中的任务,
+          任务流中任务为空, 则视调度已完成,修改调度执行表账期, 修改执行任务流[成功]
+          否则修改执行任务流[运行中], rpc分发任务, 修改执行详情表状态[运行中]
+          5.如果存在空任务流, 继续下一个任务流
+        """
         for item in exec_id:
-            # 推进流程
-            result = get_job_dag_by_exec_id(item)
-            nodes = result['nodes']
+            # 获取调度详情
+            dispatch = ExecuteModel.get_exec_dispatch_id(db.etl_db, item)
             # 修改数据库, 分布式锁
             with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
                 # 修改执行主表状态为[运行中]
                 ExecuteModel.update_execute_status(db.etl_db, item, 1)
-            dispatch = ExecuteModel.get_exec_dispatch_id(db.etl_db, item)
-            # 任务流中任务为空, 则视调度已完成
-            if not nodes:
-                # 修改数据库, 分布式锁
-                with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
-                    # 修改执行主表状态为[成功]
-                    ExecuteModel.update_execute_status(db.etl_db, item, 0)
-                # 修改调度执行表账期
-                if dispatch['exec_type'] == 1 and dispatch['dispatch_id']:
-                    run_time = time.strftime('%Y-%m-%d', time.localtime())
-                    ExecuteModel.update_interface_account_by_dispatch_id(db.etl_db, dispatch['dispatch_id'], run_time)
-                log.info('任务流中任务为空: 调度id: %s' % dispatch['dispatch_id'])
-                return Response(exec_id=exec_id)
-
-            # 遍历所有节点
-            for job_id in nodes:
-                job = nodes[job_id]
-                # 获取初始层级可执行任务
-                if job['level'] == 0:
-                    try:
-                        client = Connection(job['server_host'], config.exec.port)
-                        client.rpc.execute(
-                            exec_id=item,
-                            job_id=job_id,
-                            server_dir=job['server_dir'],
-                            server_script=job['server_script'],
-                            return_code=job['return_code'],
-                            params=job['params_value'].split(','),
-                            status=job['status']
-                        )
-                        log.info('分发任务: 执行id: %s, 任务id: %s' % (item, job_id))
-                    except:
-                        err_msg = 'rpc连接异常: host: %s, port: %s' % (job['server_host'], config.exec.port)
-                        # 添加执行任务详情日志
-                        ScheduleModel.add_exec_detail_job(db.etl_db, item, job_id, 'ERROR', job['server_dir'],
-                                                          job['server_script'], err_msg, 3)
-                        # 修改数据库, 分布式锁
-                        with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
-                            # 修改执行详情表状态[失败]
-                            ScheduleModel.update_exec_job_status(db.etl_db, item, job_id, 'failed')
-                            # 修改执行主表状态[失败]
-                            ExecuteModel.update_execute_status(db.etl_db, item, -1)
-                        log.error(err_msg, exc_info=True)
-
+            # 推进流程
+            interface_dict = get_interface_dag_by_exec_id(item)
+            # 起始任务流(默认任务流状态为3: 就绪)
+            start_interface = [_ for _, item in interface_dict.items() if item['level'] == 0]
+            # 任务流的任务详情
+            job_nodes = {}
+            for interface_id in start_interface:
+                # 获取起始任务流下所有任务
+                jobs = get_all_jobs_dag_by_exec_id(item, interface_id)
+                job_nodes[interface_id] = jobs['source']
+            # 开始执行初始任务流中的任务
+            flag = False
+            for curr_interface in start_interface:
+                start_jobs = job_nodes[curr_interface]
+                # 任务流中任务为空, 则视调度已完成
+                if not start_jobs:
+                    flag = True
+                    # 修改调度执行表账期
+                    with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
+                        ExecuteModel.update_interface_run_time(db.etl_db, curr_interface, dispatch['run_date'])
+                    log.info('任务流中任务为空: 调度id: %s, 执行id: %s, 任务流id: %s' %
+                             (dispatch['dispatch_id'], item, curr_interface))
+                    # 修改执行任务流[成功]
+                    with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
+                        ExecuteModel.update_exec_interface_status(db.etl_db, item, curr_interface, 0)
+                else:
+                    # 修改执行任务流[运行中]
+                    with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
+                        ExecuteModel.update_exec_interface_status(db.etl_db, item, curr_interface, 1)
+                    # rpc分发任务
+                    for job in start_jobs:
+                        if job['level'] == 0:
+                            # 修改执行详情表状态[运行中]
+                            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
+                                ScheduleModel.update_exec_job_status(db.etl_db, item, curr_interface, job['job_id'],
+                                                                     'running')
+                            log.info('分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (item, curr_interface, job['job_id']))
+                            rpc_push_job(item, curr_interface, job['job_id'], job['server_host'], config.exec.port,
+                                         ','.join(job['params_value']), job['server_dir'], job['server_script'],
+                                         job['return_code'], job['status'], run_date=dispatch['run_date'])
+            # 继续下一个任务流
+            if flag:
+                next_jobs = continue_execute_interface(item, exec_type=dispatch['exec_type'])
+                for interface_id, val in next_jobs.items():
+                    for job_id in set(val['job_id']):
+                        log.info('分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (item, interface_id, job_id))
+                        nodes = val['nodes']
+                        rpc_push_job(item, interface_id, job_id, nodes[job_id]['server_host'],
+                                     config.exec.port, nodes[job_id]['params_value'], nodes[job_id]['server_dir'],
+                                     nodes[job_id]['server_script'], nodes[job_id]['return_code'],
+                                     nodes[job_id]['status'], run_date=dispatch['run_date'])
         return Response(exec_id=exec_id)
 
     @staticmethod
