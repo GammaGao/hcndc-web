@@ -10,7 +10,7 @@ from models.execute import ExecuteModel
 from models.schedule import ScheduleModel
 from models.interface import InterfaceModel
 # from util.msg_push import send_mail, send_dingtalk
-from operations.job import JobOperation
+# from operations.job import JobOperation
 from conn.mysql_lock import MysqlLock
 
 import time
@@ -602,22 +602,66 @@ class ExecuteOperation(object):
     @staticmethod
     @make_decorator
     def reset_execute_job(exec_id, user_id):
-        """重置执行任务"""
+        """
+        重置执行任务
+        1.获取调度信息
+        2.删除执行主表, 执行任务流表, 执行详情表
+        3.添加执行主表, 任务流表, 任务表至数据库
+        """
         for item in exec_id:
-            # 获取调度详情
-            result = get_all_jobs_dag_by_exec_id(item)
-            nodes = result['nodes']
-            # 重置节点参数
-            for job_id in nodes:
-                log.info('重置节点参数: 执行id: %s, 任务id: %s' % (item, job_id))
-                # 获取任务参数
-                params = JobOperation.get_job_params(db.etl_db, job_id)
-                # 修改数据库, 分布式锁
-                with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
-                    # 修改执行主表状态为[就绪]
-                    ExecuteModel.update_execute_status(db.etl_db, item, 3)
-                    # 修改执行详情表状态为[待运行]
-                    ScheduleModel.update_exec_job_reset(db.etl_db, item, job_id, 'preparing', ','.join(params))
+            # 获取调度信息
+            dispatch = ExecuteModel.get_exec_dispatch_id(db.etl_db, item)
+            # 删除执行主表, 执行任务流表, 执行详情表
+            ExecuteModel.delete_execute(db.etl_db, item)
+            ExecuteModel.delete_exec_interface(db.etl_db, item)
+            ExecuteModel.delete_exec_detail(db.etl_db, item)
+            # 获取执行任务流前后依赖关系
+            interface_nodes = generate_interface_dag_by_dispatch(dispatch['dispatch_id'], dispatch['is_after'])
+            if not interface_nodes:
+                continue
+            # 获取所有任务流的任务详情
+            job_nodes = {}
+            for _, interface in interface_nodes.items():
+                jobs = generate_job_dag_by_interface(interface['id'])
+                job_nodes[interface['id']] = jobs
+            # 添加执行表
+            ExecuteModel.add_execute_by_id(db.etl_db, exec_id, dispatch['exec_type'], dispatch['dispatch_id'],
+                                           dispatch['run_date'], dispatch['is_after'])
+            interface_arr = []
+            for _, item in interface_nodes.items():
+                interface_arr.append({
+                    'exec_id': exec_id,
+                    'interface_id': item['id'],
+                    'in_degree': ','.join(item['in']) if item['in'] else '',
+                    'out_degree': ','.join(item['out']) if item['out'] else '',
+                    'level': item['level'],
+                    'status': 3,
+                    'insert_time': int(time.time()),
+                    'update_time': int(time.time())
+                })
+            ExecuteModel.add_exec_interface(db.etl_db, interface_arr) if interface_arr else None
+            data = []
+            for _, item in job_nodes.items():
+                for job in item:
+                    data.append({
+                        'exec_id': exec_id,
+                        'interface_id': _,
+                        'job_id': job['id'],
+                        'in_degree': ','.join(str(j) for j in job['in']) if job['in'] else '',
+                        'out_degree': ','.join(str(j) for j in job['out']) if job['out'] else '',
+                        'server_host': job.get('server_host', ''),
+                        'server_dir': job.get('server_dir', ''),
+                        'params_value': ','.join(job.get('params', [])),
+                        'server_script': job.get('server_script', ''),
+                        'position': job['position'],
+                        'return_code': job.get('return_code', 0),
+                        'level': job.get('level', 0),
+                        'status': job.get('status', 'preparing'),
+                        'insert_time': int(time.time()),
+                        'update_time': int(time.time())
+                    })
+            # 添加执行详情表
+            ExecuteModel.add_execute_detail(db.etl_db, data) if data else None
         return Response(exec_id=exec_id)
 
     @staticmethod

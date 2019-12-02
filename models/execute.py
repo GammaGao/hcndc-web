@@ -23,6 +23,24 @@ class ExecuteModel(object):
         return result
 
     @staticmethod
+    def add_execute_by_id(cursor, exec_id, exec_type, dispatch_id, run_date, is_after):
+        """添加执行表"""
+        command = '''
+        INSERT INTO tb_execute(exec_id, exec_type, dispatch_id, `status`, run_date, is_after, insert_time, update_time)
+        VALUES (:exec_id, :exec_type, :dispatch_id, 3, :run_date, :is_after, :insert_time, :update_time)
+        '''
+        result = cursor.insert(command, {
+            'exec_id': exec_id,
+            'exec_type': exec_type,
+            'dispatch_id': dispatch_id,
+            'is_after': is_after,
+            'run_date': run_date,
+            'insert_time': int(time.time()),
+            'update_time': int(time.time())
+        })
+        return result
+
+    @staticmethod
     def update_execute_status(cursor, exec_id, status):
         """修改调度执行表状态"""
         command = '''
@@ -455,5 +473,41 @@ class ExecuteModel(object):
             'interface_id': interface_id,
             'status': status,
             'update_time': int(time.time())
+        })
+        return result
+
+    @staticmethod
+    def delete_execute(cursor, exec_id):
+        """删除执行主表数据"""
+        command = '''
+        DELETE FROM tb_execute
+        WHERE exec_id = :exec_id
+        '''
+        result = cursor.delete(command, {
+            'exec_id': exec_id
+        })
+        return result
+
+    @staticmethod
+    def delete_exec_interface(cursor, exec_id):
+        """删除执行任务流表"""
+        command = '''
+        DELETE FROM tb_execute_interface
+        WHERE exec_id = :exec_id
+        '''
+        result = cursor.delete(command, {
+            'exec_id': exec_id
+        })
+        return result
+
+    @staticmethod
+    def delete_exec_detail(cursor, exec_id):
+        """删除执行详情表"""
+        command = '''
+        DELETE FROM tb_execute_detail
+        WHERE exec_id = :exec_id
+        '''
+        result = cursor.delete(command, {
+            'exec_id': exec_id
         })
         return result
