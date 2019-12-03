@@ -559,6 +559,7 @@
                                 $.ajax({
                                     url: BASE.uri.dispatch.action_api,
                                     data: JSON.stringify({dispatch_id: [data.dispatch_id]}),
+                                    contentType: "application/json; charset=utf-8",
                                     type: 'delete',
                                     success: function (result) {
                                         if (result.status === 200) {

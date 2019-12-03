@@ -38,9 +38,10 @@
                     parseData: function (res) {
                         let fields = {
                             'job_id': '任务id',
-                            'interface_id': '任务流id',
                             'job_name': '任务名称',
+                            'interface_name': '任务流名称',
                             'job_desc': '任务描述',
+                            'job_index': '任务目录',
                             'server_id': '服务器id',
                             'server_name': '服务器名称',
                             'server_host': '服务器IP',
@@ -51,14 +52,16 @@
                             'prep_id': '依赖任务'
                         };
                         let data = [];
-                        for (let i in res.data) {
-                            if (i === 'is_deleted'){
-                                res.data[i] = res.data[i] === 0 ? '否': '是'
+                        for (let item in res.data) {
+                            if (item === 'is_deleted'){
+                                res.data[item] = res.data[item] === 0 ? '否': '是'
                             }
-                            if (i === 'prep_id'){
-                                res.data[i] = res.data[i].join(', ');
+                            if (item === 'prep_id'){
+                                res.data[item] = res.data[item].join(', ');
                             }
-                            data.push({'params': fields[i], 'value': res.data[i]})
+                            if (fields[item]) {
+                                data.push({'params': fields[item], 'value': res.data[item]})
+                            }
                         }
                         return {
                             "status": res.status,

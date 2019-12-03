@@ -16,8 +16,8 @@
             this.user_info();
             // 元素事件注册
             this.element_event();
-            // 任务流ID渲染
-            this.interface_list_id();
+            // 任务ID渲染
+            this.job_list_id();
             // 表单搜索事件
             this.form_search();
             // 表格数据初始化
@@ -127,10 +127,10 @@
                 }
             })
         },
-        // 任务流ID渲染
-        interface_list_id: function () {
+        // 任务ID渲染
+        job_list_id: function () {
             $.ajax({
-                url: BASE.uri.interface.id_list_api,
+                url: BASE.uri.job.id_list_api,
                 type: 'get',
                 success: function (res) {
                     layui.use('form', function () {
@@ -138,9 +138,9 @@
                         let html = [];
                         html.push('<option value="0">请选择</option>');
                         for (let i in res.data) {
-                            html.push('<option value="' + res.data[i].interface_id + '">' + res.data[i].interface_name + '</option>')
+                            html.push('<option value="' + res.data[i].job_id + '">' + res.data[i].job_name + '</option>')
                         }
-                        $('select[name=interface_id]').append(html.join(''));
+                        $('select[name=job_id]').append(html.join(''));
                         form.render('select');
                     })
                 }
