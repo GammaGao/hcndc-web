@@ -175,7 +175,7 @@ class JobOperation(object):
 
     @staticmethod
     @make_decorator
-    def execute_job(job_id, user_id):
+    def execute_job(job_id):
         """立即执行任务"""
         # 获取任务
         job = JobModel.get_job_detail(db.etl_db, job_id)
@@ -215,6 +215,7 @@ class JobOperation(object):
                 params=params,
                 status='preparing'
             )
+            client.disconnect()
             log.info('分发任务: 执行id: %s, 任务id: %s' % (exec_id, job['job_id']))
             return Response(status=True, msg='成功')
         except:

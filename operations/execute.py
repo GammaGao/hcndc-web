@@ -471,7 +471,7 @@ class ExecuteOperation(object):
 
     @staticmethod
     @make_decorator
-    def stop_execute_job(exec_id, user_id):
+    def stop_execute_job(exec_id):
         """
         中止执行任务
         1.修改调度主表状态为[中断]
@@ -489,15 +489,19 @@ class ExecuteOperation(object):
             if not stop_num:
                 msg.append('执行ID: [%s]状态为非执行中, 中断失败' % item)
                 continue
-            # 获取正在执行任务
-            result = ExecuteModel.get_execute_detail_by_status(db.etl_db, item, 'running')
-            for execute in result:
+            # 获取正在执行任务, 分布式锁
+            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
+                result = ExecuteModel.get_execute_detail_by_status(db.etl_db, item, 'running')
+            # 去重
+            result = {item['job_id']: item for item in result}
+            for _, execute in result.items():
                 try:
                     # 获取进程id
                     if execute['pid']:
                         # rpc分发-停止任务
                         client = Connection(execute['server_host'], config.exec.port)
                         client.rpc.stop(exec_id=item, job_id=execute['job_id'], pid=execute['pid'])
+                        client.disconnect()
                         # 修改数据库, 分布式锁
                         with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
                             # 修改执行详情表为[失败]
@@ -519,11 +523,12 @@ class ExecuteOperation(object):
 
     @staticmethod
     @make_decorator
-    def restart_execute_job(exec_id, user_id):
+    def restart_execute_job(exec_id):
         """
         断点续跑
         1.修改调度主表状态为[运行中]
         2.获取调度任务流参数, 调度信息, 找出[中断/失败]任务流
+          如果没有[中断/失败]任务流, 找到满足依赖的[就绪]任务流,
         3.获取调度任务流详情(所有执行任务), 找出失败任务, 重新生成任务流下所有任务详情
         4.重置失败任务参数, 修改执行详情表参数, 状态为[待运行]
         4.重新生成任务流依赖, 修改执行任务流参数, 状态[运行中]
@@ -541,6 +546,9 @@ class ExecuteOperation(object):
             dispatch = ExecuteModel.get_exec_dispatch_id(db.etl_db, item)
             # 中断/失败任务流
             error_interface = [_ for _, item in interface_dict.items() if item['status'] in (2, -1)]
+            # 如果没有中断/失败任务流, 找到满足依赖的就绪任务流
+            if not error_interface:
+                error_interface = continue_execute_interface(exec_id, exec_type=dispatch['exec_type']).keys()
             # 获取调度任务流详情
             for interface_id in set(error_interface):
                 # 获取所有执行任务
@@ -589,7 +597,7 @@ class ExecuteOperation(object):
                         rerun_job.append(job_id)
                 # 去重, 分发任务
                 for job_id in set(rerun_job):
-                    log.info('分发任务: 执行id: %s, 任务id: %s' % (item, job_id))
+                    log.info('分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (item, interface_id, job_id))
                     push_msg = rpc_push_job(item, interface_id, job_id, nodes[job_id]['server_host'],
                                             config.exec.port, nodes[job_id]['params_value'],
                                             nodes[job_id]['server_dir'], nodes[job_id]['server_script'],
@@ -601,7 +609,7 @@ class ExecuteOperation(object):
 
     @staticmethod
     @make_decorator
-    def reset_execute_job(exec_id, user_id):
+    def reset_execute_job(exec_id):
         """
         重置执行任务
         1.获取调度信息
@@ -666,7 +674,7 @@ class ExecuteOperation(object):
 
     @staticmethod
     @make_decorator
-    def start_execute_job(exec_id, user_id):
+    def start_execute_job(exec_id):
         """
         启动执行任务
         1.获取调度详情

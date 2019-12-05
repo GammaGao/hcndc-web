@@ -140,7 +140,7 @@ class JobExecute(Resource):
     @staticmethod
     @job_execute_request
     @JobFilter.filter_execute_job(status=bool, msg=str)
-    @JobOperation.execute_job(job_id=int, user_id=int)
+    @JobOperation.execute_job(job_id=int)
     @JobVerify.verify_execute_job(job_id=int, user_id=int)
     @PermissionVerify.verify_execute_permission(job_id=int)
     def post():

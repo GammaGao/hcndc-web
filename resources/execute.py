@@ -127,7 +127,7 @@ class ExecuteAction(Resource):
     @staticmethod
     @execute_stop_requests
     @ExecuteFilter.filter_stop_execute_job(msg=list)
-    @ExecuteOperation.stop_execute_job(exec_id=list, user_id=int)
+    @ExecuteOperation.stop_execute_job(exec_id=list)
     @ExecuteVerify.verify_stop_execute(exec_id=list, user_id=int)
     @PermissionVerify.verify_execute_permission(exec_id=list)
     def delete():
@@ -140,7 +140,7 @@ class ExecuteAction(Resource):
     @staticmethod
     @execute_restart_requests
     @ExecuteFilter.filter_restart(msg=str)
-    @ExecuteOperation.restart_execute_job(exec_id=list, user_id=int)
+    @ExecuteOperation.restart_execute_job(exec_id=list)
     @ExecuteVerify.verify_restart_execute(exec_id=list, user_id=int)
     @PermissionVerify.verify_execute_permission(exec_id=list)
     def post():
@@ -155,7 +155,7 @@ class ExecuteAction(Resource):
     @staticmethod
     @execute_reset_requests
     @ExecuteFilter.filter_reset(exec_id=list)
-    @ExecuteOperation.reset_execute_job(exec_id=list, user_id=int)
+    @ExecuteOperation.reset_execute_job(exec_id=list)
     @ExecuteVerify.verify_reset_execute(exec_id=list, user_id=int)
     @PermissionVerify.verify_execute_permission(exec_id=list)
     def put():
@@ -168,7 +168,7 @@ class ExecuteAction(Resource):
     @staticmethod
     @execute_start_requests
     @ExecuteFilter.filter_start(exec_id=list)
-    @ExecuteOperation.start_execute_job(exec_id=list, user_id=int)
+    @ExecuteOperation.start_execute_job(exec_id=list)
     @ExecuteVerify.verify_start_execute(exec_id=list, user_id=int)
     @PermissionVerify.verify_execute_permission(exec_id=list)
     def patch():
