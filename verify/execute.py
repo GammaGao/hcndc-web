@@ -14,8 +14,6 @@ class ExecuteVerify(object):
         """验证回调函数"""
         if not exec_id:
             abort(400, **make_result(status=400, msg='执行id不存在'))
-        if not interface_id:
-            abort(400, **make_result(status=400, msg='执行流id不存在'))
         if not job_id:
             abort(400, **make_result(status=400, msg='任务id不存在'))
         if not status:

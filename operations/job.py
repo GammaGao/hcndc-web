@@ -3,6 +3,7 @@
 
 import time
 from flask_restful import abort
+from datetime import date, timedelta
 
 from server.decorators import make_decorator, Response
 from server.status import make_result
@@ -13,6 +14,64 @@ from configs import db, config, log
 from rpc.rpc_client import Connection
 from util.db_util import get_db_data_one
 from conn.mysql_lock import MysqlLock
+
+
+def rpc_push_job(exec_id, interface_id, job_id, server_host, port, params_value, server_dir, server_script, return_code,
+                 status, date_format='%Y%m%d', run_date=''):
+    """
+    RPC分发任务
+    1.替换$date变量
+    :param exec_id: 执行id
+    :param interface_id: 任务流id
+    :param job_id: 任务id
+    :param server_host: RPC执行服务器域名
+    :param port: RPC执行服务器端口
+    :param params_value: 参数值字符串
+    :param server_dir: 脚本目录
+    :param server_script: 运行脚本
+    :param return_code: 状态返回码
+    :param status: 任务状态
+    :param date_format: 日期格式
+    :param run_date: 数据日期
+    :return: 
+    """""
+    try:
+        # rpc分发任务
+        client = Connection(server_host, port)
+        # 任务参数中数据日期变量为T-1
+        if not run_date:
+            run_time = (date.today() + timedelta(days=-1)).strftime(date_format)
+        else:
+            run_time = run_date
+        params = params_value.split(',') if params_value else []
+        client.rpc.execute(
+            exec_id=exec_id,
+            interface_id=interface_id,
+            job_id=job_id,
+            server_dir=server_dir,
+            server_script=server_script,
+            return_code=return_code,
+            params=[item if item != '$date' else run_time for item in params],
+            status=status
+        )
+        client.disconnect()
+        return ''
+    except:
+        err_msg = 'rpc连接异常: host: %s, port: %s' % (server_host, port)
+        # 添加执行任务详情日志
+        ScheduleModel.add_exec_detail_job(db.etl_db, exec_id, interface_id, job_id, 'ERROR',
+                                          server_dir, server_script,
+                                          err_msg, 3)
+        # 修改数据库, 分布式锁
+        with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+            # 修改执行详情表状态[失败]
+            ScheduleModel.update_exec_job_status(db.etl_db, exec_id, interface_id, job_id, 'failed')
+            # 修改执行任务流状态[失败]
+            ExecuteModel.update_exec_interface_status(db.etl_db, exec_id, interface_id, -1)
+            # 修改执行主表状态[失败]
+            ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
+        log.error(err_msg, exc_info=True)
+        return err_msg
 
 
 class JobOperation(object):
@@ -184,16 +243,18 @@ class JobOperation(object):
         # 获取任务参数
         params = JobOperation.get_job_params(db.etl_db, job_id)
         # 添加执行表
-        exec_id = ExecuteModel.add_execute(db.etl_db, 2, 0)
+        run_date = (date.today() + timedelta(days=-1)).strftime('%Y%d%m')
+        exec_id = ExecuteModel.add_execute(db.etl_db, 2, 0, run_date, 0)
         # 添加执行详情表
         data = {
             'exec_id': exec_id,
+            'interface_id': 0,
             'job_id': job_id,
             'in_degree': '',
             'out_degree': '',
-            'params_value': ','.join(params),
             'server_host': job['server_host'],
             'server_dir': job['server_dir'],
+            'params_value': ','.join(params),
             'server_script': job['server_script'],
             'return_code': job['return_code'],
             'position': 1,
@@ -203,35 +264,14 @@ class JobOperation(object):
             'update_time': int(time.time())
         }
         ExecuteModel.add_execute_detail(db.etl_db, data)
-        try:
-            # rpc分发任务
-            client = Connection(job['server_host'], config.exec.port)
-            client.rpc.execute(
-                exec_id=exec_id,
-                job_id=job['job_id'],
-                server_dir=job['server_dir'],
-                server_script=job['server_script'],
-                return_code=job['return_code'],
-                params=params,
-                status='preparing'
-            )
-            client.disconnect()
-            log.info('分发任务: 执行id: %s, 任务id: %s' % (exec_id, job['job_id']))
+        # RPC分发任务
+        push_msg = rpc_push_job(exec_id, 0, job_id, job['server_host'], config.exec.port,
+                                ','.join(params), job['server_dir'], job['server_script'], job['return_code'],
+                                'preparing', run_date=run_date)
+        if push_msg:
+            return Response(status=False, msg=push_msg)
+        else:
             return Response(status=True, msg='成功')
-        except:
-            err_msg = 'rpc连接异常: host: %s, port: %s' % (job['server_host'], config.exec.port)
-
-            # 添加执行任务详情日志
-            ScheduleModel.add_exec_detail_job(db.etl_db, exec_id, job_id, 'ERROR', job['server_dir'],
-                                              job['server_script'], err_msg, 3)
-            # 修改数据库, 分布式锁
-            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
-                # 修改执行详情状态[失败]
-                ScheduleModel.update_exec_job_status(db.etl_db, exec_id, job_id, 'failed')
-                # 修改执行主表状态[失败]
-                ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
-            log.error(err_msg, exc_info=True)
-            return Response(status=False, msg=err_msg)
 
     @staticmethod
     def get_job_params(cursor, job_id):
