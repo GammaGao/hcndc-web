@@ -55,27 +55,31 @@
                     data = data.field;
                     data.dispatch_id = window.dispatch_id.split(',').map(item => Number(item));
                     data.is_after = data.is_after || 0;
-                    $.ajax({
-                        url: BASE.uri.dispatch.action_api,
-                        contentType: "application/json; charset=utf-8",
-                        type: 'post',
-                        data: JSON.stringify(data),
-                        success: function (result) {
-                            if (result.status === 200) {
-                                layer.msg('启动成功', {icon: 6});
-                                // 关闭自身iframe窗口
-                                setTimeout(function () {
-                                    let index = parent.layer.getFrameIndex(window.name);
-                                    parent.layer.close(index);
-                                }, 2000);
-                            } else {
+                    layer.confirm('确定运行?', function (index) {
+                        // 关闭弹窗
+                        layer.close(index);
+                        $.ajax({
+                            url: BASE.uri.dispatch.action_api,
+                            contentType: "application/json; charset=utf-8",
+                            type: 'post',
+                            data: JSON.stringify(data),
+                            success: function (result) {
+                                if (result.status === 200) {
+                                    layer.msg('启动成功', {icon: 6});
+                                    // 关闭自身iframe窗口
+                                    setTimeout(function () {
+                                        let index = parent.layer.getFrameIndex(window.name);
+                                        parent.layer.close(index);
+                                    }, 2000);
+                                } else {
+                                    layer.msg(sprintf('启动失败[%s]', result.msg), {icon: 5, shift: 6});
+                                }
+                            },
+                            error: function (error) {
+                                let result = error.responseJSON;
                                 layer.msg(sprintf('启动失败[%s]', result.msg), {icon: 5, shift: 6});
                             }
-                        },
-                        error: function (error) {
-                            let result = error.responseJSON;
-                            layer.msg(sprintf('启动失败[%s]', result.msg), {icon: 5, shift: 6});
-                        }
+                        });
                     });
                 });
             });

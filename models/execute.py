@@ -289,9 +289,16 @@ class ExecuteModel(object):
         """获取手动执行任务日志数量"""
         command = '''
         SELECT COUNT(*) AS count
-        FROM tb_execute AS a
-        LEFT JOIN tb_execute_detail AS b USING(exec_id)
-        WHERE exec_type = 2 %s
+        FROM tb_jobs AS a
+        -- 任务ID对应最新的执行ID
+        LEFT JOIN (
+        SELECT a.job_id, MAX(a.exec_id) AS exec_id, `status`
+        FROM tb_execute_detail AS a
+        GROUP BY job_id
+        ) AS b USING(job_id)
+        LEFT JOIN tb_execute AS c USING(exec_id)
+        LEFT JOIN tb_exec_host AS d USING(server_id)
+        %s
         '''
         command = command % condition
         result = cursor.query_one(command)
