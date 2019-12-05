@@ -58,8 +58,20 @@ class ExecuteFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_get_execute_job_log_1(result, total):
+    def filter_get_execute_job_log_list(result, total):
         """获取手动执行任务日志"""
+        for item in result:
+            item['insert_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time'])) if item[
+                'insert_time'] else None
+            item['update_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['update_time'])) if item[
+                'update_time'] else None
+            item['timedelta'] = seconds_format(item['timedelta']) if item['timedelta'] else None
+        return {'status': 200, 'msg': '成功', 'total': total, 'data': result}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_get_execute_job_log_history(result, total):
+        """获取任务历史日志列表"""
         for item in result:
             item['insert_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time'])) if item[
                 'insert_time'] else None

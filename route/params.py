@@ -21,11 +21,11 @@ def Params():
     return redirect('/login/')
 
 
-@app.route('/params/update/<int:id>/')
-def ParamsUpdate(id):
+@app.route('/params/update/<int:param_id>/')
+def ParamsUpdate(param_id):
     """参数修改"""
     if session.get('login'):
-        return render_template('params/params_update.html', param_id=id)
+        return render_template('params/params_update.html', param_id=param_id)
     return redirect('/login/')
 
 

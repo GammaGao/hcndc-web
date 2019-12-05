@@ -197,7 +197,7 @@
                     let data = obj.data;
                     let event = obj.event;
                     if (event === 'detail') {
-                        window.location.href = BASE.uri.execute.log + window.exec_id + '/' + data.job_id + '/';
+                        window.location.href = BASE.uri.execute.log + window.exec_id + '/' + data.job_id + '/' + 1 + '/';
                     }
                 })
             })

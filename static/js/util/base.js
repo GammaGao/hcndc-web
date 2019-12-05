@@ -94,6 +94,8 @@ let BASE = {
         execute: {
             'job': '/execute/job/',
             'job_api': '/execute/job/api/',
+            'job_history': '/execute/job/history/',
+            'job_history_api': '/execute/job/history/api/',
             'flow': '/execute/flow/',
             'flow_api': '/execute/flow/api/',
             'history': '/execute/flow/history/',

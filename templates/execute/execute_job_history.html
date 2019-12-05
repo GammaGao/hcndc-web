@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     {% include "util/style.html" %}
-    <title>任务日志</title>
+    <title>任务历史日志</title>
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
@@ -13,22 +13,32 @@
     <!-- 内容主体区域 -->
     <div class="layui-body">
         <fieldset class="layui-elem-field layui-field-title">
-            <legend>任务日志</legend>
+            <legend>任务历史日志</legend>
         </fieldset>
+        <div style="margin: 0 20px 0 20px">
+            <span class="layui-breadcrumb">
+                <a href="/execute/job/">返回任务日志</a>
+                <a><cite>历史日志</cite></a>
+            </span>
+        </div>
         <fieldset class="layui-elem-field layui-field-title">
         </fieldset>
         <form class="layui-form">
             <div class="layui-form-item">
                 <div class="layui-inline">
-                    <label class="layui-form-label">任务名称</label>
+                    <label class="layui-form-label">执行类型</label>
                     <div class="layui-input-inline">
                         <label>
-                            <select name="job_id" lay-verify="required"></select>
+                            <select name="exec_type" lay-verify="required">
+                                <option value="0">全部</option>
+                                <option value="1">自动</option>
+                                <option value="2">手动</option>
+                            </select>
                         </label>
                     </div>
                 </div>
                 <div class="layui-inline">
-                    <label class="layui-form-label">运行时间</label>
+                    <label class="layui-form-label">执行时间</label>
                     <div class="layui-input-inline" style="width: 300px">
                         <input type="text" class="layui-input" name="run_date" placeholder=" - " autocomplete="off">
                     </div>
@@ -37,13 +47,13 @@
                     <label class="layui-form-label">运行状态</label>
                     <div class="layui-input-inline">
                         <label>
-                            <select name="run_status" lay-verify="required">
-                                <option value="0">全部</option>
-                                <option value="1">成功</option>
-                                <option value="2">运行中</option>
-                                <option value="3">中断</option>
-                                <option value="4">失败</option>
-                                <option value="5">就绪</option>
+                            <select name="run_status">
+                                <option value="">全部</option>
+                                <option value="ready">等待依赖任务完成</option>
+                                <option value="preparing">待运行</option>
+                                <option value="running">运行中</option>
+                                <option value="succeeded">成功</option>
+                                <option value="failed">失败</option>
                             </select>
                         </label>
                     </div>
@@ -53,16 +63,19 @@
                         <button lay-submit class="layui-btn" lay-filter="execute-search" type="button">
                             <i class="layui-icon layui-icon-search icon-size">搜索</i>
                         </button>
+                        <button type="reset" class="layui-btn layui-btn-primary">清空</button>
                     </div>
                 </div>
             </div>
         </form>
-        <!-- 手动执行任务日志 -->
-        <div id="execute-job" lay-filter="execute-job"></div>
+        <!-- 任务历史日志 -->
+        <div id="execute-job-history" lay-filter="execute-job-history"></div>
     </div>
 </div>
-
+<script>
+    window.job_id = {{ job_id }};
+</script>
 <script type="text/javascript" src="/static/layui/layui.all.js"></script>
-<script type="text/javascript" src="/static/js/execute/execute_job.js"></script>
+<script type="text/javascript" src="/static/js/execute/execute_job_history.js"></script>
 </body>
 </html>

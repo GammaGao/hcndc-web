@@ -24,19 +24,19 @@ def Job():
     return redirect('/login/')
 
 
-@app.route('/job/detail/<int:id>/')
-def JobDetail(id):
+@app.route('/job/detail/<int:job_id>/')
+def JobDetail(job_id):
     """任务详情"""
     if session.get('login'):
-        return render_template('job/job_detail.html', job_id=id)
+        return render_template('job/job_detail.html', job_id=job_id)
     return redirect('/login/')
 
 
-@app.route('/job/update/<int:id>/')
-def JobUpdate(id):
+@app.route('/job/update/<int:job_id>/')
+def JobUpdate(job_id):
     """任务修改"""
     if session.get('login'):
-        return render_template('job/job_update.html', job_id=id)
+        return render_template('job/job_update.html', job_id=job_id)
     return redirect('/login/')
 
 

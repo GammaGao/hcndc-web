@@ -22,19 +22,19 @@ def Interface():
     return redirect('/login/')
 
 
-@app.route('/interface/detail/<int:id>/')
-def InterfaceDetail(id):
+@app.route('/interface/detail/<int:interface_id>/')
+def InterfaceDetail(interface_id):
     """任务流详情"""
     if session.get('login'):
-        return render_template('interface/interface_detail.html', interface_id=id)
+        return render_template('interface/interface_detail.html', interface_id=interface_id)
     return redirect('/login/')
 
 
-@app.route('/interface/update/<int:id>/')
-def InterfaceUpdate(id):
+@app.route('/interface/update/<int:interface_id>/')
+def InterfaceUpdate(interface_id):
     """任务流修改"""
     if session.get('login'):
-        return render_template('interface/interface_update.html', interface_id=id)
+        return render_template('interface/interface_update.html', interface_id=interface_id)
     return redirect('/login/')
 
 

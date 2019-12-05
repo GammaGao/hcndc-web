@@ -92,11 +92,11 @@ class ExecuteInterfaceList(Resource):
 class ExecuteJob(Resource):
     @staticmethod
     @execute_job_request
-    @ExecuteFilter.filter_get_execute_job_log_1(result=list, total=int)
-    @ExecuteOperation.get_execute_job_log_1(job_id=int, start_time=int, end_time=int, run_status=int,
-                                            page=int, limit=int)
-    @ExecuteVerify.verify_get_execute_job_log_1(job_id=int, start_time=int, end_time=int, run_status=int,
-                                                page=int, limit=int)
+    @ExecuteFilter.filter_get_execute_job_log_list(result=list, total=int)
+    @ExecuteOperation.get_execute_job_log_list(job_id=int, start_time=int, end_time=int, run_status=int,
+                                               page=int, limit=int)
+    @ExecuteVerify.verify_get_execute_job_log_list(job_id=int, start_time=int, end_time=int, run_status=int,
+                                                   page=int, limit=int)
     def get():
         """获取手动执行任务日志"""
         params = Response(
@@ -108,6 +108,29 @@ class ExecuteJob(Resource):
             limit=int(get_arg('limit', 10))
         )
         log.info('获取手动执行任务日志[params: %s]' % str(params))
+        return params
+
+
+class ExecuteHistoryJob(Resource):
+    @staticmethod
+    @execute_job_history_request
+    @ExecuteFilter.filter_get_execute_job_log_list(result=list, total=int)
+    @ExecuteOperation.get_execute_job_log_history(job_id=int, exec_type=int, start_time=int, end_time=int,
+                                                  run_status=str, page=int, limit=int)
+    @ExecuteVerify.verify_get_execute_job_history(job_id=int, exec_type=int, start_time=int, end_time=int,
+                                                  run_status=str, page=int, limit=int)
+    def get():
+        """获取任务历史日志列表"""
+        params = Response(
+            job_id=int(get_arg('job_id', 0)),
+            exec_type=int(get_arg('exec_type', 0)),
+            start_time=int(get_arg('start_time', 0)),
+            end_time=int(get_arg('end_time', 0)),
+            run_status=get_arg('run_status', ''),
+            page=int(get_arg('page', 1)),
+            limit=int(get_arg('limit', 10))
+        )
+        log.info('获取任务历史日志列表[params: %s]' % str(params))
         return params
 
 
@@ -217,6 +240,7 @@ ns.add_resource(ExecuteFlow, '/flow/api/')
 ns.add_resource(ExecuteFlowHistory, '/flow/history/api/')
 ns.add_resource(ExecuteInterfaceList, '/interface/list/api/')
 ns.add_resource(ExecuteJob, '/job/api/')
+ns.add_resource(ExecuteHistoryJob, '/job/history/api/')
 ns.add_resource(ExecuteFlowDetail, '/flow/detail/api/<int:exec_id>/')
 ns.add_resource(ExecuteAction, '/action/api/')
 ns.add_resource(ExecuteJobLog, '/job/log/api/')

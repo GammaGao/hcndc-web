@@ -42,6 +42,17 @@ execute_job_request = api.doc(params={
     'limit': '条数'
 })
 
+# 获取任务历史日志列表
+execute_job_history_request = api.doc(params={
+    'job_id': '任务id',
+    'exec_type': '执行类型: 0.全部, 1.自动, 2.手动',
+    'start_time': '开始运行时间',
+    'end_time': '结束运行时间',
+    'run_status': '运行状态: 0.全部, ready.等待依赖任务完成, preparing.待运行, running.运行中, succeeded.成功, failed.失败',
+    'page': '页码',
+    'limit': '条数'
+})
+
 # 执行日志请求
 execute_log_request = api.doc(params={
     'exec_id': '执行id',

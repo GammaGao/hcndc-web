@@ -277,7 +277,7 @@
                             if (data.exec_id) {
                                 let html = [];
                                 html.push('<div class="layui-btn-group">');
-                                html.push('<a class="layui-btn layui-btn-sm" lay-event="detail">详情日志</a>');
+                                html.push('<a class="layui-btn layui-btn-sm" lay-event="detail">历史日志</a>');
                                 html.push('</div>');
                                 return html.join('');
                             } else {
@@ -292,7 +292,7 @@
                     }
                 });
                 // 工具栏事件监听
-                that.toolbar_data_event();
+                // that.toolbar_data_event();
                 // 事件监听
                 that.table_data_event();
             });
@@ -459,16 +459,9 @@
                         let data = obj.data;
                         let event = obj.event;
                         let tr = obj.tr;
-                        // 执行详情
+                        // 任务历史列表
                         if (event === 'detail') {
-                            layer.open({
-                                type: 2,
-                                anim: 5,
-                                title: '执行详情',
-                                maxmin: true,
-                                area: ['60%', '80%'],
-                                content: BASE.uri.execute.detail + data.exec_id + '/'
-                            });
+                            window.location.href = BASE.uri.execute.job_history + data.job_id + '/'
                         }
                         // 中止
                         else if (event === 'stop') {

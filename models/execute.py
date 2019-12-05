@@ -298,6 +298,47 @@ class ExecuteModel(object):
         return result['count'] if result else 0
 
     @staticmethod
+    def get_execute_job_history(cursor, job_id, condition, page, limit):
+        """获取任务历史日志列表"""
+        command = '''
+        SELECT b.exec_id, a.job_name, a.job_index, c.exec_type, c.insert_time, c.update_time,
+        c.update_time - c.insert_time AS timedelta, d.server_host, a.server_dir, a.server_script,
+        b.`status`
+        FROM tb_jobs AS a
+        LEFT JOIN tb_execute_detail AS b USING(job_id)
+        LEFT JOIN tb_execute AS c USING(exec_id)
+        LEFT JOIN tb_exec_host AS d USING(server_id)
+        WHERE a.job_id = :job_id %s
+        ORDER BY b.exec_id DESC
+        LIMIT :limit OFFSET :offset
+        '''
+        command = command % condition
+        result = cursor.query(command, {
+            'job_id': job_id,
+            'limit': limit,
+            'offset': (page - 1) * limit
+        })
+        return result if result else []
+
+    @staticmethod
+    def get_execute_job_history_count(cursor, job_id, condition):
+        """获取任务历史日志列表数量"""
+        command = '''
+        SELECT COUNT(*) AS count
+        FROM tb_jobs AS a
+        LEFT JOIN tb_execute_detail AS b USING(job_id)
+        LEFT JOIN tb_execute AS c USING(exec_id)
+        LEFT JOIN tb_exec_host AS d USING(server_id)
+        WHERE a.job_id = :job_id %s
+        ORDER BY b.exec_id DESC
+        '''
+        command = command % condition
+        result = cursor.query_one(command, {
+            'job_id': job_id
+        })
+        return result['count'] if result else 0
+
+    @staticmethod
     def get_execute_flow_detail(cursor, exec_id):
         """获取任务流执行详情"""
         command = '''

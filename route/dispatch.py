@@ -15,11 +15,11 @@ def Dispatch():
     return redirect('/login/')
 
 
-@app.route('/dispatch/update/<int:id>/')
-def DispatchUpdate(id):
+@app.route('/dispatch/update/<int:dispatch_id>/')
+def DispatchUpdate(dispatch_id):
     """调度修改"""
     if session.get('login'):
-        return render_template('dispatch/dispatch_update.html', dispatch_id=id)
+        return render_template('dispatch/dispatch_update.html', dispatch_id=dispatch_id)
     return redirect('/login/')
 
 

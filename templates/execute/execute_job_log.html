@@ -16,10 +16,13 @@
         <legend>执行日志</legend>
     </fieldset>
     <div style="margin: 0 20px 0 20px">
-        <span class="layui-breadcrumb">
-            <a href="/execute/flow/detail/{{ exec_id }}/">返回上一级</a>
-            <a><cite>执行日志</cite></a>
-        </span>
+        {% if page_type == 1 %}
+            <span class="layui-breadcrumb">
+                <a href="/execute/flow/detail/{{ exec_id }}/">返回上一级</a>
+                <a><cite>执行日志</cite></a>
+            </span>
+        {% endif %}
+
         <!-- 任务执行日志 -->
         <div class="exec-log-div">
             <div id="exec-job-log" lay-filter="exec-job-log"></div>

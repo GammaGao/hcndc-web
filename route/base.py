@@ -13,11 +13,11 @@ def Base():
     return redirect('/login/')
 
 
-@app.route('/base/exec/host/update/<int:id>/')
-def ExecHostUpdate(id):
+@app.route('/base/exec/host/update/<int:server_id>/')
+def ExecHostUpdate(server_id):
     """执行服务器修改"""
     if session.get('login'):
-        return render_template('base/exec_host_update.html', server_id=id)
+        return render_template('base/exec_host_update.html', server_id=server_id)
     return redirect('/login/')
 
 
@@ -45,11 +45,11 @@ def Alert():
     return redirect('/login/')
 
 
-@app.route('/base/alert/update/<int:id>/')
-def AlertUpdate(id):
+@app.route('/base/alert/update/<int:conf_id>/')
+def AlertUpdate(conf_id):
     """预警配置修改"""
     if session.get('login'):
-        return render_template('base/alert_update.html', conf_id=id)
+        return render_template('base/alert_update.html', conf_id=conf_id)
     return redirect('/login/')
 
 

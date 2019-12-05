@@ -14,11 +14,11 @@ def DataSource():
     return redirect('/login/')
 
 
-@app.route('/datasource/update/<int:id>/')
-def DataSourceUpdate(id):
+@app.route('/datasource/update/<int:source_id>/')
+def DataSourceUpdate(source_id):
     """数据源修改"""
     if session.get('login'):
-        return render_template('datasource/datasource_update.html', source_id=id)
+        return render_template('datasource/datasource_update.html', source_id=source_id)
     return redirect('/login/')
 
 
