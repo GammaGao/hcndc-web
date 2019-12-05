@@ -46,28 +46,32 @@ class ExecuteFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_get_execute_history(result, total):
+    def filter_get_execute_flow_history(result, total):
         """获取任务流历史日志列表"""
         for item in result:
-            item['insert_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time']))
-            item['update_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['update_time']))
-            item['timedelta'] = seconds_format(item['timedelta'])
+            item['insert_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time'])) if item[
+                'insert_time'] else None
+            item['update_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['update_time'])) if item[
+                'update_time'] else None
+            item['timedelta'] = seconds_format(item['timedelta']) if item['timedelta'] else None
         return {'status': 200, 'msg': '成功', 'total': total, 'data': result}, 200
 
     @staticmethod
     @make_decorator
-    def filter_get_execute_job_log(result, total):
+    def filter_get_execute_job_log_1(result, total):
         """获取手动执行任务日志"""
         for item in result:
-            item['insert_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time']))
-            item['update_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['update_time']))
-            item['timedelta'] = seconds_format(item['timedelta'])
+            item['insert_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['insert_time'])) if item[
+                'insert_time'] else None
+            item['update_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['update_time'])) if item[
+                'update_time'] else None
+            item['timedelta'] = seconds_format(item['timedelta']) if item['timedelta'] else None
         return {'status': 200, 'msg': '成功', 'total': total, 'data': result}, 200
 
     @staticmethod
     @make_decorator
-    def filter_get_execute_detail(result):
-        """获取执行详情"""
+    def filter_get_execute_flow_detail(result):
+        """获取任务流执行详情"""
         for item in result:
             if item['margin_left'] and item['margin_left'] < 1:
                 item['margin_left'] = '%s%%' % (item['margin_left'] * 100)
@@ -83,7 +87,7 @@ class ExecuteFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_get_execute_log(result, job_id):
+    def filter_get_execute_job_log(result, job_id):
         """获取执行日志"""
         group_result = {}
         # 任务日志分组聚合

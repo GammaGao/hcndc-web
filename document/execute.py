@@ -45,7 +45,7 @@ execute_job_request = api.doc(params={
 # 执行日志请求
 execute_log_request = api.doc(params={
     'exec_id': '执行id',
-    'job_id': '任务id'
+    'job_id': '任务id: 0.全部日志列表, 其他: 具体任务日志'
 })
 
 # 执行拓扑结构请求

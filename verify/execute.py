@@ -39,7 +39,7 @@ class ExecuteVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_get_execute_history(dispatch_id, start_time, end_time, run_status, page, limit):
+    def verify_get_execute_flow_history(dispatch_id, start_time, end_time, run_status, page, limit):
         """获取任务流历史日志"""
         # 调度ID
         if not dispatch_id:
@@ -55,7 +55,7 @@ class ExecuteVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_get_execute_job_log(job_id, start_time, end_time, run_status, page, limit):
+    def verify_get_execute_job_log_1(job_id, start_time, end_time, run_status, page, limit):
         """获取手动执行任务日志"""
         # 执行时间
         if start_time and end_time and start_time >= end_time:
@@ -68,16 +68,16 @@ class ExecuteVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_get_execute_detail(exec_id):
-        """获取执行详情"""
+    def verify_get_execute_flow_detail(exec_id):
+        """获取任务流执行详情"""
         if not exec_id:
             abort(400, **make_result(status=400, msg='执行id不得为空'))
         return Response(exec_id=exec_id)
 
     @staticmethod
     @make_decorator
-    def verify_get_execute_log(exec_id, job_id):
-        """获取执行日志"""
+    def verify_get_execute_job_log(exec_id, job_id):
+        """获取任务执行日志"""
         if not exec_id:
             abort(400, **make_result(status=400, msg='执行id不得为空'))
         return Response(exec_id=exec_id, job_id=job_id)

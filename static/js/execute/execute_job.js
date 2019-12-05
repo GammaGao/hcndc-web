@@ -9,7 +9,7 @@
     Controller.prototype = {
         init: function () {
             // 菜单样式加载
-            menu_init('调度总览', '手动执行任务日志');
+            menu_init('调度总览', '任务日志');
             // 侧边栏样式切换
             this.tree_toggle();
             // 用户数据渲染
@@ -169,22 +169,13 @@
         table_data_load: function (data) {
             // 事件监听
             let that = this;
-            // 自定义左侧工具栏
-            let toolbar_div = [
-                '<div class="layui-table-tool-temp">',
-                '<div class="layui-inline" lay-event="stop" title="中止"><i class="layui-icon layui-icon-pause"></i></div>',
-                '<div class="layui-inline" lay-event="restart" title="断点重跑"><i class="layui-icon layui-icon-next"></i></div>',
-                '<div class="layui-inline" lay-event="start" title="启动"><i class="layui-icon layui-icon-play"></i></div>',
-                '<div class="layui-inline" lay-event="reset" title="重置"><i class="layui-icon layui-icon-refresh"></i></div>',
-                '</div>'
-            ].join('');
             // 表格渲染
             layui.use('table', function () {
                 let table = layui.table;
                 table.render({
                     elem: "#execute-job",
                     page: true,
-                    toolbar: toolbar_div,
+                    toolbar: true,
                     limits: [10, 20, 30, 40, 50, 100],
                     title: '日志列表',
                     url: BASE.uri.execute.job_api,
@@ -192,21 +183,30 @@
                     cols: [[{
                         type: 'checkbox'
                     }, {
-                        field: "exec_id",
-                        title: "执行id",
+                        field: "job_id",
+                        title: "任务id",
                         width: '5%',
                         sort: true
                     }, {
                         field: "job_name",
                         title: "任务名称",
                         width: '8%',
-                        sort: true
+                    }, {
+                        field: "job_index",
+                        title: "任务目录",
+                        width: '8%',
                     }, {
                         field: "exec_type",
                         title: "执行类型",
                         width: '5%',
-                        templet: function () {
-                            return '<span class="layui-badge layui-bg-green">手动</span>';
+                        templet: function (data) {
+                            if (data.exec_type === 1) {
+                                return '<span class="layui-badge layui-bg-green">自动</span>';
+                            } else if (data.exec_type === 2) {
+                                return '<span class="layui-badge layui-bg-blue">手动</span>';
+                            } else {
+                                return '-'
+                            }
                         }
                     }, {
                         field: "server_host",
@@ -225,50 +225,64 @@
                         title: "运行状态",
                         width: '6%',
                         templet: function (data) {
-                            if (data.status === 0) {
-                                return '<span class="layui-badge layui-bg-green">成功</span>';
-                            } else if (data.status === 1) {
+                            if (data.status === 'ready') {
+                                return '<span class="layui-badge layui-bg-orange">等待依赖任务完成</span>';
+                            } else if (data.status === 'preparing') {
+                                return '<span class="layui-badge layui-bg-orange">待运行</span>';
+                            } else if (data.status === 'running') {
                                 return '<span class="layui-badge layui-bg-blue">运行中</span>';
-                            } else if (data.status === 2) {
-                                return '<span class="layui-badge layui-bg-orange">中断</span>';
-                            } else if (data.status === 3) {
-                                return '<span class="layui-badge-rim">就绪</span>';
-                            } else {
+                            } else if (data.status === 'succeeded') {
+                                return '<span class="layui-badge layui-bg-green">成功</span>';
+                            } else if (data.status === 'failed') {
                                 return '<span class="layui-badge">失败</span>';
+                            } else {
+                                return '-'
                             }
                         }
                     }, {
                         field: "insert_time",
-                        title: "开始时间"
+                        title: "开始时间",
+                        templet: function (data) {
+                            if (data.insert_time) {
+                                return data.insert_time
+                            } else {
+                                return '-'
+                            }
+                        }
                     }, {
                         field: "update_time",
-                        title: "结束时间"
+                        title: "结束时间",
+                        templet: function (data) {
+                            if (data.update_time) {
+                                return data.update_time
+                            } else {
+                                return '-'
+                            }
+                        }
                     }, {
                         field: "timedelta",
                         title: "时长",
-                        width: '8%'
+                        width: '8%',
+                        templet: function (data) {
+                            if (data.timedelta) {
+                                return data.timedelta
+                            } else {
+                                return '-'
+                            }
+                        }
                     }, {
                         field: "operation",
                         title: "操作",
                         templet: function (data) {
-                            let html = [];
-                            html.push('<div class="layui-btn-group">');
-                            html.push('<a class="layui-btn layui-btn-sm" lay-event="detail">详情日志</a>');
-                            // 运行中
-                            if (data.status === 1) {
-                                html.push('<a class="layui-btn layui-btn-sm layui-btn-warm" lay-event="stop">中止</a>');
+                            if (data.exec_id) {
+                                let html = [];
+                                html.push('<div class="layui-btn-group">');
+                                html.push('<a class="layui-btn layui-btn-sm" lay-event="detail">详情日志</a>');
+                                html.push('</div>');
+                                return html.join('');
+                            } else {
+                                return ''
                             }
-                            // 失败或中断
-                            else if (data.status === 2 || data.status === -1) {
-                                html.push('<a class="layui-btn layui-btn-sm layui-btn-normal" lay-event="restart">断点重跑</a>');
-                                html.push('<a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="reset">重置</a>');
-                            }
-                            // 就绪
-                            else if (data.status === 3) {
-                                html.push('<a class="layui-btn layui-btn-sm layui-btn-primary" lay-event="start" style="background-color: #5FB878">启动</a>');
-                            }
-                            html.push('</div>');
-                            return html.join('');
                         }
                     }]],
                     response: {

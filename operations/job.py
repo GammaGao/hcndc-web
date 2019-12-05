@@ -54,6 +54,7 @@ class JobOperation(object):
     def get_job_detail(job_id):
         """获取任务详情"""
         result = JobModel.get_job_detail(db.etl_db, job_id)
+        result['run_time'] = result['run_time'].strftime('%Y-%m-%d') if result['run_time'] else ''
         return Response(result=result)
 
     @staticmethod

@@ -220,7 +220,7 @@ class ExecuteModel(object):
         return result['count'] if result else 0
 
     @staticmethod
-    def get_execute_history(cursor, dispatch_id, condition, page=1, limit=10):
+    def get_execute_flow_history(cursor, dispatch_id, condition, page=1, limit=10):
         """获取任务流历史日志"""
         command = '''
         SELECT a.exec_id, dispatch_name, dispatch_desc, exec_type, a.`status`,
@@ -242,7 +242,7 @@ class ExecuteModel(object):
         return result if result else []
 
     @staticmethod
-    def get_execute_history_count(cursor, dispatch_id, condition):
+    def get_execute_flow_history_count(cursor, dispatch_id, condition):
         """获取任务流历史日志条数"""
         command = '''
         SELECT COUNT(*) AS count
@@ -262,14 +262,19 @@ class ExecuteModel(object):
     def get_execute_job_log(cursor, condition, page, limit):
         """获取手动执行任务日志"""
         command = '''
-        SELECT a.exec_id, a.exec_type, c.job_name, a.`status`, a.insert_time, a.update_time,
-        a.update_time - a.insert_time AS timedelta,
-        b.server_host, b.server_dir, b.server_script, b.return_code
-        FROM tb_execute AS a
-        LEFT JOIN tb_execute_detail AS b USING(exec_id)
-        LEFT JOIN tb_jobs AS c USING(job_id)
-        WHERE exec_type = 2 %s
-        ORDER BY exec_id DESC
+        SELECT a.job_id, a.job_name, a.job_index, c.exec_type, c.insert_time, c.update_time,
+        c.update_time - c.insert_time AS timedelta, d.server_host, a.server_dir, a.server_script,
+        b.`status`, b.exec_id
+        FROM tb_jobs AS a
+        -- 任务ID对应最新的执行ID
+        LEFT JOIN (
+        SELECT a.job_id, MAX(a.exec_id) AS exec_id, `status`
+        FROM tb_execute_detail AS a
+        GROUP BY job_id
+        ) AS b USING(job_id)
+        LEFT JOIN tb_execute AS c USING(exec_id)
+        LEFT JOIN tb_exec_host AS d USING(server_id)
+        %s
         LIMIT :limit OFFSET :offset
         '''
         command = command % condition
@@ -293,8 +298,8 @@ class ExecuteModel(object):
         return result['count'] if result else 0
 
     @staticmethod
-    def get_execute_detail(cursor, exec_id):
-        """获取执行详情"""
+    def get_execute_flow_detail(cursor, exec_id):
+        """获取任务流执行详情"""
         command = '''
         SELECT a.id, c.interface_id, job_id, job_name, a.server_host, a.server_dir, a.server_script, a.position, a.`status`,
         a.insert_time, a.update_time, a.update_time - a.insert_time AS timedelta,
@@ -328,7 +333,7 @@ class ExecuteModel(object):
         return result if result else []
 
     @staticmethod
-    def get_execute_log_by_job(cursor, exec_id, job_id):
+    def get_execute_job_log_by_id(cursor, exec_id, job_id):
         """获取任务执行日志"""
         command = '''
         SELECT a.interface_id, job_id, job_name,`level`, message

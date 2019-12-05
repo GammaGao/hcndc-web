@@ -53,6 +53,15 @@
                         if (/,/.test(value)) {
                             return '任务流目录中不得出现逗号字符","'
                         }
+                    },
+                    // 重试次数验证
+                    retry: function (value, item) {
+                        if (!value) {
+                            return '必填项不能为空'
+                        }
+                        if (Number(value) < 0 || Number(value) > 10) {
+                            return '重试次数请为在0-10之内整数'
+                        }
                     }
                 })
             })

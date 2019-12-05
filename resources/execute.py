@@ -53,16 +53,16 @@ class ExecuteFlow(Resource):
         return params
 
 
-class ExecuteHistory(Resource):
+class ExecuteFlowHistory(Resource):
     @staticmethod
     @execute_history_request
-    @ExecuteFilter.filter_get_execute_history(result=list, total=int)
-    @ExecuteOperation.get_execute_history(dispatch_id=int, start_time=int, end_time=int, run_status=int,
-                                          page=int, limit=int)
-    @ExecuteVerify.verify_get_execute_history(dispatch_id=int, start_time=int, end_time=int, run_status=int,
-                                              page=int, limit=int)
+    @ExecuteFilter.filter_get_execute_flow_history(result=list, total=int)
+    @ExecuteOperation.get_execute_flow_history(dispatch_id=int, start_time=int, end_time=int, run_status=int,
+                                               page=int, limit=int)
+    @ExecuteVerify.verify_get_execute_flow_history(dispatch_id=int, start_time=int, end_time=int, run_status=int,
+                                                   page=int, limit=int)
     def get():
-        """获取调度历史日志"""
+        """获取任务流调度历史日志"""
         params = Response(
             dispatch_id=int(get_arg('dispatch_id', 0)),
             start_time=int(get_arg('start_time', 0)),
@@ -92,11 +92,11 @@ class ExecuteInterfaceList(Resource):
 class ExecuteJob(Resource):
     @staticmethod
     @execute_job_request
-    @ExecuteFilter.filter_get_execute_job_log(result=list, total=int)
-    @ExecuteOperation.get_execute_job_log(job_id=int, start_time=int, end_time=int, run_status=int,
-                                          page=int, limit=int)
-    @ExecuteVerify.verify_get_execute_job_log(job_id=int, start_time=int, end_time=int, run_status=int,
-                                              page=int, limit=int)
+    @ExecuteFilter.filter_get_execute_job_log_1(result=list, total=int)
+    @ExecuteOperation.get_execute_job_log_1(job_id=int, start_time=int, end_time=int, run_status=int,
+                                            page=int, limit=int)
+    @ExecuteVerify.verify_get_execute_job_log_1(job_id=int, start_time=int, end_time=int, run_status=int,
+                                                page=int, limit=int)
     def get():
         """获取手动执行任务日志"""
         params = Response(
@@ -111,13 +111,13 @@ class ExecuteJob(Resource):
         return params
 
 
-class ExecuteDetail(Resource):
+class ExecuteFlowDetail(Resource):
     @staticmethod
-    @ExecuteFilter.filter_get_execute_detail(result=list)
-    @ExecuteOperation.get_execute_detail(exec_id=int)
-    @ExecuteVerify.verify_get_execute_detail(exec_id=int)
+    @ExecuteFilter.filter_get_execute_flow_detail(result=list)
+    @ExecuteOperation.get_execute_flow_detail(exec_id=int)
+    @ExecuteVerify.verify_get_execute_flow_detail(exec_id=int)
     def get(exec_id):
-        """获取执行详情"""
+        """获取任务流执行详情"""
         params = Response(exec_id=exec_id)
         log.info('获取执行详情[params: %s]' % str(params))
         return params
@@ -179,14 +179,14 @@ class ExecuteAction(Resource):
         return params
 
 
-class ExecuteLog(Resource):
+class ExecuteJobLog(Resource):
     @staticmethod
     @execute_log_request
-    @ExecuteFilter.filter_get_execute_log(result=list, job_id=int)
-    @ExecuteOperation.get_execute_log(exec_id=int, job_id=int)
-    @ExecuteVerify.verify_get_execute_log(exec_id=int, job_id=int)
+    @ExecuteFilter.filter_get_execute_job_log(result=list, job_id=int)
+    @ExecuteOperation.get_execute_job_log(exec_id=int, job_id=int)
+    @ExecuteVerify.verify_get_execute_job_log(exec_id=int, job_id=int)
     def get():
-        """获取执行日志"""
+        """获取任务执行日志"""
         params = Response(
             exec_id=int(get_arg('exec_id', 0)),
             job_id=int(get_arg('job_id', 0))
@@ -214,10 +214,10 @@ class ExecuteGraph(Resource):
 ns = api.namespace('execute', description='执行')
 ns.add_resource(ExecuteCallBack, '/callback/')
 ns.add_resource(ExecuteFlow, '/flow/api/')
-ns.add_resource(ExecuteHistory, '/history/api/')
+ns.add_resource(ExecuteFlowHistory, '/flow/history/api/')
 ns.add_resource(ExecuteInterfaceList, '/interface/list/api/')
 ns.add_resource(ExecuteJob, '/job/api/')
-ns.add_resource(ExecuteDetail, '/detail/api/<int:exec_id>/')
+ns.add_resource(ExecuteFlowDetail, '/flow/detail/api/<int:exec_id>/')
 ns.add_resource(ExecuteAction, '/action/api/')
-ns.add_resource(ExecuteLog, '/log/api/')
+ns.add_resource(ExecuteJobLog, '/job/log/api/')
 ns.add_resource(ExecuteGraph, '/graph/api/')
