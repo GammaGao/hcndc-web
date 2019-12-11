@@ -7,6 +7,7 @@ import csv
 import xlrd
 import time
 import datetime
+from datetime import date, timedelta
 
 from configs import app, db
 from models.interface import InterfaceModel
@@ -124,7 +125,7 @@ def InterfaceUpload():
                             if date_value:
                                 item[4] = '%04d-%02d-%02d' % tuple(int(item) for item in date_value[0])
                             else:
-                                item[4] = None
+                                item[4] = (date.today() + timedelta(days=-1)).strftime('%Y-%m-%d')
                         except:
                             item[4] = None
                             err_msg.append('第%s行[数据日期]参数格式错误' % (index + 1))
@@ -176,10 +177,10 @@ def InterfaceUpload():
                         if InterfaceModel.get_interface_detail_by_name(db.etl_db, param):
                             err_msg.append('第%s行[任务流名称]参数已存在数据库中' % row_num)
                     # [任务流目录]判空
-                    if i == 2 and param == '':
+                    if i == 3 and param == '':
                         err_msg.append('第%s行[任务流目录]参数不得为空' % row_num)
                     # [重试次数]次数限制
-                    if i == 3 and isinstance(param, int) and (param < 0 or param > 10):
+                    if i == 5 and isinstance(param, int) and (param < 0 or param > 10):
                         err_msg.append('第%s行[重试次数]参数请限制在0-10之内' % row_num)
                     # [依赖任务流序号(本次新建任务流)]判空
                     if i == 6 and isinstance(param, list):
@@ -198,7 +199,7 @@ def InterfaceUpload():
             err_msg.append('该文件中[序号]存在重复')
 
         # [任务流名称]文件内查重
-        serial_name = [row[0] for row in data]
+        serial_name = [row[1] for row in data]
         if len(serial_name) != len(set(serial_name)):
             err_msg.append('该文件中[任务流名称]存在重复')
         # 返回异常信息
