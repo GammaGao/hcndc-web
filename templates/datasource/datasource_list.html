@@ -31,10 +31,10 @@
                     <label class="layui-form-label">数据库类型</label>
                     <div class="layui-input-inline">
                         <label>
-                            <select name="source_type" lay-verify="required">
-                                <option value="0">全部</option>
+                            <select name="source_type" lay-verify="required" lay-search>
+                                <option value="0"></option>
                                 <option value="1">mysql</option>
-{#                                <option value="2">mongo</option>#}
+                                <option value="2" disabled="">mongo</option>
                                 <option value="3">mssql</option>
                                 <option value="4">hive</option>
                                 <option value="5">impala</option>

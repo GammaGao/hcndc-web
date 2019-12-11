@@ -136,13 +136,13 @@
                     layui.use('form', function () {
                         let form = layui.form;
                         let html = [];
-                        html.push('<option value="0">请选择</option>');
+                        html.push('<option value="0"></option>');
                         for (let i in res.data) {
                             html.push('<option value="' + res.data[i].interface_id + '">' + res.data[i].interface_name + '</option>')
                         }
                         $('select[name=interface_id]').append(html.join(''));
                         form.render('select');
-                    })
+                    });
                 }
             })
         },

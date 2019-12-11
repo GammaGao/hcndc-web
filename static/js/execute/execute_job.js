@@ -136,7 +136,7 @@
                     layui.use('form', function () {
                         let form = layui.form;
                         let html = [];
-                        html.push('<option value="0">请选择</option>');
+                        html.push('<option value="0"></option>');
                         for (let i in res.data) {
                             html.push('<option value="' + res.data[i].job_id + '">' + res.data[i].job_name + '</option>')
                         }

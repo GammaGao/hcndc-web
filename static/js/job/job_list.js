@@ -156,13 +156,13 @@
                     layui.use('form', function () {
                         let form = layui.form;
                         let html = [];
-                        html.push('<option value="0">请选择</option>');
-                        for (let i in res.data) {
+                        html.push('<option value="0"></option>');
+                        for (let i = 0; i < res.data.length; i++) {
                             html.push('<option value="' + res.data[i].interface_id + '">' + res.data[i].interface_name + '</option>')
                         }
                         $('select[name=interface_id]').append(html.join(''));
                         form.render('select');
-                    })
+                    });
                 }
             })
         },
@@ -261,7 +261,7 @@
                     }, {
                         field: "operation",
                         title: "操作",
-                        templet: function (data) {
+                        templet: function () {
                             let html = [];
                             html.push('<div class="layui-btn-group">');
                             html.push('<button class="layui-btn layui-btn-sm" lay-event="detail">详情</button>');
