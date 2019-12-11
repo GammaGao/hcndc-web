@@ -10,6 +10,7 @@ from configs import db
 from configs import config, log
 from conn.mysql_lock import MysqlLock
 from operations.execute import continue_execute_interface, rpc_push_job
+from util.time_format import date_add
 
 
 def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='%Y%m%d', is_after=1):
@@ -44,7 +45,7 @@ def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='%Y%m%d'
         jobs = generate_job_dag_by_interface(item['id'])
         job_nodes[item['id']] = jobs
     # 添加执行主表, 任务流表, 任务表至数据库
-    exec_id = add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type, run_time, is_after)
+    exec_id = add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type, run_time, is_after, date_format)
     # 初始任务流
     start_interface = [_ for _, item in interface_nodes.items() if item['level'] == 0]
     # 开始执行初始任务流中的任务
@@ -54,9 +55,10 @@ def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='%Y%m%d'
         # 任务流中任务为空, 则视调度已完成
         if not start_jobs:
             flag = True
-            # 修改调度执行表账期
+            # 数据日期改成当天日期, 手动调度时可以再优化
+            new_date = time.strftime('%Y-%m-%d', time.localtime())
             with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
-                ExecuteModel.update_interface_run_time(db.etl_db, curr_interface, run_time)
+                ExecuteModel.update_interface_run_time(db.etl_db, curr_interface, new_date)
             log.info('任务流中任务为空: 调度id: %s, 执行id: %s, 任务流id: %s' % (dispatch_id, exec_id, curr_interface))
             # 修改执行任务流[成功]
             with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
@@ -77,7 +79,7 @@ def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='%Y%m%d'
                                  job['return_code'], job['status'], run_date=run_time)
     # 继续下一个任务流
     if flag:
-        next_jobs = continue_execute_interface(exec_id, exec_type=exec_type)
+        next_jobs = continue_execute_interface(exec_id, exec_type=exec_type, run_date=run_time)
         for interface_id, item in next_jobs.items():
             for job_id in set(item['job_id']):
                 log.info('分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (exec_id, interface_id, job_id))
@@ -88,10 +90,11 @@ def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='%Y%m%d'
                              nodes[job_id]['return_code'], nodes[job_id]['status'], run_date=run_time)
 
 
-def add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type=1, run_date='', is_after=1):
+def add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type=1, run_date='', is_after=1,
+                    date_format='%Y-%m-%d'):
     """添加执行表和执行详情表"""
     # 添加执行表
-    exec_id = ExecuteModel.add_execute(db.etl_db, exec_type, dispatch_id, run_date, is_after)
+    exec_id = ExecuteModel.add_execute(db.etl_db, exec_type, dispatch_id, run_date, is_after, date_format)
     interface_arr = []
     for _, item in interface_nodes.items():
         interface_arr.append({

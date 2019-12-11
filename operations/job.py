@@ -244,7 +244,7 @@ class JobOperation(object):
         params = JobOperation.get_job_params(db.etl_db, job_id)
         # 添加执行表
         run_date = (date.today() + timedelta(days=-1)).strftime('%Y%d%m')
-        exec_id = ExecuteModel.add_execute(db.etl_db, 2, 0, run_date, 0)
+        exec_id = ExecuteModel.add_execute(db.etl_db, 2, 0, run_date, 0, '%Y%d%m')
         # 添加执行详情表
         data = {
             'exec_id': exec_id,

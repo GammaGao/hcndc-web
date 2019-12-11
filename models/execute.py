@@ -6,17 +6,19 @@ import time
 
 class ExecuteModel(object):
     @staticmethod
-    def add_execute(cursor, exec_type, dispatch_id, run_date, is_after):
+    def add_execute(cursor, exec_type, dispatch_id, run_date, is_after, date_format):
         """添加执行表"""
         command = '''
-        INSERT INTO tb_execute(exec_type, dispatch_id, `status`, run_date, is_after, insert_time, update_time)
-        VALUES (:exec_type, :dispatch_id, 1, :run_date, :is_after, :insert_time, :update_time)
+        INSERT INTO tb_execute(exec_type, dispatch_id, `status`, run_date, date_format,
+        is_after, insert_time, update_time)
+        VALUES (:exec_type, :dispatch_id, 1, :run_date, :date_format, :is_after, :insert_time, :update_time)
         '''
         result = cursor.insert(command, {
             'exec_type': exec_type,
             'dispatch_id': dispatch_id,
             'is_after': is_after,
             'run_date': run_date,
+            'date_format': date_format,
             'insert_time': int(time.time()),
             'update_time': int(time.time())
         })
@@ -223,10 +225,10 @@ class ExecuteModel(object):
     def get_execute_flow_history(cursor, dispatch_id, condition, page=1, limit=10):
         """获取任务流历史日志"""
         command = '''
-        SELECT a.exec_id, dispatch_name, dispatch_desc, exec_type, a.`status`,
-        a.insert_time, a.update_time, a.update_time - a.insert_time AS timedelta
+        SELECT a.exec_id, dispatch_name, dispatch_desc, a.exec_type, a.`status`,
+        a.insert_time, a.update_time, a.update_time - a.insert_time AS timedelta, a.run_date
         FROM tb_execute AS a
-        LEFT JOIN tb_dispatch AS b ON a.dispatch_id = b.dispatch_id
+        LEFT JOIN tb_dispatch AS b USING(dispatch_id)
         WHERE b.dispatch_id = :dispatch_id %s
         ORDER BY exec_id DESC
         LIMIT :limit OFFSET :offset
@@ -480,7 +482,7 @@ class ExecuteModel(object):
     def get_exec_dispatch_id(cursor, exec_id):
         """获取执行表中调度id"""
         command = '''
-        SELECT exec_type, dispatch_id, run_date, is_after
+        SELECT exec_type, dispatch_id, run_date, is_after, date_format
         FROM tb_execute AS a
         WHERE a.exec_id = :exec_id
         '''

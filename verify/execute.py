@@ -22,34 +22,27 @@ class ExecuteVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_get_execute_flow(interface_id, interface_index, run_status, start_time, end_time, page, limit):
+    def verify_get_execute_flow(interface_id, interface_index, run_status, run_date, page, limit):
         """获取任务流日志"""
         # 任务流目录
         interface_index = interface_index.split(',') if interface_index else []
-        # 执行时间
-        if start_time and end_time and start_time >= end_time:
-            abort(400, **make_result(status=400, msg='创建开始时间大于创建结束时间'))
         if run_status < 0 or run_status > 5:
             abort(400, **make_result(status=400, msg='运行状态错误'))
 
         return Response(interface_id=interface_id, interface_index=interface_index, run_status=run_status,
-                        start_time=start_time, end_time=end_time, page=page, limit=limit)
+                        run_date=run_date, page=page, limit=limit)
 
     @staticmethod
     @make_decorator
-    def verify_get_execute_flow_history(dispatch_id, start_time, end_time, run_status, page, limit):
+    def verify_get_execute_flow_history(dispatch_id, run_date, run_status, page, limit):
         """获取任务流历史日志"""
         # 调度ID
         if not dispatch_id:
             abort(400, **make_result(status=400, msg='调度ID缺失'))
-        # 执行时间
-        if start_time and end_time and start_time >= end_time:
-            abort(400, **make_result(status=400, msg='执行开始时间大于创建结束时间'))
         if run_status < 0 or run_status > 5:
             abort(400, **make_result(status=400, msg='运行状态错误'))
 
-        return Response(dispatch_id=dispatch_id, start_time=start_time, end_time=end_time, run_status=run_status,
-                        page=page, limit=limit)
+        return Response(dispatch_id=dispatch_id, run_date=run_date, run_status=run_status, page=page, limit=limit)
 
     @staticmethod
     @make_decorator

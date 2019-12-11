@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import math
+import time
+from datetime import datetime
+from datetime import timedelta
 
 
 def seconds_format(seconds):
@@ -20,3 +23,13 @@ def seconds_format(seconds):
     else:
         minutes = divmod(seconds, minute)
         return "%d分钟 %d秒" % (int(minutes[0]), math.ceil(minutes[1]))
+
+
+def date_add(date_str, days_count=1, date_format='%Y-%m-%d'):
+    """增加天数"""
+    date_list = time.strptime(date_str, date_format)
+    y, m, d = date_list[:3]
+    delta = timedelta(days=days_count)
+    date_result = datetime(y, m, d) + delta
+    date_result = date_result.strftime(date_format)
+    return date_result

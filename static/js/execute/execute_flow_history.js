@@ -20,7 +20,7 @@
             this.form_search();
             // 表格数据初始化
             this.table_data_load({});
-            // UI组件渲染
+            // 日期组件渲染
             this.restart('run_date');
         },
         // 事件注册器
@@ -131,15 +131,6 @@
             layui.use('form', function () {
                 let form = layui.form;
                 form.on('submit(execute-search)', function (data) {
-                    let run_date = data.field.run_date.split(' - ');
-                    if (run_date.length === 2) {
-                        data.field.start_time = new Date(run_date[0]).getTime() / 1000;
-                        data.field.end_time = new Date(run_date[1]).getTime() / 1000;
-                    } else {
-                        data.field.start_time = 0;
-                        data.field.end_time = 0;
-                    }
-                    delete data.field.run_date;
                     that.table_data_load(data.field);
                 });
             });
@@ -212,6 +203,9 @@
                                 return '<span class="layui-badge">失败</span>';
                             }
                         }
+                    }, {
+                        field: "run_date",
+                        title: "数据日期"
                     }, {
                         field: "insert_time",
                         title: "开始时间"
@@ -558,8 +552,8 @@
                 laydate.render({
                     elem: sprintf('input[name=%s]', field),
                     theme: '#393D49',
-                    type: 'datetime',
-                    range: true
+                    type: 'date',
+                    // range: true
                 })
             });
         }

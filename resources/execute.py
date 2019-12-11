@@ -34,18 +34,17 @@ class ExecuteFlow(Resource):
     @staticmethod
     @execute_flow_request
     @ExecuteFilter.filter_get_execute_flow(result=list, total=int)
-    @ExecuteOperation.get_execute_flow(interface_id=int, interface_index=list, run_status=int, start_time=int,
-                                       end_time=int, page=int, limit=int)
-    @ExecuteVerify.verify_get_execute_flow(interface_id=int, interface_index=str, run_status=int, start_time=int,
-                                           end_time=int, page=int, limit=int)
+    @ExecuteOperation.get_execute_flow(interface_id=int, interface_index=list, run_status=int, run_date=str,
+                                       page=int, limit=int)
+    @ExecuteVerify.verify_get_execute_flow(interface_id=int, interface_index=str, run_status=int, run_date=str,
+                                           page=int, limit=int)
     def get():
         """获取任务流最新日志"""
         params = Response(
             interface_id=int(get_arg('interface_id', 0)),
             interface_index=get_arg('interface_index', ''),
             run_status=int(get_arg('run_status', 0)),
-            start_time=int(get_arg('start_time', 0)),
-            end_time=int(get_arg('end_time', 0)),
+            run_date=get_arg('run_date', ''),
             page=int(get_arg('page', 1)),
             limit=int(get_arg('limit', 10))
         )
@@ -57,16 +56,13 @@ class ExecuteFlowHistory(Resource):
     @staticmethod
     @execute_history_request
     @ExecuteFilter.filter_get_execute_flow_history(result=list, total=int)
-    @ExecuteOperation.get_execute_flow_history(dispatch_id=int, start_time=int, end_time=int, run_status=int,
-                                               page=int, limit=int)
-    @ExecuteVerify.verify_get_execute_flow_history(dispatch_id=int, start_time=int, end_time=int, run_status=int,
-                                                   page=int, limit=int)
+    @ExecuteOperation.get_execute_flow_history(dispatch_id=int, run_date=str, run_status=int, page=int, limit=int)
+    @ExecuteVerify.verify_get_execute_flow_history(dispatch_id=int, run_date=str, run_status=int, page=int, limit=int)
     def get():
         """获取任务流调度历史日志"""
         params = Response(
             dispatch_id=int(get_arg('dispatch_id', 0)),
-            start_time=int(get_arg('start_time', 0)),
-            end_time=int(get_arg('end_time', 0)),
+            run_date=get_arg('run_date', ''),
             run_status=int(get_arg('run_status', 0)),
             page=int(get_arg('page', 1)),
             limit=int(get_arg('limit', 10))

@@ -16,8 +16,7 @@ execute_flow_request = api.doc(params={
     'interface_id': '任务流id',
     'interface_index': '任务流目录名称',
     'run_status': '运行状态: 0.全部, 1.成功, 2.运行中, 3.中断, 4.失败, 5.就绪',
-    'start_time': '开始运行时间',
-    'end_time': '结束运行时间',
+    'run_date': '数据日期',
     'page': '页码',
     'limit': '条数'
 })
@@ -25,8 +24,7 @@ execute_flow_request = api.doc(params={
 # 任务流历史日志请求值
 execute_history_request = api.doc(params={
     'dispatch_id': '调度id',
-    'start_time': '开始运行时间',
-    'end_time': '结束运行时间',
+    'run_date': '数据日期',
     'run_status': '运行状态: 0.全部, 1.成功, 2.运行中, 3.中断, 4.失败, 5.就绪',
     'page': '页码',
     'limit': '条数'
