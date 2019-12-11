@@ -1,15 +1,12 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import traceback
-
+from flask_restful import abort
+from server.status import make_result
 from server.decorators import make_decorator, Response
 from configs import db, log
 from models.datasource import DataSourceModel
-from conn.mysql import MysqlConn
-from conn.mongo import MongoLinks
-from conn.mssql import MssqlConn
-from conn.impala import ImpalaLink
+from models.params import ParamsModel
 from util.db_util import test_db_conn
 
 
@@ -59,6 +56,9 @@ class DataSourceOperation(object):
     @make_decorator
     def delete_datasource_detail(source_id, user_id):
         """删除数据源"""
+        prep_count = ParamsModel.get_param_by_source_id(db.etl_db, source_id)
+        if prep_count:
+            abort(400, **make_result(status=400, msg='数据源在任务参数表中存在%s个依赖, 不可删除' % prep_count))
         DataSourceModel.delete_datasource_detail(db.etl_db, source_id, user_id)
         return Response(source_id=source_id)
 
@@ -74,6 +74,10 @@ class DataSourceOperation(object):
     def update_datasource_detail(source_id, source_name, source_type, auth_type, source_host, source_port,
                                  source_database, source_user, source_password, source_desc, is_deleted, user_id):
         """修改数据源"""
+        if is_deleted == 1:
+            prep_count = ParamsModel.get_param_by_source_id(db.etl_db, source_id)
+            if prep_count:
+                abort(400, **make_result(status=400, msg='数据源在任务参数表中存在%s个依赖, 不可设置失效' % prep_count))
         DataSourceModel.update_datasource_detail(db.etl_db, source_id, source_name, source_type, auth_type, source_host,
                                                  source_port, source_database, source_user, source_password,
                                                  source_desc, user_id, is_deleted)

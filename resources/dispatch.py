@@ -128,7 +128,7 @@ class DispatchAction(Resource):
     @staticmethod
     @dispatch_delete_request
     @DispatchFilter.filter_delete_dispatch_detail(dispatch_id=list)
-    @DispatchOperation.delete_dispatch_detail(dispatch_id=list, user_id=int)
+    @DispatchOperation.delete_dispatch_detail(dispatch_id=list)
     @DispatchVerify.verify_delete_dispatch_detail(dispatch_id=list, user_id=int)
     @PermissionVerify.verify_execute_permission(dispatch_id=list)
     def delete():

@@ -75,12 +75,12 @@ class DispatchOperation(object):
 
     @staticmethod
     @make_decorator
-    def delete_dispatch_detail(dispatch_id, user_id):
+    def delete_dispatch_detail(dispatch_id):
         """删除调度详情"""
         for item in dispatch_id:
             try:
                 run_id = 'scheduler_%s' % item
-                DispatchModel.update_dispatch_status(db.etl_db, item, 0, user_id)
+                DispatchModel.delete_dispatch_status(db.etl_db, item)
                 SchedulerHandler.remove_job(run_id)
             except Exception as e:
                 log.error('删除调度异常[ERROR: %s]' % e, exc_info=True)
@@ -98,7 +98,7 @@ class DispatchOperation(object):
                                                  minute, hour, day, month, week, new_status, user_id)
             # 修改调度状态
             run_id = 'scheduler_%s' % dispatch_id
-            # 仍删除
+            # 仍失效
             if old_status == 0 and new_status == 0:
                 pass
             # 新增 or 先新增后暂停
@@ -113,7 +113,7 @@ class DispatchOperation(object):
             # 暂停
             elif old_status == 1 and new_status == 2:
                 SchedulerHandler.pause_job(run_id)
-            # 删除
+            # 失效
             elif old_status == 1 and new_status == 0 or old_status == 2 and new_status == 0:
                 SchedulerHandler.remove_job(run_id)
             # 恢复

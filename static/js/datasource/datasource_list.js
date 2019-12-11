@@ -207,7 +207,7 @@
                             if (data.is_deleted === 0) {
                                 return '<span class="layui-badge layui-bg-green">正常</span>'
                             } else {
-                                return '<span class="layui-badge layui-bg-gray">删除</span>';
+                                return '<span class="layui-badge layui-bg-gray">失效</span>';
                             }
                         }
                     }, {
@@ -216,13 +216,8 @@
                         templet: function (data) {
                             let html = [];
                             html.push('<div class="layui-btn-group">');
-                            if (data.is_deleted === 0) {
-                                html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
-                                html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
-                            } else {
-                                html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
-                                html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">删除</button>');
-                            }
+                            html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
+                            html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
                             html.push('</div>');
                             return html.join('');
                         }
@@ -258,7 +253,7 @@
                                 area: ['60%', '80%'],
                                 content: BASE.uri.datasource.add,
                                 end: function () {
-                                    window.location.reload();
+                                    $(".layui-laypage-btn").click();
                                 }
                             });
                             break;
@@ -276,7 +271,7 @@
                                     area: ['60%', '80%'],
                                     content: BASE.uri.datasource.update + check_data[0].source_id + '/',
                                     end: function () {
-                                        window.location.reload();
+                                        $(".layui-laypage-btn").click();
                                     }
                                 });
                             }
@@ -304,7 +299,7 @@
                                 area: ['60%', '80%'],
                                 content: BASE.uri.datasource.update + data.source_id + '/',
                                 end: function () {
-                                    window.location.reload();
+                                    $(".layui-laypage-btn").click();
                                 }
                             });
                             break;
@@ -323,8 +318,7 @@
                                     success: function (result) {
                                         if (result.status === 200) {
                                             layer.msg('删除成功', {icon: 6});
-                                            tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
-                                            tr.find('td[data-field="run"] div').html('<button class="layui-btn layui-btn-disabled layui-btn-xs" disabled="disabled">立即执行</button>');
+                                            $(".layui-laypage-btn").click();
                                         } else {
                                             layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5, shift: 6});
                                         }

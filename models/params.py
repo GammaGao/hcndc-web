@@ -137,17 +137,16 @@ class ParamsModel(object):
         WHERE a.param_id = :param_id
         GROUP BY a.param_id
         '''
-        result = cursor.query(command, {
+        result = cursor.query_one(command, {
             'param_id': param_id
         })
-        return result if result else []
+        return result if result else {}
 
     @staticmethod
     def delete_params_detail(cursor, param_id, user_id):
         """删除参数"""
         command = '''
-        UPDATE tb_param_config
-        SET is_deleted = 1, update_time = :update_time, updater_id = :updater_id
+        DELETE FROM tb_param_config
         WHERE param_id = :param_id
         '''
         result = cursor.update(command, {
@@ -161,8 +160,7 @@ class ParamsModel(object):
     def delete_params_many(cursor, condition, user_id):
         """删除参数"""
         command = '''
-        UPDATE tb_param_config
-        SET is_deleted = 1, update_time = :update_time, updater_id = :updater_id
+        DELETE FROM tb_param_config
         WHERE param_id IN %s
         '''
         command = command % condition
@@ -194,3 +192,16 @@ class ParamsModel(object):
         '''
         result = cursor.query(command)
         return result if result else []
+
+    @staticmethod
+    def get_param_by_source_id(cursor, source_id):
+        """获取参数详情by数据源id"""
+        command = '''
+        SELECT COUNT(*) AS count
+        FROM tb_param_config
+        WHERE source_id = :source_id
+        '''
+        result = cursor.query_one(command, {
+            'source_id': source_id
+        })
+        return result['count'] if result else 0

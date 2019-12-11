@@ -43,7 +43,7 @@ interface_update_request = api.doc(body=api.model('interface_update_request', {
     'parent_interface': fields.String(description='前置任务流'),
     'run_time': fields.String(description='数据日期: %Y-%m-%d'),
     'retry': fields.Integer(description='重试次数'),
-    'is_deleted': fields.Integer(description='是否删除: 0否, 1是')
+    'is_deleted': fields.Integer(description='是否失效: 0否, 1是')
 }, description='任务流修改请求参数'))
 
 # 新增任务流请求

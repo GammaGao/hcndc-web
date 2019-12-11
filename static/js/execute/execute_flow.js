@@ -9,7 +9,7 @@
     Controller.prototype = {
         init: function () {
             // 菜单样式加载
-            menu_init('调度总览', '任务流日志');
+            menu_init('调度总览', '任务流监控');
             // 侧边栏样式切换
             this.tree_toggle();
             // 用户数据渲染

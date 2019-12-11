@@ -58,8 +58,7 @@ class JobModel(object):
     def delete_job(cursor, job_id, user_id):
         """删除任务"""
         command = '''
-        UPDATE tb_jobs
-        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
+        DELETE FROM tb_jobs
         WHERE job_id = :job_id
         '''
 
@@ -74,8 +73,7 @@ class JobModel(object):
     def delete_job_many(cursor, condition, user_id):
         """批量删除任务"""
         command = '''
-        UPDATE tb_jobs
-        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
+        DELETE FROM tb_jobs
         WHERE job_id IN %s
         '''
 

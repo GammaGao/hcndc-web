@@ -122,6 +122,18 @@ class DispatchModel(object):
         })
         return result
 
+    @staticmethod
+    def delete_dispatch_status(cursor, dispatch_id):
+        """删除调度任务"""
+        command = '''
+        DELETE FROM tb_dispatch
+        WHERE dispatch_id = :dispatch_id
+        '''
+        result = cursor.update(command, {
+            'dispatch_id': dispatch_id
+        })
+        return result
+
 
 class DispatchAlertModel(object):
     @staticmethod

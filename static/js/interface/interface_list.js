@@ -229,7 +229,7 @@
                             if (data.is_deleted === 0) {
                                 return '<span class="layui-badge layui-bg-green">正常</span>'
                             } else {
-                                return '<span class="layui-badge layui-bg-gray">删除</span>';
+                                return '<span class="layui-badge layui-bg-gray">失效</span>';
                             }
                         }
                     }, {
@@ -240,11 +240,7 @@
                             html.push('<div class="layui-btn-group">');
                             html.push('<a class="layui-btn layui-btn-sm" lay-event="detail">网络拓扑</a>');
                             html.push('<a class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</a>');
-                            if (data.is_deleted === 0) {
-                                html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
-                            } else {
-                                html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" lay-event="delete" disabled="disabled">删除</button>');
-                            }
+                            html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
                             html.push('</div>');
                             return html.join('');
                         }
@@ -263,6 +259,7 @@
         },
         // 工具栏事件监听
         toolbar_data_event: function () {
+            let that = this;
             // 上传事件注册
             layui.use('upload', function () {
                 let upload = layui.upload;
@@ -328,7 +325,7 @@
                                 area: ['60%', '80%'],
                                 content: BASE.uri.interface.add,
                                 end: function () {
-                                    window.location.reload();
+                                    $(".layui-laypage-btn").click();
                                 }
                             });
                             break;
@@ -347,7 +344,7 @@
                                     area: ['60%', '80%'],
                                     content: BASE.uri.interface.update + check_data[0].interface_id + '/',
                                     end: function () {
-                                        window.location.reload();
+                                        $(".layui-laypage-btn").click();
                                     }
                                 });
                             }
@@ -357,43 +354,37 @@
                             if (check_data.length === 0) {
                                 layer.msg('请选择一行');
                             } else {
-                                let delete_status = check_data.filter(item => item.is_deleted !== 0);
-                                if (delete_status.length > 0) {
-                                    layer.msg('存在已删除任务流, 不能执行', {icon: 5, shift: 6});
-                                    break
-                                } else {
-                                    let flow_id_arr = [];
-                                    check_data.forEach(item => flow_id_arr.push(item.interface_id));
-                                    layer.confirm('确定删除任务流?', function (index) {
-                                        layer.close(index);
-                                        $.ajax({
-                                            url: BASE.uri.interface.action_api,
-                                            data: JSON.stringify({flow_id_arr: flow_id_arr}),
-                                            contentType: "application/json; charset=utf-8",
-                                            type: 'delete',
-                                            success: function (result) {
-                                                if (result.status === 200) {
-                                                    layer.open({
-                                                        title: '删除成功',
-                                                        content: '删除成功',
-                                                        yes: function (index) {
-                                                            layer.close(index);
-                                                            // 刷新页面
-                                                            window.location.reload();
-                                                        }
-                                                    })
-                                                } else {
-                                                    layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5, shift: 6});
-                                                }
+                                let flow_id_arr = [];
+                                check_data.forEach(item => flow_id_arr.push(item.interface_id));
+                                layer.confirm('确定删除任务流?', function (index) {
+                                    layer.close(index);
+                                    $.ajax({
+                                        url: BASE.uri.interface.action_api,
+                                        data: JSON.stringify({flow_id_arr: flow_id_arr}),
+                                        contentType: "application/json; charset=utf-8",
+                                        type: 'delete',
+                                        success: function (result) {
+                                            if (result.status === 200) {
+                                                layer.open({
+                                                    title: '删除成功',
+                                                    content: '删除成功',
+                                                    yes: function (index) {
+                                                        layer.close(index);
+                                                        // 刷新页面
+                                                        $(".layui-laypage-btn").click();
+                                                    }
+                                                })
+                                            } else {
+                                                layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5, shift: 6});
                                             }
-                                            ,
-                                            error: function (error) {
-                                                let result = error.responseJSON;
-                                                layer.msg(sprintf('删除失败[%s]', result.msg), {icon: 5, shift: 6});
-                                            }
-                                        });
+                                        }
+                                        ,
+                                        error: function (error) {
+                                            let result = error.responseJSON;
+                                            layer.msg(sprintf('删除失败[%s]', result.msg), {icon: 5, shift: 6});
+                                        }
                                     });
-                                }
+                                });
                             }
                             break;
                         // 下载
@@ -405,6 +396,7 @@
         },
         // 自定义事件监听
         table_data_event: function () {
+            let that = this;
             layui.use('table', function () {
                 let table = layui.table;
                 table.on('tool(interface-list)', function (obj) {
@@ -430,7 +422,7 @@
                             area: ['60%', '80%'],
                             content: BASE.uri.interface.update + data.interface_id + '/',
                             end: function () {
-                                window.location.reload();
+                                $(".layui-laypage-btn").click();
                             }
                         });
                     } else if (event === 'delete') {
@@ -447,8 +439,7 @@
                                 success: function (result) {
                                     if (result.status === 200) {
                                         layer.msg('删除成功', {icon: 6});
-                                        $(tr.find('td[data-field="operation"] div button')).addClass('layui-btn-disabled');
-                                        tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
+                                        $(".layui-laypage-btn").click();
                                     } else {
                                         layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5, shift: 6});
                                     }

@@ -126,9 +126,12 @@ class JobOperation(object):
         if job_detail and job_detail['job_id'] != job_id:
             abort(400, **make_result(status=400, msg='任务名称重复, 已存在数据库中'))
         # 修改详情
+        if is_deleted == 1:
+            prep_count = JobModel.is_alive_job(db.etl_db, job_id)
+            if prep_count:
+                abort(400, **make_result(status=400, msg='任务ID: [%s]存在%s个依赖, 不能设置失效' % (job_id, prep_count)))
         JobModel.update_job_detail(db.etl_db, job_id, interface_id, job_name, job_desc, job_index, server_id,
-                                   server_dir,
-                                   server_script, return_code, user_id, is_deleted)
+                                   server_dir, server_script, return_code, user_id, is_deleted)
         # 修改任务依赖
         old_prep = set() if not old_prep else set(int(i) for i in old_prep.split(','))
         job_prep = set() if not job_prep else set(int(i) for i in job_prep.split(','))

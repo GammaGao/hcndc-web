@@ -68,6 +68,13 @@ class ParamsOperation(object):
         if param_detail and param_detail['param_id'] != param_id:
             abort(400, **make_result(status=400, msg='参数名称重复, 已存在数据库中'))
         # 修改参数
+        if is_deleted == 1:
+            param_detail = ParamsModel.get_params_detail_not_delete(db.etl_db, param_id)
+            if param_detail['param_type'] == 2:
+                abort(400, **make_result(status=400, msg='参数ID: [%s]为上下文参数, 不能删除' % param_id))
+            if param_detail['job_id']:
+                abort(400, **make_result(status=400, msg='参数ID: [%s], 在任务: [%s]调用中, 请停止调用后删除' %
+                                                         (param_id, param_detail['job_id'])))
         ParamsModel.update_params_detail(db.etl_db, param_id, param_type, param_name, param_index, source_id,
                                          param_value, param_desc, is_deleted, user_id)
         return Response(param_id=param_id)
@@ -77,15 +84,13 @@ class ParamsOperation(object):
     def delete_params_detail(param_id, user_id):
         """删除参数"""
         err_msg = []
-        result = ParamsModel.get_params_detail_not_delete(db.etl_db, param_id)
-        for param_detail in result:
-            if param_detail['param_type'] == 2:
-                err_msg.append('参数ID: [%s]为上下文参数, 不能删除' % param_id)
-            if param_detail['job_id']:
-                err_msg.append('参数ID: [%s], 在任务: [%s]调用中, 请停止调用后删除' %
-                               (param_id, ','.join(item['job_id'] for item in result)))
-        if not err_msg:
-            ParamsModel.delete_params_detail(db.etl_db, param_id, user_id)
+        param_detail = ParamsModel.get_params_detail_not_delete(db.etl_db, param_id)
+        if param_detail['param_type'] == 2:
+            abort(400, **make_result(status=400, msg='参数ID: [%s]为上下文参数, 不能删除' % param_id))
+        if param_detail['job_id']:
+            abort(400, **make_result(status=400, msg='参数ID: [%s], 在任务: [%s]调用中, 请停止调用后删除' %
+                                                     (param_id, param_detail['job_id'])))
+        ParamsModel.delete_params_detail(db.etl_db, param_id, user_id)
         return Response(msg=err_msg)
 
     @staticmethod
@@ -121,13 +126,11 @@ class ParamsOperation(object):
         """批量删除参数"""
         err_msg = []
         for param_id in param_id_arr:
-            result = ParamsModel.get_params_detail_not_delete(db.etl_db, param_id)
-            for param_detail in result:
-                if param_detail['param_type'] == 2:
-                    err_msg.append('参数ID: [%s]为上下文参数, 不能删除' % param_id)
-                if param_detail['job_id']:
-                    err_msg.append('参数ID: [%s], 在任务: [%s]调用中, 请停止调用后删除' %
-                                   (param_id, ','.join(item['job_id'] for item in result)))
+            param_detail = ParamsModel.get_params_detail_not_delete(db.etl_db, param_id)
+            if param_detail['param_type'] == 2:
+                err_msg.append('参数ID: [%s]为上下文参数, 不能删除' % param_id)
+            if param_detail['job_id']:
+                err_msg.append('参数ID: [%s], 在任务: [%s]调用中, 请停止调用后删除' % (param_id, param_detail['job_id']))
         if not err_msg:
             condition = '(%s)' % ','.join(str(item) for item in param_id_arr)
             ParamsModel.delete_params_many(db.etl_db, condition, user_id)

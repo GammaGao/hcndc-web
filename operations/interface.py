@@ -86,6 +86,10 @@ class InterfaceOperation(object):
         interface_detail = InterfaceModel.get_interface_detail_by_name(db.etl_db, interface_name)
         if interface_detail and interface_detail['interface_id'] != interface_id:
             abort(400, **make_result(status=400, msg='任务流名称重复, 已存在数据库中'))
+        # 调度查重
+        if is_deleted == 1:
+            if InterfaceModel.get_schedule_detail(db.etl_db, interface_id):
+                abort(400, **make_result(status=400, msg='任务流在调度任务中, 不能设置失效'))
         # 修改任务流
         if not run_time:
             run_time = (date.today() + timedelta(days=-1)).strftime('%Y-%m-%d')
@@ -125,6 +129,8 @@ class InterfaceOperation(object):
         if InterfaceModel.get_interface_detail_by_name(db.etl_db, interface_name):
             abort(400, **make_result(status=400, msg='任务流名称重复, 已存在数据库中'))
         # 新增任务流
+        if not run_time:
+            run_time = (date.today() + timedelta(days=-1)).strftime('%Y-%m-%d')
         interface_id = InterfaceModel.add_interface(db.etl_db, interface_name, interface_desc, interface_index,
                                                     run_time, retry, user_id)
         # 新增任务流前置

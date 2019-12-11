@@ -193,8 +193,7 @@ class InterfaceModel(object):
     def delete_interface(cursor, interface_id, user_id):
         """删除任务流"""
         command = '''
-        UPDATE tb_interface
-        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
+        DELETE FROM tb_interface
         WHERE interface_id = :interface_id
         '''
 
@@ -209,8 +208,7 @@ class InterfaceModel(object):
     def delete_interface_many(cursor, condition, user_id):
         """批量删除任务流"""
         command = '''
-        UPDATE tb_interface
-        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
+        DELETE FROM tb_interface
         WHERE interface_id IN %s
         '''
 
@@ -241,7 +239,7 @@ class InterfaceModel(object):
         SELECT dispatch_id, interface_id, dispatch_name, dispatch_desc,
         `minute`, `hour`, `day`, `month`, `week`, `status`
         FROM tb_dispatch
-        WHERE interface_id = :interface_id AND `status` != 0
+        WHERE interface_id = :interface_id
         '''
         result = cursor.query_one(command, {
             'interface_id': interface_id

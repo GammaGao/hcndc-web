@@ -67,8 +67,7 @@ class DataSourceModel(object):
     def delete_datasource_detail(cursor, source_id, user_id):
         """删除数据源"""
         command = '''
-        UPDATE tb_datasource
-        SET is_deleted = 1, updater_id = :user_id, update_time = :update_time
+        DELETE FROM tb_datasource
         WHERE source_id = :source_id
         '''
 
@@ -148,3 +147,4 @@ class DataSourceModel(object):
             'source_id': source_id
         })
         return result if source_id else {}
+
