@@ -266,16 +266,17 @@ class ExecuteModel(object):
         command = '''
         SELECT a.job_id, a.job_name, a.job_index, c.exec_type, c.insert_time, c.update_time,
         c.update_time - c.insert_time AS timedelta, d.server_host, a.server_dir, a.server_script,
-        b.`status`, b.exec_id
+        e.`status`, b.exec_id
         FROM tb_jobs AS a
         -- 任务ID对应最新的执行ID
         LEFT JOIN (
-        SELECT a.job_id, MAX(a.exec_id) AS exec_id, `status`
+        SELECT a.job_id, MAX(a.exec_id) AS exec_id
         FROM tb_execute_detail AS a
         GROUP BY job_id
         ) AS b USING(job_id)
         LEFT JOIN tb_execute AS c USING(exec_id)
         LEFT JOIN tb_exec_host AS d USING(server_id)
+        LEFT JOIN tb_execute_detail AS e ON b.exec_id = e.exec_id AND b.job_id = e.job_id
         %s
         LIMIT :limit OFFSET :offset
         '''
@@ -294,7 +295,7 @@ class ExecuteModel(object):
         FROM tb_jobs AS a
         -- 任务ID对应最新的执行ID
         LEFT JOIN (
-        SELECT a.job_id, MAX(a.exec_id) AS exec_id, `status`
+        SELECT a.job_id, MAX(a.exec_id) AS exec_id
         FROM tb_execute_detail AS a
         GROUP BY job_id
         ) AS b USING(job_id)

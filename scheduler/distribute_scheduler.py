@@ -10,7 +10,6 @@ from configs import db
 from configs import config, log
 from conn.mysql_lock import MysqlLock
 from operations.execute import continue_execute_interface, rpc_push_job
-from util.time_format import date_add
 
 
 def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='%Y%m%d', is_after=1):
@@ -91,9 +90,11 @@ def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='%Y%m%d'
 
 
 def add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type=1, run_date='', is_after=1,
-                    date_format='%Y-%m-%d'):
+                    date_format='%Y%m%d'):
     """添加执行表和执行详情表"""
     # 添加执行表
+    if not run_date:
+        run_date = time.strftime(date_format, time.localtime())
     exec_id = ExecuteModel.add_execute(db.etl_db, exec_type, dispatch_id, run_date, is_after, date_format)
     interface_arr = []
     for _, item in interface_nodes.items():
@@ -119,7 +120,7 @@ def add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type=1, run_da
                 'out_degree': ','.join(str(j) for j in job['out']) if job['out'] else '',
                 'server_host': job.get('server_host', ''),
                 'server_dir': job.get('server_dir', ''),
-                'params_value': ','.join(job.get('params', [])),
+                'params_value': ','.join(job.get('params_value', [])),
                 'server_script': job.get('server_script', ''),
                 'position': job['position'],
                 'return_code': job.get('return_code', 0),

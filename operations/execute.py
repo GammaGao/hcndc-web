@@ -12,7 +12,6 @@ from models.interface import InterfaceModel
 # from util.msg_push import send_mail, send_dingtalk
 # from operations.job import JobOperation
 from conn.mysql_lock import MysqlLock
-from util.time_format import date_add
 
 import time
 from copy import deepcopy
@@ -231,7 +230,7 @@ class ExecuteOperation(object):
     def get_execute_job(exec_id, interface_id, job_id, status):
         """
         执行服务任务回调
-        1.修改详情表回调任务执行状态[成功/失败]
+        1.修改详情表回调任务执行状态[成功/失败], 如果单独执行任务, # 修改执行主表状态[成功/失败], 返回
         2.如果执行任务状态成功, 获取当前任务流下一批执行任务(初始节点状态为'preparing'或'ready', 出度的入度==succeeded)
           如果执行任务状态失败, 修改执行任务流状态[失败], 执行主表状态[失败]
         3.RPC分发当前任务流中可执行的任务, 替换参数变量$date为T-1日期, 修改执行详情表状态[运行中];
@@ -260,6 +259,14 @@ class ExecuteOperation(object):
             ScheduleModel.update_exec_job_status(db.etl_db, exec_id, interface_id, job_id, status)
             # 获取执行主表详情
             execute_detail = ExecuteModel.get_exec_dispatch_id(db.etl_db, exec_id)
+        # 单独执行任务
+        if interface_id == 0:
+            # 修改执行主表状态[成功/失败]
+            if status == 'succeeded':
+                ExecuteModel.update_execute_status(db.etl_db, exec_id, 0)
+            elif status == 'failed':
+                ExecuteModel.update_execute_status(db.etl_db, exec_id, -1)
+            return Response(msg='成功')
         if status == 'succeeded':
             # 获取下一批执行任务
             distribute_job, nodes = continue_execute_job(exec_id, interface_id)

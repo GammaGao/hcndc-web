@@ -3,6 +3,7 @@
 
 import time
 from flask_restful import abort
+from datetime import date, timedelta
 
 from server.decorators import make_decorator, Response
 from server.status import make_result
@@ -86,6 +87,8 @@ class InterfaceOperation(object):
         if interface_detail and interface_detail['interface_id'] != interface_id:
             abort(400, **make_result(status=400, msg='任务流名称重复, 已存在数据库中'))
         # 修改任务流
+        if not run_time:
+            run_time = (date.today() + timedelta(days=-1)).strftime('%Y-%m-%d')
         InterfaceModel.update_interface_detail(db.etl_db, interface_id, interface_name, interface_desc, interface_index,
                                                run_time, retry, user_id, is_deleted)
         # 修改任务流前置
