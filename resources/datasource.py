@@ -39,21 +39,13 @@ class DataSourceTest(Resource):
     @staticmethod
     @datasource_test_request
     @DataSourceFilter.filter_test_data(tag=bool, msg=str)
-    @DataSourceOperation.test_datasource_link(source_type=int, auth_type=str, source_host=str, source_port=int,
-                                              source_database=str, source_user=str, source_password=str)
-    @DataSourceVerify.verify_test_datasource_link(source_type=int, auth_type=int, source_host=str, source_port=int,
-                                                  source_database=str, source_user=str, source_password=str)
+    @DataSourceOperation.test_datasource_link(source_id=int)
+    @DataSourceVerify.verify_test_datasource_link(source_id=int)
     def post():
         """测试数据源连接"""
         payload = get_payload()
         params = Response(
-            source_type=int(payload.get('source_type', 0)),
-            auth_type=int(payload.get('auth_type', 0)),
-            source_host=payload.get('source_host', ''),
-            source_port=int(payload.get('source_port', 0)),
-            source_database=payload.get('source_database', ''),
-            source_user=payload.get('source_user', ''),
-            source_password=payload.get('source_password', '')
+            source_id=int(payload.get('source_id', 0))
         )
         log.info('测试数据源连接[params: %s]' % str(params))
         return params

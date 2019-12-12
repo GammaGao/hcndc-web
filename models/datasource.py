@@ -10,7 +10,7 @@ class DataSourceModel(object):
         """获取数据源列表"""
         command = '''
         SELECT source_id, source_name, source_type, source_host, source_port,
-        source_database, source_desc, is_deleted
+        source_database, source_desc, last_ping_time, process_status, is_deleted
         FROM tb_datasource
         %s
         LIMIT :limit OFFSET :offset
@@ -83,7 +83,8 @@ class DataSourceModel(object):
         """获取数据源详情"""
         command = '''
         SELECT source_id, source_name, source_type, auth_type, source_host, source_port,
-        source_database, source_user, source_password, source_desc, insert_time, update_time, is_deleted
+        source_database, source_user, source_password, source_desc, last_ping_time, process_status,
+        insert_time, update_time, is_deleted
         FROM tb_datasource
         WHERE source_id = :source_id
         '''
@@ -139,7 +140,7 @@ class DataSourceModel(object):
         """根据id获取数据源"""
         command = '''
         SELECT source_id, source_name, source_type, auth_type, source_host, source_port, source_database,
-        source_user, source_password
+        source_user, source_password, last_ping_time, process_status
         FROM tb_datasource
         WHERE is_deleted = 0 AND source_id = :source_id
         '''
@@ -147,4 +148,20 @@ class DataSourceModel(object):
             'source_id': source_id
         })
         return result if source_id else {}
+
+    @staticmethod
+    def update_datasource_status(cursor, source_id, status):
+        """修改数据库连通状态"""
+        command = '''
+        UPDATE tb_datasource
+        SET last_ping_time = :last_ping_time, process_status = :process_status, update_time = :update_time
+        WHERE source_id = :source_id
+        '''
+        result = cursor.update(command, {
+            'source_id': source_id,
+            'process_status': status,
+            'last_ping_time': int(time.time()),
+            'update_time': int(time.time())
+        })
+        return result
 

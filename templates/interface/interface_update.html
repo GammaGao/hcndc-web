@@ -12,7 +12,7 @@
     </fieldset>
     <form class="layui-form" lay-filter="interface_detail">
         <div class="layui-form-item">
-            <label class="layui-form-label">任务流名称</label>
+            <label class="layui-form-label">任务流名称<span style="color:red">*</span></label>
             <div class="layui-input-inline">
                 <input type="text" class="layui-input" name="interface_name" lay-verify="required" placeholder="任务流名称"
                        autocomplete="off">
@@ -25,7 +25,7 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">任务流目录</label>
+            <label class="layui-form-label">任务流目录<span style="color:red">*</span></label>
             <div class="layui-input-inline">
                 <input type="text" class="layui-input" name="interface_index" placeholder="任务流目录"
                        lay-verify="index_verify" autocomplete="off">
@@ -45,7 +45,7 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">重试次数</label>
+            <label class="layui-form-label">重试次数<span style="color:red">*</span></label>
             <div class="layui-input-inline">
                 <input type="number" class="layui-input" name="retry" lay-verify="retry" placeholder="重试次数"
                        autocomplete="off">

@@ -14,7 +14,7 @@
     <!-- 调度 -->
     <form class="layui-form" lay-filter="dispatch_detail">
         <div class="layui-form-item">
-            <label class="layui-form-label">任务流ID</label>
+            <label class="layui-form-label">任务流ID<span style="color:red">*</span></label>
             <div class="layui-input-inline">
                 <label>
                     <select name="interface_id" lay-verify="required"></select>
@@ -34,7 +34,7 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">调度状态</label>
+            <label class="layui-form-label">调度状态<span style="color:red">*</span></label>
             <div class="layui-input-inline">
                 <select name="status" lay-verify="required">
                     <option value="0">失效</option>

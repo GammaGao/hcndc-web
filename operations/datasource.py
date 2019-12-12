@@ -35,11 +35,16 @@ class DataSourceOperation(object):
 
     @staticmethod
     @make_decorator
-    def test_datasource_link(source_type, auth_type, source_host, source_port, source_database, source_user,
-                             source_password):
+    def test_datasource_link(source_id):
         """测试数据源连接"""
-        data = test_db_conn(source_type, auth_type, source_host, source_port, source_database, source_user,
-                            source_password)
+        detail = DataSourceModel.get_datasource_detail(db.etl_db, source_id)
+
+        data = test_db_conn(detail['source_type'], detail['auth_type'], detail['source_host'], detail['source_port'],
+                            detail['source_database'], detail['source_user'], detail['source_password'])
+        if data['tag']:
+            DataSourceModel.update_datasource_status(db.etl_db, source_id, 0)
+        else:
+            DataSourceModel.update_datasource_status(db.etl_db, source_id, 1)
         return Response(tag=data['tag'], msg=data['msg'])
 
     @staticmethod

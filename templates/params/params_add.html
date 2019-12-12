@@ -12,7 +12,7 @@
     </fieldset>
     <form class="layui-form">
         <div class="layui-form-item">
-            <label class="layui-form-label">参数类型</label>
+            <label class="layui-form-label">参数类型<span style="color:red">*</span></label>
             <div class="layui-input-inline">
                 <label>
                     <select name="param_type" lay-filter="param_type" lay-verify="required">
@@ -23,13 +23,13 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">参数名称</label>
+            <label class="layui-form-label">参数名称<span style="color:red">*</span></label>
             <div class="layui-input-inline">
                 <input type="text" class="layui-input" name="param_name" lay-verify="required" placeholder="参数名称">
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">参数目录</label>
+            <label class="layui-form-label">参数目录<span style="color:red">*</span></label>
             <div class="layui-input-inline">
                 <input type="text" class="layui-input" name="param_index" lay-verify="index_verify" placeholder="参数目录">
             </div>
@@ -43,7 +43,7 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">参数值</label>
+            <label class="layui-form-label">参数值<span style="color:red">*</span></label>
             <div class="layui-input-block">
                 <input type="text" class="layui-input" name="param_value" lay-verify="required" placeholder="静态参数值">
             </div>

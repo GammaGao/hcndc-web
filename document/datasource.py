@@ -17,13 +17,7 @@ datasource_list_request = api.doc(params={
 
 # 测试数据源连接请求
 datasource_test_request = api.doc(body=api.model('datasource_test_request', {
-    'source_type': fields.String(description='数据库类型: 1.mysql, 2.mongo, 3.mssql, 4.hive, 5.impala'),
-    'auth_type': fields.Integer(description='认证方式(仅hive和impala使用):0.无,1.NOSASL,2.PLAIN,3.GSSAPI,4.LDAP'),
-    'source_host': fields.String(description='数据库ip或域名'),
-    'source_port': fields.Integer(description='数据库端口'),
-    'source_database': fields.String(description='数据库库名'),
-    'source_user': fields.String(description='用户名'),
-    'source_password': fields.String(description='密码')
+    'source_id': fields.String(description='数据源id')
 }, description='测试数据源连接请求'))
 
 # 新增数据源详情请求

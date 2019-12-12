@@ -12,6 +12,8 @@
             this.interface_list_req();
             // 表单验证规则
             this.form_verify();
+            // 数据初始化赋值
+            this.form_data_init();
             // 表单提交
             this.form_event();
             // 日期组件渲染
@@ -63,6 +65,17 @@
                     }
                 })
             })
+        },
+        // 数据初始化赋值
+        form_data_init: function () {
+            layui.use(['form'], function () {
+                // 详情参数初始化
+                let form = layui.form;
+                form.val('interface_detail', {
+                    'retry': 3,
+                });
+                form.render();
+            });
         },
         // 表单提交
         form_event: function () {

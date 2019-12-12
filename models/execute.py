@@ -188,6 +188,8 @@ class ExecuteModel(object):
         GROUP BY a.dispatch_id) AS c ON b.dispatch_id = c.dispatch_id
         LEFT JOIN tb_execute AS d ON c.exec_id = d.exec_id
         WHERE a.is_deleted = 0 %s
+        -- 自定义排序: 失败, 中断, 就绪, 运行中, 成功, NULL
+        ORDER BY FIELD(IF(ISNULL(d.`status`), -999, d.`status`), -1, 2, 3, 1, 0, -999)
         LIMIT :limit OFFSET :offset
         '''
 

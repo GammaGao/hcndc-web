@@ -25,23 +25,6 @@ class ExecuteFilter(object):
             item['update_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['update_time'])) if item[
                 'update_time'] else None
             item['timedelta'] = seconds_format(item['timedelta']) if item['timedelta'] else None
-        # 优先级排序
-        group_result = {}
-        for item in result:
-            group_result.setdefault(-1, [])
-            group_result.setdefault(2, [])
-            group_result.setdefault(3, [])
-            group_result.setdefault(1, [])
-            group_result.setdefault(0, [])
-            group_result.setdefault('-', [])
-            if isinstance(item['status'], int):
-                group_result[item['status']].append(item)
-            else:
-                group_result['-'].append(item)
-        sort_index = [-1, 2, 3, 1, 0, '-']
-        result = []
-        for index in sort_index:
-            result.extend(group_result[index])
         return {'status': 200, 'msg': '成功', 'total': total, 'data': result}, 200
 
     @staticmethod

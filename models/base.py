@@ -13,7 +13,6 @@ class ExecHostModel(object):
         disk_all, memory_used, memory_all, last_ping_time, process_status, is_deleted
         FROM tb_exec_host AS a
         LEFT JOIN tb_exec_host_status AS b USING(server_id)
-        WHERE is_deleted = 0
         %s
         ORDER BY server_id
         LIMIT :limit OFFSET :offset

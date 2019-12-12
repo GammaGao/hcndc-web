@@ -22,30 +22,11 @@ class DataSourceVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_test_datasource_link(source_type, auth_type, source_host, source_port, source_database,
-                                    source_user, source_password):
+    def verify_test_datasource_link(source_id):
         """测试数据源连接"""
-        if source_type < 1 or source_type > 5:
-            abort(400, **make_result(status=400, msg='数据库类型错误'))
-        if auth_type < 0 or auth_type > 4:
-            abort(400, **make_result(status=400, msg='认证方式类型错误'))
-        if not source_host:
-            abort(400, **make_result(status=400, msg='数据库ip或域名不存在'))
-        if not source_port:
-            abort(400, **make_result(status=400, msg='数据库端口不存在'))
-        # 认证类型
-        if auth_type == 1:
-            auth_type = 'NOSASL'
-        elif auth_type == 2:
-            auth_type = 'PLAIN'
-        elif auth_type == 3:
-            auth_type = 'GSSAPI'
-        elif auth_type == 4:
-            auth_type = 'LDAP'
-        else:
-            auth_type = 'NOSASL'
-        return Response(source_type=source_type, auth_type=auth_type, source_host=source_host, source_port=source_port,
-                        source_database=source_database, source_user=source_user, source_password=source_password)
+        if not source_id:
+            abort(400, **make_result(status=400, msg='数据源id不存在'))
+        return Response(source_id=source_id)
 
     @staticmethod
     @make_decorator

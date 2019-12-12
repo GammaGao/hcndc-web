@@ -12,13 +12,13 @@
     </fieldset>
     <form class="layui-form">
         <div class="layui-form-item">
-            <label class="layui-form-label">数据源名称</label>
+            <label class="layui-form-label">数据源名称<span style="color:red">*</span></label>
             <div class="layui-input-inline">
                 <input type="text" class="layui-input" name="source_name" lay-verify="required" placeholder="数据源名称">
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">数据库类型</label>
+            <label class="layui-form-label">数据库类型<span style="color:red">*</span></label>
             <div class="layui-input-inline">
                 <label>
                     <select name="source_type" lay-filter="source_type" lay-verify="required">
@@ -32,7 +32,7 @@
             </div>
         </div>
         <div class="layui-form-item" style="display: none;">
-            <label class="layui-form-label">认证方式</label>
+            <label class="layui-form-label">认证方式<span style="color:red">*</span></label>
             <div class="layui-input-inline">
                 <label>
                     <select name="auth_type" lay-verify="required">
@@ -46,13 +46,13 @@
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">数据库ip或域名</label>
+            <label class="layui-form-label">数据库ip或域名<span style="color:red">*</span></label>
             <div class="layui-input-inline">
                 <input type="text" class="layui-input" name="source_host" lay-verify="required" placeholder="数据库ip或域名">
             </div>
         </div>
         <div class="layui-form-item">
-            <label class="layui-form-label">数据库端口</label>
+            <label class="layui-form-label">数据库端口<span style="color:red">*</span></label>
             <div class="layui-input-inline">
                 <input type="number" class="layui-input" name="source_port" lay-verify="required" placeholder="数据库端口">
             </div>

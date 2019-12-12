@@ -199,6 +199,29 @@
                         field: "source_desc",
                         title: "描述"
                     }, {
+                        field: "last_ping_time",
+                        title: "上一次检测时间",
+                        templet: function (data) {
+                            if (data.last_ping_time === null) {
+                                return '-'
+                            } else {
+                                return data.last_ping_time
+                            }
+                        }
+                    }, {
+                        field: "process_status",
+                        title: "进程状态",
+                        width: '6%',
+                        templet: function (data) {
+                            if (data.process_status === null) {
+                                return '-'
+                            } else if (data.process_status === 0) {
+                                return '<span class="layui-badge layui-bg-green">正常</span>'
+                            } else {
+                                return '<span class="layui-badge layui-bg-red">异常</span>';
+                            }
+                        }
+                    }, {
                         field: "is_deleted",
                         title: "是否失效",
                         width: "8%",
@@ -213,11 +236,12 @@
                     }, {
                         field: "operation",
                         title: "操作",
-                        templet: function (data) {
+                        templet: function () {
                             let html = [];
                             html.push('<div class="layui-btn-group">');
                             html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
                             html.push('<button class="layui-btn layui-btn-danger layui-btn-sm" lay-event="delete">删除</button>');
+                            html.push('<button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="test">检测</button>');
                             html.push('</div>');
                             return html.join('');
                         }
@@ -333,6 +357,31 @@
                                 });
                             });
                             break;
+                        // 检测
+                        case 'test':
+                            layer.confirm('确定检测数据库状态?', function (index) {
+                                // 关闭弹窗
+                                layer.close(index);
+                                $.ajax({
+                                    url: BASE.uri.datasource.test_api,
+                                    contentType: "application/json; charset=utf-8",
+                                    type: 'post',
+                                    data: JSON.stringify({'source_id': data.source_id}),
+                                    success: function (result) {
+                                        if (result.status === 200) {
+                                            layer.msg('连接成功', {icon: 6});
+                                        } else {
+                                            layer.msg(sprintf('连接失败[%s]', result.msg), {icon: 5, shift: 6});
+                                        }
+                                        // 刷新页面
+                                        $(".layui-laypage-btn").click();
+                                    },
+                                    error: function (error) {
+                                        let result = error.responseJSON;
+                                        layer.msg(sprintf('连接失败: [%s]', result.msg), {icon: 2});
+                                    }
+                                });
+                            })
                     }
                 })
             })

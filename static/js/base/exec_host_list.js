@@ -382,7 +382,6 @@
                                     layer.msg(sprintf('连接服务器失败: [%s]', result.msg), {icon: 2});
                                 }
                             });
-
                         })
                     }
                 })
