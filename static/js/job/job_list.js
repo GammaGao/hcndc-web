@@ -350,8 +350,9 @@
                                 maxmin: true,
                                 area: ['60%', '80%'],
                                 content: BASE.uri.job.add,
-                                end: function () {
+                                end: function (index) {
                                     $(".layui-laypage-btn").click();
+                                    layer.close(index);
                                 }
                             });
                             break;
@@ -369,8 +370,9 @@
                                     maxmin: true,
                                     area: ['60%', '80%'],
                                     content: BASE.uri.job.update + check_data[0].job_id + '/',
-                                    end: function () {
+                                    end: function (index) {
                                         $(".layui-laypage-btn").click();
+                                        layer.close(index);
                                     }
                                 });
                             }
@@ -395,9 +397,9 @@
                                                     title: '删除成功',
                                                     content: '删除成功',
                                                     yes: function (index) {
-                                                        layer.close(index);
                                                         // 刷新页面
                                                         $(".layui-laypage-btn").click();
+                                                        layer.close(index);
                                                     }
                                                 })
                                             } else {
@@ -458,8 +460,9 @@
                                 maxmin: true,
                                 area: ['60%', '80%'],
                                 content: BASE.uri.job.update + data.job_id + '/',
-                                end: function () {
+                                end: function (index) {
                                     $(".layui-laypage-btn").click();
+                                    layer.close(index);
                                 }
                             });
                             break;

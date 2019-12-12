@@ -9,8 +9,11 @@ class ExecHostModel(object):
     def get_exec_host_list(cursor, condition, page, limit):
         """获取执行服务器列表"""
         command = '''
-        SELECT server_id, server_host, server_name, is_deleted
-        FROM tb_exec_host
+        SELECT server_id, server_host, server_name, core_num, system_version, disk_used,
+        disk_all, memory_used, memory_all, last_ping_time, process_status, is_deleted
+        FROM tb_exec_host AS a
+        LEFT JOIN tb_exec_host_status AS b USING(server_id)
+        WHERE is_deleted = 0
         %s
         ORDER BY server_id
         LIMIT :limit OFFSET :offset

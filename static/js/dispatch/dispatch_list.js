@@ -282,8 +282,9 @@
                                 maxmin: true,
                                 area: ['60%', '80%'],
                                 content: BASE.uri.dispatch.add,
-                                end: function () {
+                                end: function (index) {
                                     $(".layui-laypage-btn").click();
+                                    layer.close(index);
                                 }
                             });
                             break;
@@ -301,8 +302,9 @@
                                     maxmin: true,
                                     area: ['60%', '80%'],
                                     content: BASE.uri.dispatch.update + check_data[0].dispatch_id + '/',
-                                    end: function () {
+                                    end: function (index) {
                                         $(".layui-laypage-btn").click();
+                                        layer.close(index);
                                     }
                                 });
                             }
@@ -346,13 +348,15 @@
                                                 id: 'dispatch_pause_succeed',
                                                 title: '暂停调度成功',
                                                 content: '暂停调度成功',
-                                                yes: function () {
+                                                yes: function (index) {
                                                     // 刷新页面
                                                     $(".layui-laypage-btn").click();
+                                                    layer.close(index);
                                                 },
-                                                cancel: function () {
+                                                cancel: function (index) {
                                                     // 刷新页面
                                                     $(".layui-laypage-btn").click();
+                                                    layer.close(index);
                                                 }
                                             });
                                         } else {
@@ -386,13 +390,15 @@
                                                 id: 'dispatch_resume_succeed',
                                                 title: '恢复调度成功',
                                                 content: '恢复调度成功',
-                                                yes: function () {
+                                                yes: function (index) {
                                                     // 刷新页面
                                                     $(".layui-laypage-btn").click();
+                                                    layer.close(index);
                                                 },
-                                                cancel: function () {
+                                                cancel: function (index) {
                                                     // 刷新页面
                                                     $(".layui-laypage-btn").click();
+                                                    layer.close(index);
                                                 }
                                             });
                                         } else {
@@ -424,13 +430,15 @@
                                                 id: 'dispatch_delete_succeed',
                                                 title: '删除调度成功',
                                                 content: '删除调度成功',
-                                                yes: function () {
+                                                yes: function (index) {
                                                     // 刷新页面
                                                     $(".layui-laypage-btn").click();
+                                                    layer.close(index);
                                                 },
-                                                cancel: function () {
+                                                cancel: function (index) {
                                                     // 刷新页面
                                                     $(".layui-laypage-btn").click();
+                                                    layer.close(index);
                                                 }
                                             });
                                         } else {
@@ -480,13 +488,15 @@
                                             id: 'dispatch_pause_succeed',
                                             title: '暂停调度成功',
                                             content: '暂停调度id: ' + data.dispatch_id + '成功',
-                                            yes: function () {
+                                            yes: function (index) {
                                                 // 刷新页面
                                                 $(".layui-laypage-btn").click();
+                                                layer.close(index);
                                             },
-                                            cancel: function () {
+                                            cancel: function (index) {
                                                 // 刷新页面
                                                 $(".layui-laypage-btn").click();
+                                                layer.close(index);
                                             }
                                         });
                                     } else {
@@ -512,13 +522,15 @@
                                             id: 'dispatch_resume_succeed',
                                             title: '恢复调度成功',
                                             content: '恢复调度id: ' + data.dispatch_id + '成功',
-                                            yes: function () {
+                                            yes: function (index) {
                                                 // 刷新页面
                                                 $(".layui-laypage-btn").click();
+                                                layer.close(index);
                                             },
-                                            cancel: function () {
+                                            cancel: function (index) {
                                                 // 刷新页面
                                                 $(".layui-laypage-btn").click();
+                                                layer.close(index);
                                             }
                                         });
                                     } else {
@@ -540,8 +552,9 @@
                                 maxmin: true,
                                 area: ['60%', '80%'],
                                 content: BASE.uri.dispatch.update + data.dispatch_id + '/',
-                                end: function () {
+                                end: function (index) {
                                     $(".layui-laypage-btn").click();
+                                    layer.close(index);
                                 }
                             });
                             break;
@@ -561,13 +574,15 @@
                                                 id: 'dispatch_delete_succeed',
                                                 title: '删除调度成功',
                                                 content: '删除调度id: ' + data.dispatch_id + '成功',
-                                                yes: function () {
+                                                yes: function (index) {
                                                     // 刷新页面
                                                     $(".layui-laypage-btn").click();
+                                                    layer.close(index);
                                                 },
-                                                cancel: function () {
+                                                cancel: function (index) {
                                                     // 刷新页面
                                                     $(".layui-laypage-btn").click();
+                                                    layer.close(index);
                                                 }
                                             });
                                         } else {

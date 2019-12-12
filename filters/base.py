@@ -5,11 +5,15 @@ from server.decorators import make_decorator
 
 import time
 
+
 class ExecFilter(object):
     @staticmethod
     @make_decorator
     def filter_exec_host_list_data(result, total):
         """执行服务器列表"""
+        for item in result:
+            if item['last_ping_time']:
+                item['last_ping_time'] = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(item['last_ping_time']))
         return {'status': 200, 'msg': '成功', 'total': total, 'data': result}, 200
 
     @staticmethod

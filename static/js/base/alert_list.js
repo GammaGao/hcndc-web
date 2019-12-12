@@ -249,8 +249,9 @@
                                 maxmin: true,
                                 area: ['60%', '80%'],
                                 content: BASE.uri.base.alert_add,
-                                end: function () {
-                                    window.location.reload();
+                                end: function (index) {
+                                    $(".layui-laypage-btn").click();
+                                    layer.close(index);
                                 }
                             });
                             break;
@@ -267,8 +268,9 @@
                                     maxmin: true,
                                     area: ['60%', '80%'],
                                     content: BASE.uri.base.alert_update_api + check_data[0].id + '/',
-                                    end: function () {
-                                        window.location.reload();
+                                    end: function (index) {
+                                        $(".layui-laypage-btn").click();
+                                        layer.close(index);
                                     }
                                 });
                             }
@@ -293,8 +295,9 @@
                             maxmin: true,
                             area: ['60%', '80%'],
                             content: BASE.uri.base.alert_update_api + data.id + '/',
-                            end: function () {
-                                window.location.reload();
+                            end: function (index) {
+                                $(".layui-laypage-btn").click();
+                                layer.close(index);
                             }
                         });
                     } else if (event === 'delete') {

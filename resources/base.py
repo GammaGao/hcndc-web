@@ -109,24 +109,6 @@ class ExecHostAdd(Resource):
         return params
 
 
-class ExecHostStatusList(Resource):
-    @staticmethod
-    @exec_host_status_list_request
-    @ExecFilter.filter_exec_host_status(result=list, total=int)
-    @ExecHostOperation.get_exec_host_status(server_host=str, server_name=str, page=int, limit=int)
-    @ExecHostVerify.verify_get_exec_host_status(server_host=str, server_name=str, page=int, limit=int)
-    def get():
-        """获取执行服务器状态列表"""
-        params = Response(
-            server_name=get_arg('server_name', ''),
-            server_host=get_arg('server_host', ''),
-            page=int(get_arg('page', 1)),
-            limit=int(get_arg('limit', 10))
-        )
-        log.info('获取执行服务器状态[params: %s]' % str(params))
-        return params
-
-
 class AlertList(Resource):
     @staticmethod
     @alert_conf_list_request
@@ -238,7 +220,6 @@ ns.add_resource(ExecHostList, '/exec/host/list/api/')
 ns.add_resource(ExecHostDetail, '/exec/host/detail/api/<int:server_id>/')
 ns.add_resource(ExecHostTest, '/exec/host/test/api/')
 ns.add_resource(ExecHostAdd, '/exec/host/add/api/')
-ns.add_resource(ExecHostStatusList, '/exec/host/status/list/api/')
 ns.add_resource(AlertList, '/alert/list/api/')
 ns.add_resource(AlertListAll, '/alert/list/all/api/')
 ns.add_resource(AlertDetail, '/alert/detail/api/<int:conf_id>/')

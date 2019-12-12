@@ -354,9 +354,9 @@
                                         success: function (result) {
                                             if (result.status === 200) {
                                                 layer.msg('中止成功', {icon: 6});
-                                                // 关闭自身iframe窗口
+                                                // 刷新页面
                                                 setTimeout(function () {
-                                                    window.location.reload();
+                                                    $(".layui-laypage-btn").click();
                                                 }, 2000);
                                             } else {
                                                 layer.msg(sprintf('中止失败[%s]', result.msg), {icon: 5, shift: 6});
@@ -392,7 +392,7 @@
                                                 layer.msg('重跑成功', {icon: 6});
                                                 // 关闭自身iframe窗口
                                                 setTimeout(function () {
-                                                    window.location.reload();
+                                                    $(".layui-laypage-btn").click();
                                                 }, 2000);
                                             } else {
                                                 layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5, shift: 6});
@@ -426,9 +426,9 @@
                                         success: function (result) {
                                             if (result.status === 200) {
                                                 layer.msg('重置成功', {icon: 6});
-                                                // 关闭自身iframe窗口
+                                                // 刷新页面
                                                 setTimeout(function () {
-                                                    window.location.reload();
+                                                    $(".layui-laypage-btn").click();
                                                 }, 2000);
                                             } else {
                                                 layer.msg(sprintf('重置失败[%s]', result.msg), {icon: 5, shift: 6});
@@ -459,9 +459,9 @@
                                     success: function (result) {
                                         if (result.status === 200) {
                                             layer.msg('启动成功', {icon: 6});
-                                            // 关闭自身iframe窗口
+                                            // 刷新页面
                                             setTimeout(function () {
-                                                window.location.reload();
+                                                $(".layui-laypage-btn").click();
                                             }, 2000);
                                         } else {
                                             layer.msg(sprintf('启动失败[%s]', result.msg), {icon: 5, shift: 6});
@@ -507,9 +507,9 @@
                                 success: function (result) {
                                     if (result.status === 200) {
                                         layer.msg('中止成功', {icon: 6});
-                                        // 关闭自身iframe窗口
+                                        // 刷新页面
                                         setTimeout(function () {
-                                            window.location.reload();
+                                            $(".layui-laypage-btn").click();
                                         }, 2000);
                                     } else {
                                         layer.msg(sprintf('中止失败[%s]', result.msg), {icon: 5, shift: 6});
@@ -543,9 +543,9 @@
                                 success: function (result) {
                                     if (result.status === 200) {
                                         layer.msg('重跑成功', {icon: 6});
-                                        // 关闭自身iframe窗口
+                                        // 刷新页面
                                         setTimeout(function () {
-                                            window.location.reload();
+                                            $(".layui-laypage-btn").click();
                                         }, 2000);
                                     } else {
                                         layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5, shift: 6});
@@ -568,9 +568,9 @@
                             success: function (result) {
                                 if (result.status === 200) {
                                     layer.msg('重置成功', {icon: 6});
-                                    // 关闭自身iframe窗口
+                                    // 刷新页面
                                     setTimeout(function () {
-                                        window.location.reload();
+                                        $(".layui-laypage-btn").click();
                                     }, 2000);
                                 } else {
                                     layer.msg(sprintf('重置失败[%s]', result.msg), {icon: 5, shift: 6});
@@ -592,9 +592,9 @@
                             success: function (result) {
                                 if (result.status === 200) {
                                     layer.msg('启动成功', {icon: 6});
-                                    // 关闭自身iframe窗口
+                                    // 刷新页面
                                     setTimeout(function () {
-                                        window.location.reload();
+                                        $(".layui-laypage-btn").click();
                                     }, 2000);
                                 } else {
                                     layer.msg(sprintf('启动失败[%s]', result.msg), {icon: 5, shift: 6});

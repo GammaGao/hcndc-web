@@ -324,8 +324,9 @@
                                 maxmin: true,
                                 area: ['60%', '80%'],
                                 content: BASE.uri.interface.add,
-                                end: function () {
+                                end: function (index) {
                                     $(".layui-laypage-btn").click();
+                                    layer.close(index);
                                 }
                             });
                             break;
@@ -343,8 +344,9 @@
                                     maxmin: true,
                                     area: ['60%', '80%'],
                                     content: BASE.uri.interface.update + check_data[0].interface_id + '/',
-                                    end: function () {
+                                    end: function (index) {
                                         $(".layui-laypage-btn").click();
+                                        layer.close(index);
                                     }
                                 });
                             }
@@ -369,9 +371,9 @@
                                                     title: '删除成功',
                                                     content: '删除成功',
                                                     yes: function (index) {
-                                                        layer.close(index);
                                                         // 刷新页面
                                                         $(".layui-laypage-btn").click();
+                                                        layer.close(index);
                                                     }
                                                 })
                                             } else {
@@ -390,6 +392,7 @@
                         // 下载
                         case 'download':
                             window.location.href = '/interface/download/';
+                            break;
                     }
                 })
             })
@@ -421,8 +424,9 @@
                             maxmin: true,
                             area: ['60%', '80%'],
                             content: BASE.uri.interface.update + data.interface_id + '/',
-                            end: function () {
+                            end: function (index) {
                                 $(".layui-laypage-btn").click();
+                                layer.close(index);
                             }
                         });
                     } else if (event === 'delete') {

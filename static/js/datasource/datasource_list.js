@@ -252,8 +252,9 @@
                                 maxmin: true,
                                 area: ['60%', '80%'],
                                 content: BASE.uri.datasource.add,
-                                end: function () {
+                                end: function (index) {
                                     $(".layui-laypage-btn").click();
+                                    layer.close(index);
                                 }
                             });
                             break;
@@ -270,8 +271,9 @@
                                     maxmin: true,
                                     area: ['60%', '80%'],
                                     content: BASE.uri.datasource.update + check_data[0].source_id + '/',
-                                    end: function () {
+                                    end: function (index) {
                                         $(".layui-laypage-btn").click();
+                                        layer.close(index);
                                     }
                                 });
                             }
@@ -298,8 +300,9 @@
                                 maxmin: true,
                                 area: ['60%', '80%'],
                                 content: BASE.uri.datasource.update + data.source_id + '/',
-                                end: function () {
+                                end: function (index) {
                                     $(".layui-laypage-btn").click();
+                                    layer.close(index);
                                 }
                             });
                             break;
