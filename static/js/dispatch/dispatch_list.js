@@ -360,12 +360,24 @@
                                                 }
                                             });
                                         } else {
-                                            layer.alert(sprintf('暂停调度失败: [%s]', result.msg), {icon: 5});
+                                            layer.alert(sprintf('暂停调度失败: [%s]', result.msg), {
+    icon: 5,
+    shift: 6,
+    end: function () {
+        $(".layui-laypage-btn").click();
+    }
+});
                                         }
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
-                                        layer.msg(sprintf('暂停调度失败[%s]', result.msg), {icon: 5});
+                                        layer.msg(sprintf('暂停调度失败[%s]', result.msg), {
+    icon: 5,
+    shift: 6,
+    end: function () {
+        $(".layui-laypage-btn").click();
+    }
+});
                                     }
                                 });
                             }
@@ -402,12 +414,24 @@
                                                 }
                                             });
                                         } else {
-                                            layer.alert(sprintf('恢复调度失败: [%s]', result.msg), {icon: 5});
+                                            layer.alert(sprintf('恢复调度失败: [%s]', result.msg), {
+    icon: 5,
+    shift: 6,
+    end: function () {
+        $(".layui-laypage-btn").click();
+    }
+});
                                         }
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
-                                        layer.msg(sprintf('恢复调度失败[%s]', result.msg), {icon: 5});
+                                        layer.msg(sprintf('恢复调度失败[%s]', result.msg), {
+    icon: 5,
+    shift: 6,
+    end: function () {
+        $(".layui-laypage-btn").click();
+    }
+});
                                     }
                                 });
                             }
@@ -442,12 +466,25 @@
                                                 }
                                             });
                                         } else {
-                                            layer.alert(sprintf('删除项目: [%s]', result.msg), {icon: 5});
+                                            layer.alert(sprintf('删除项目: [%s]', result.msg), {
+                                                icon: 5,
+                                                shift: 6,
+                                                end: function () {
+                                                    $(".layui-laypage-btn").click();
+                                                }
+                                            });
                                         }
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
-                                        layer.alert(sprintf('删除项目失败: %s', result.msg))
+                                        layer.alert(sprintf('删除项目失败: %s', result.msg), {
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        });
+
                                     }
                                 });
                             });
@@ -500,12 +537,24 @@
                                             }
                                         });
                                     } else {
-                                        layer.alert(sprintf('暂停调度失败: [%s]', result.msg), {icon: 5});
+                                        layer.alert(sprintf('暂停调度失败: [%s]', result.msg), {
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        });
                                     }
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;
-                                    layer.msg(sprintf('暂停调度失败[%s]', result.msg), {icon: 5});
+                                    layer.msg(sprintf('暂停调度失败[%s]', result.msg), {
+                                        icon: 5,
+                                        shift: 6,
+                                        end: function () {
+                                            $(".layui-laypage-btn").click();
+                                        }
+                                    });
                                 }
                             });
                             break;
@@ -534,12 +583,24 @@
                                             }
                                         });
                                     } else {
-                                        layer.alert(sprintf('恢复调度失败: [%s]', result.msg), {icon: 5});
+                                        layer.alert(sprintf('恢复调度失败: [%s]', result.msg), {
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        });
                                     }
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;
-                                    layer.msg(sprintf('恢复调度失败[%s]', result.msg), {icon: 5});
+                                    layer.msg(sprintf('恢复调度失败[%s]', result.msg), {
+                                        icon: 5,
+                                        shift: 6,
+                                        end: function () {
+                                            $(".layui-laypage-btn").click();
+                                        }
+                                    });
                                 }
                             });
                             break;
@@ -586,12 +647,24 @@
                                                 }
                                             });
                                         } else {
-                                            layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5});
+                                            layer.alert(sprintf('删除失败: [%s]', result.msg), {
+                                                icon: 5,
+                                                shift: 6,
+                                                end: function () {
+                                                    $(".layui-laypage-btn").click();
+                                                }
+                                            });
                                         }
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
-                                        layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5});
+                                        layer.alert(sprintf('删除失败: [%s]', result.msg), {
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        });
                                     }
                                 });
                             });

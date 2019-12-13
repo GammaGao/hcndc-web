@@ -355,16 +355,26 @@
                                             if (result.status === 200) {
                                                 layer.msg('中止成功', {icon: 6});
                                                 // 刷新页面
-                                                setTimeout(function () {
-                                                    $(".layui-laypage-btn").click();
-                                                }, 2000);
+                                                $(".layui-laypage-btn").click();
                                             } else {
-                                                layer.msg(sprintf('中止失败[%s]', result.msg), {icon: 5, shift: 6});
+                                                layer.msg(sprintf('中止失败[%s]', result.msg), {
+                                                    icon: 5,
+                                                    shift: 6,
+                                                    end: function () {
+                                                        $(".layui-laypage-btn").click();
+                                                    }
+                                                });
                                             }
                                         },
                                         error: function (error) {
                                             let result = error.responseJSON;
-                                            layer.alert(sprintf('中止失败: %s', result.msg))
+                                            layer.alert(sprintf('中止失败: %s', result.msg), {
+                                                icon: 5,
+                                                shift: 6,
+                                                end: function () {
+                                                    $(".layui-laypage-btn").click();
+                                                }
+                                            })
                                         }
                                     })
                                 })
@@ -391,16 +401,26 @@
                                             if (result.status === 200) {
                                                 layer.msg('重跑成功', {icon: 6});
                                                 // 关闭自身iframe窗口
-                                                setTimeout(function () {
-                                                    $(".layui-laypage-btn").click();
-                                                }, 2000);
+                                                $(".layui-laypage-btn").click();
                                             } else {
-                                                layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5, shift: 6});
+                                                layer.msg(sprintf('重跑失败[%s]', result.msg), {
+                                                    icon: 5,
+                                                    shift: 6,
+                                                    end: function () {
+                                                        $(".layui-laypage-btn").click();
+                                                    }
+                                                });
                                             }
                                         },
                                         error: function (error) {
                                             let result = error.responseJSON;
-                                            layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5, shift: 6});
+                                            layer.msg(sprintf('重跑失败[%s]', result.msg), {
+                                                icon: 5,
+                                                shift: 6,
+                                                end: function () {
+                                                    $(".layui-laypage-btn").click();
+                                                }
+                                            });
                                         }
                                     });
                                 })
@@ -427,16 +447,26 @@
                                             if (result.status === 200) {
                                                 layer.msg('重置成功', {icon: 6});
                                                 // 刷新页面
-                                                setTimeout(function () {
-                                                    $(".layui-laypage-btn").click();
-                                                }, 2000);
+                                                $(".layui-laypage-btn").click();
                                             } else {
-                                                layer.msg(sprintf('重置失败[%s]', result.msg), {icon: 5, shift: 6});
+                                                layer.msg(sprintf('重置失败[%s]', result.msg), {
+                                                    icon: 5,
+                                                    shift: 6,
+                                                    end: function () {
+                                                        $(".layui-laypage-btn").click();
+                                                    }
+                                                });
                                             }
                                         },
                                         error: function (error) {
                                             let result = error.responseJSON;
-                                            layer.alert(sprintf('重置失败: %s', result.msg))
+                                            layer.alert(sprintf('重置失败: %s', result.msg), {
+                                                icon: 5,
+                                                shift: 6,
+                                                end: function () {
+                                                    $(".layui-laypage-btn").click();
+                                                }
+                                            })
                                         }
                                     });
                                 })
@@ -460,16 +490,26 @@
                                         if (result.status === 200) {
                                             layer.msg('启动成功', {icon: 6});
                                             // 刷新页面
-                                            setTimeout(function () {
-                                                $(".layui-laypage-btn").click();
-                                            }, 2000);
+                                            $(".layui-laypage-btn").click();
                                         } else {
-                                            layer.msg(sprintf('启动失败[%s]', result.msg), {icon: 5, shift: 6});
+                                            layer.msg(sprintf('启动失败[%s]', result.msg), {
+                                                icon: 5,
+                                                shift: 6,
+                                                end: function () {
+                                                    $(".layui-laypage-btn").click();
+                                                }
+                                            });
                                         }
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
-                                        layer.alert(sprintf('启动失败: %s', result.msg))
+                                        layer.alert(sprintf('启动失败: %s', result.msg), {
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        })
                                     }
                                 });
                             }
@@ -508,16 +548,26 @@
                                     if (result.status === 200) {
                                         layer.msg('中止成功', {icon: 6});
                                         // 刷新页面
-                                        setTimeout(function () {
-                                            $(".layui-laypage-btn").click();
-                                        }, 2000);
+                                        $(".layui-laypage-btn").click();
                                     } else {
-                                        layer.msg(sprintf('中止失败[%s]', result.msg), {icon: 5, shift: 6});
+                                        layer.msg(sprintf('中止失败[%s]', result.msg), {
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        });
                                     }
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;
-                                    layer.alert(sprintf('中止失败: %s', result.msg))
+                                    layer.alert(sprintf('中止失败: %s', result.msg), {
+                                        icon: 5,
+                                        shift: 6,
+                                        end: function () {
+                                            $(".layui-laypage-btn").click();
+                                        }
+                                    })
                                 }
                             })
                         })
@@ -544,16 +594,26 @@
                                     if (result.status === 200) {
                                         layer.msg('重跑成功', {icon: 6});
                                         // 刷新页面
-                                        setTimeout(function () {
-                                            $(".layui-laypage-btn").click();
-                                        }, 2000);
+                                        $(".layui-laypage-btn").click();
                                     } else {
-                                        layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5, shift: 6});
+                                        layer.msg(sprintf('重跑失败[%s]', result.msg), {
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        });
                                     }
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;
-                                    layer.msg(sprintf('重跑失败[%s]', result.msg), {icon: 5, shift: 6});
+                                    layer.msg(sprintf('重跑失败[%s]', result.msg), {
+                                        icon: 5,
+                                        shift: 6,
+                                        end: function () {
+                                            $(".layui-laypage-btn").click();
+                                        }
+                                    });
                                 }
                             });
                         })
@@ -569,16 +629,26 @@
                                 if (result.status === 200) {
                                     layer.msg('重置成功', {icon: 6});
                                     // 刷新页面
-                                    setTimeout(function () {
-                                        $(".layui-laypage-btn").click();
-                                    }, 2000);
+                                    $(".layui-laypage-btn").click();
                                 } else {
-                                    layer.msg(sprintf('重置失败[%s]', result.msg), {icon: 5, shift: 6});
+                                    layer.msg(sprintf('重置失败[%s]', result.msg), {
+                                        icon: 5,
+                                        shift: 6,
+                                        end: function () {
+                                            $(".layui-laypage-btn").click();
+                                        }
+                                    });
                                 }
                             },
                             error: function (error) {
                                 let result = error.responseJSON;
-                                layer.alert(sprintf('重置失败: %s', result.msg))
+                                layer.alert(sprintf('重置失败: %s', result.msg), {
+                                    icon: 5,
+                                    shift: 6,
+                                    end: function () {
+                                        $(".layui-laypage-btn").click();
+                                    }
+                                })
                             }
                         })
                     }
@@ -593,16 +663,26 @@
                                 if (result.status === 200) {
                                     layer.msg('启动成功', {icon: 6});
                                     // 刷新页面
-                                    setTimeout(function () {
-                                        $(".layui-laypage-btn").click();
-                                    }, 2000);
+                                    $(".layui-laypage-btn").click();
                                 } else {
-                                    layer.msg(sprintf('启动失败[%s]', result.msg), {icon: 5, shift: 6});
+                                    layer.msg(sprintf('启动失败[%s]', result.msg), {
+                                        icon: 5,
+                                        shift: 6,
+                                        end: function () {
+                                            $(".layui-laypage-btn").click();
+                                        }
+                                    });
                                 }
                             },
                             error: function (error) {
                                 let result = error.responseJSON;
-                                layer.alert(sprintf('启动失败: %s', result.msg))
+                                layer.alert(sprintf('启动失败: %s', result.msg), {
+                                    icon: 5,
+                                    shift: 6,
+                                    end: function () {
+                                        $(".layui-laypage-btn").click();
+                                    }
+                                })
                             }
                         })
                     }

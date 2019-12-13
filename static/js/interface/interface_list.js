@@ -381,13 +381,25 @@
                                                     }
                                                 })
                                             } else {
-                                                layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5, shift: 6});
+                                                layer.alert(sprintf('删除失败: [%s]', result.msg), {
+                                                    icon: 5,
+                                                    shift: 6,
+                                                    end: function () {
+                                                        $(".layui-laypage-btn").click();
+                                                    }
+                                                });
                                             }
                                         }
                                         ,
                                         error: function (error) {
                                             let result = error.responseJSON;
-                                            layer.msg(sprintf('删除失败[%s]', result.msg), {icon: 5, shift: 6});
+                                            layer.msg(sprintf('删除失败[%s]', result.msg), {
+                                                icon: 5,
+                                                shift: 6,
+                                                end: function () {
+                                                    $(".layui-laypage-btn").click();
+                                                }
+                                            });
                                         }
                                     });
                                 });
@@ -449,12 +461,24 @@
                                         layer.msg('删除成功', {icon: 6});
                                         $(".layui-laypage-btn").click();
                                     } else {
-                                        layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5, shift: 6});
+                                        layer.alert(sprintf('删除失败: [%s]', result.msg), {
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        });
                                     }
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;
-                                    layer.alert(sprintf('删除任务流失败: %s', result.msg))
+                                    layer.alert(sprintf('删除任务流失败: %s', result.msg), {
+                                        icon: 5,
+                                        shift: 6,
+                                        end: function () {
+                                            $(".layui-laypage-btn").click();
+                                        }
+                                    })
                                 }
                             });
                         })

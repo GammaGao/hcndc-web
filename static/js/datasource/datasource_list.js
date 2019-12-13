@@ -347,12 +347,24 @@
                                             layer.msg('删除成功', {icon: 6});
                                             $(".layui-laypage-btn").click();
                                         } else {
-                                            layer.alert(sprintf('删除失败: [%s]', result.msg), {icon: 5, shift: 6});
+                                            layer.alert(sprintf('删除失败: [%s]', result.msg), {
+                                                icon: 5,
+                                                shift: 6,
+                                                end: function () {
+                                                    $(".layui-laypage-btn").click();
+                                                }
+                                            });
                                         }
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
-                                        layer.alert(sprintf('删除项目失败: %s', result.msg))
+                                        layer.alert(sprintf('删除项目失败: %s', result.msg), {
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        })
                                     }
                                 });
                             });
@@ -378,7 +390,13 @@
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
-                                        layer.msg(sprintf('连接失败: [%s]', result.msg), {icon: 2});
+                                        layer.msg(sprintf('连接失败: [%s]', result.msg), {
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        });
                                     }
                                 });
                             })
