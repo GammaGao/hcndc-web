@@ -68,6 +68,9 @@ class ExecuteFilter(object):
     def filter_get_execute_flow_detail(result):
         """获取任务流执行详情"""
         for item in result:
+            item['margin_left'] = 1 if item['margin_left'] > 1 else item['margin_left']
+            if item['margin_left'] + item['width'] > 1:
+                item['width'] = 1 - item['margin_left']
             if item['margin_left'] and item['margin_left'] < 1:
                 item['margin_left'] = '%s%%' % (item['margin_left'] * 100)
                 item['width'] = '%s%%' % (item['width'] * 100) if item['width'] else '0'

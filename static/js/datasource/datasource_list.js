@@ -352,7 +352,7 @@
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
-                                        layer.alert(sprintf('删除项目%s失败: %s', data.job_id, result.msg))
+                                        layer.alert(sprintf('删除项目失败: %s', result.msg))
                                     }
                                 });
                             });

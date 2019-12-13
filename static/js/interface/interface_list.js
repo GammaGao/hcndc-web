@@ -454,7 +454,7 @@
                                 },
                                 error: function (error) {
                                     let result = error.responseJSON;
-                                    layer.alert(sprintf('删除任务流%s失败: %s', data.interface_id, result.msg))
+                                    layer.alert(sprintf('删除任务流失败: %s', result.msg))
                                 }
                             });
                         })

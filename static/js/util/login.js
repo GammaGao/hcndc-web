@@ -39,7 +39,7 @@
                     window.location.href = BASE.uri.index;
                 },
                 error: function (error) {
-                    result = error.responseJSON;
+                    let result = error.responseJSON;
                     layer.alert(sprintf('登陆失败: %s', result.msg))
                 }
             });

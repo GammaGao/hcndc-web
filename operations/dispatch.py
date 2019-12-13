@@ -84,7 +84,7 @@ class DispatchOperation(object):
                 SchedulerHandler.remove_job(run_id)
             except Exception as e:
                 log.error('删除调度异常[ERROR: %s]' % e, exc_info=True)
-                abort(400, **make_result(status=400, msg='删除调度异常'))
+                abort(400, **make_result(status=400, msg='删除调度错误, 该调度不存在'))
         return Response(dispatch_id=dispatch_id)
 
     @staticmethod

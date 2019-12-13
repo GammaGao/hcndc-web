@@ -81,13 +81,19 @@
         table_data_load: function (data) {
             // 事件监听
             let that = this;
+            let toolbar_div = [
+                '<div class="layui-table-tool-temp">',
+                '<div class="layui-inline" lay-event="reload" title="刷新"><i class="layui-icon layui-icon-refresh"></i></div>',
+                '</div>'
+            ].join('');
             // 表格渲染
             layui.use('table', function () {
                 let table = layui.table;
                 table.render({
+                    id: 'job_list',
                     elem: "#exec-detail",
                     page: false,
-                    toolbar: true,
+                    toolbar: toolbar_div,
                     limits: [10, 20, 30, 40, 50],
                     title: '日志详情',
                     url: BASE.uri.execute.detail_api + window.exec_id + '/',
@@ -185,9 +191,21 @@
                         countName: 'total'
                     }
                 });
-                // 事件监听
+                // 工具栏事件监听
+                that.toolbar_data_event();
+                // 表格事件监听
                 that.table_data_event();
             });
+        },
+        toolbar_data_event: function () {
+            layui.use('table', function () {
+                let table = layui.table;
+                table.on('toolbar(exec-detail)', function (obj) {
+                    if (obj.event === 'reload') {
+                        table.reload('job_list', {})
+                    }
+                })
+            })
         },
         // 表格事件监听
         table_data_event: function () {
