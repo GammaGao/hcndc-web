@@ -197,6 +197,7 @@
                     }, {
                         field: "interface_id",
                         title: "任务流id",
+                        width: '6%',
                         sort: true
                     }, {
                         field: "interface_name",
@@ -208,6 +209,7 @@
                     }, {
                         field: "run_time",
                         title: "数据日期",
+                        width: '6%',
                         templet: function (data) {
                             if (data.run_time) {
                                 return data.run_time
@@ -220,10 +222,12 @@
                         title: "任务流目录"
                     }, {
                         field: "retry",
-                        title: "重试次数"
+                        title: "重试次数",
+                        width: '6%',
                     }, {
                         field: "is_deleted",
                         title: "是否失效",
+                        width: '6%',
                         sort: true,
                         templet: function (data) {
                             if (data.is_deleted === 0) {

@@ -249,7 +249,7 @@
                     }, {
                         field: "is_deleted",
                         title: "是否失效",
-                        width: "8%",
+                        width: "6%",
                         sort: true,
                         templet: function (data) {
                             if (data.is_deleted === 0) {
