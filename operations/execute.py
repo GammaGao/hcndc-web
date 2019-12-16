@@ -696,7 +696,7 @@ class ExecuteOperation(object):
                         'out_degree': ','.join(str(j) for j in job['out']) if job['out'] else '',
                         'server_host': job.get('server_host', ''),
                         'server_dir': job.get('server_dir', ''),
-                        'params_value': ','.join(job.get('params', [])),
+                        'params_value': ','.join(job.get('params_value', [])),
                         'server_script': job.get('server_script', ''),
                         'position': job['position'],
                         'return_code': job.get('return_code', 0),

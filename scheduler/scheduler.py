@@ -14,7 +14,7 @@ class Scheduler(APScheduler):
 
     def __new__(cls, *args, **kwargs):
         if not hasattr(cls, '_instance'):
-            cls._instance = super().__new__(cls)
+            cls._instance = super().__new__(cls, *args)
         return cls._instance
 
 
@@ -54,4 +54,4 @@ class SchedulerConfig(object):
         'max_instances': config.schedule.max_instances
     }
     # 时区
-    # SCHEDULER_TIMEZONE = utc
+    SCHEDULER_TIMEZONE = 'Asia/Shanghai'
