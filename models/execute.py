@@ -354,10 +354,10 @@ class ExecuteModel(object):
     def get_execute_flow_detail(cursor, exec_id):
         """获取任务流执行详情"""
         command = '''
-        SELECT a.id, c.interface_id, job_id, job_name, a.server_host, a.server_dir, a.server_script, a.position, a.`status`,
-        a.insert_time, a.update_time, a.update_time - a.insert_time AS timedelta,
-        (a.insert_time - b.insert_time) / (b.update_time - b.insert_time) AS margin_left,
-        (a.update_time - a.insert_time) / (b.update_time - b.insert_time) AS width
+        SELECT a.id, c.interface_id, job_id, job_name, a.server_host, a.server_dir, a.server_script, a.position,
+        a.`status`, a.insert_time, a.update_time, a.update_time - a.insert_time AS timedelta,
+        IFNULL((a.insert_time - b.insert_time) / (b.update_time - b.insert_time), 0) AS margin_left,
+        IFNULL((a.update_time - a.insert_time) / (b.update_time - b.insert_time), 0) AS width
         FROM tb_execute_detail AS a
         LEFT JOIN tb_execute AS b USING(exec_id)
         LEFT JOIN tb_jobs AS c USING(job_id)

@@ -768,7 +768,7 @@ class ExecuteOperation(object):
                                                                      'running')
                             log.info('分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (item, curr_interface, job['job_id']))
                             rpc_push_job(item, curr_interface, job['job_id'], job['server_host'], config.exec.port,
-                                         ','.join(job['params_value']), job['server_dir'], job['server_script'],
+                                         job['params_value'], job['server_dir'], job['server_script'],
                                          job['return_code'], job['status'], run_date=dispatch['run_date'])
             # 继续下一个任务流
             if flag:
