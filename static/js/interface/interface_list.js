@@ -429,7 +429,7 @@
                             anim: 5,
                             title: '任务流详情',
                             maxmin: true,
-                            area: ['60%', '80%'],
+                            area: ['80%', '80%'],
                             content: BASE.uri.interface.detail + data.interface_id + '/'
                         });
                     } else if (event === 'update') {

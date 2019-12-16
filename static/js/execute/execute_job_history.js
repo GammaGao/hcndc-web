@@ -288,7 +288,7 @@
                             anim: 5,
                             title: '任务日志',
                             maxmin: true,
-                            area: ['60%', '80%'],
+                            area: ['80%', '80%'],
                             content: BASE.uri.execute.log + data.exec_id + '/' + window.job_id + '/' + 0 + '/'
                         });
                     }
