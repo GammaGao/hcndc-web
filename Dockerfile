@@ -1,6 +1,9 @@
 # 镜像基础
-FROM python:3.6
+FROM 172.16.218.11:5000/python:3.6-stretch
+MAINTAINER xuexiang feidai.com
+#ENV GUNICORN_WORKERS=4
 # 工作目录
+#COPY ./ /src/
 WORKDIR /app
 # 添加当前依赖文件到容器
 ADD requirements.txt /app

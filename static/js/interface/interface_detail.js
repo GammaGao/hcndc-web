@@ -106,7 +106,8 @@
                 type: 'get',
                 success: function (response) {
                     let dom = document.getElementById('local-graph');
-                    let myChart = echarts.init(dom, 'light');
+                    let myChart = echarts.init(dom, 'default');
+                    // let myChart = echarts.init(dom, 'light');
                     // myChart.hideLoading();
 
                     let graph = response.data;
@@ -168,7 +169,8 @@
                 type: 'get',
                 success: function (response) {
                     let dom = document.getElementById('global-graph');
-                    let myChart = echarts.init(dom, 'light');
+                    let myChart = echarts.init(dom, 'default');
+                    // let myChart = echarts.init(dom, 'light');
                     // myChart.hideLoading();
 
                     let graph = response.data;

@@ -382,17 +382,25 @@
                                     success: function (result) {
                                         if (result.status === 200) {
                                             layer.msg('连接成功', {icon: 6});
+                                            // 刷新页面
+                                            $(".layui-laypage-btn").click();
                                         } else {
-                                            layer.msg(sprintf('连接失败[%s]', result.msg), {icon: 5, shift: 6});
+                                            layer.open({
+                                                title: '连接失败',
+                                                content: result.msg.replace(/\n/g, '<br>'),
+                                                icon: 5,
+                                                end: function () {
+                                                    $(".layui-laypage-btn").click();
+                                                }
+                                            });
                                         }
-                                        // 刷新页面
-                                        $(".layui-laypage-btn").click();
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
-                                        layer.msg(sprintf('连接失败: [%s]', result.msg), {
+                                        layer.open({
+                                            title: '连接失败',
+                                            content: result.msg.replace(/\n/g, '<br>'),
                                             icon: 5,
-                                            shift: 6,
                                             end: function () {
                                                 $(".layui-laypage-btn").click();
                                             }

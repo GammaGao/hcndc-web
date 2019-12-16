@@ -447,19 +447,15 @@ def interface_local_graph(detail, parent, child):
     # 按层级排序
     nodes = [j for i, j in nodes.items()]
     nodes.sort(key=lambda x: x['level'])
-    # 6.节点任务流分类
-    interface_id = list(set(node['category'] for node in nodes if node['category']))
-    interface_id.sort(key=lambda x: int(x))
-    # 当前任务流id
-    curr_interface_id = str(detail['interface_id'])
-    interface_dict = {}
-    for index, value in enumerate(interface_id):
-        interface_dict[value] = index
-    categories = [{
-        'name': '当前任务流:' + category if category == curr_interface_id else '任务流:' + str(category)
-    } for category in interface_id]
+    categories = [
+        {'name': '当前任务流'},
+        {'name': '其他任务流'}
+    ]
     for node in nodes:
-        node['category'] = interface_dict[node['category']]
+        if node['id'] == str(detail['interface_id']):
+            node['category'] = 0
+        else:
+            node['category'] = 1
     return {'nodes': nodes, 'links': links, 'categories': categories}
 
 
@@ -628,17 +624,13 @@ def interface_global_graph(detail, parent, child):
     # 按层级排序
     nodes = [j for i, j in nodes.items()]
     nodes.sort(key=lambda x: x['level'])
-    # 6.节点任务流分类
-    interface_id = list(set(node['category'] for node in nodes if node['category']))
-    interface_id.sort(key=lambda x: int(x))
-    # 当前任务流id
-    curr_interface_id = str(detail['interface_id'])
-    interface_dict = {}
-    for index, value in enumerate(interface_id):
-        interface_dict[value] = index
-    categories = [{
-        'name': '当前任务流:' + category if category == curr_interface_id else '任务流:' + str(category)
-    } for category in interface_id]
+    categories = [
+        {'name': '当前任务流'},
+        {'name': '其他任务流'}
+    ]
     for node in nodes:
-        node['category'] = interface_dict[node['category']]
+        if node['id'] == str(detail['interface_id']):
+            node['category'] = 0
+        else:
+            node['category'] = 1
     return {'nodes': nodes, 'links': links, 'categories': categories}
