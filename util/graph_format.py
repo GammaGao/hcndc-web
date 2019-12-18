@@ -4,7 +4,7 @@
 from math import log
 
 
-def job_nodes_graph(job_nodes):
+def job_nodes_graph(job_nodes, current_interface):
     """任务节点依赖"""
     if not job_nodes:
         return {'nodes': [], 'links': [], 'categories': []}
@@ -145,9 +145,12 @@ def job_nodes_graph(job_nodes):
     interface_dict = {}
     for index, value in enumerate(interface_id):
         interface_dict[value] = index
-    categories = [{'name': '任务流' + str(category) if category else '-'} for category in interface_id]
+    categories = [
+        {'name': '当前任务流'},
+        {'name': '其他任务流'}
+    ]
     for node in nodes:
-        node['category'] = interface_dict[node['category']]
+        node['category'] = int(not node['category'] == current_interface)
     return {'nodes': nodes, 'links': links, 'categories': categories}
 
 

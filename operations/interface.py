@@ -47,7 +47,7 @@ class InterfaceOperation(object):
         result = []
         if graph_type == 1:
             data = InterfaceModel.get_interface_graph(db.etl_db, interface_id)
-            result = job_nodes_graph(data)
+            result = job_nodes_graph(data, interface_id)
         # 局部-任务流依赖
         elif graph_type == 2:
             # 任务流详情

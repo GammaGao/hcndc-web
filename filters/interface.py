@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from server.decorators import make_decorator
-from util.graph_format import job_nodes_graph
 
 
 class InterfaceFilter(object):

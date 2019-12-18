@@ -44,7 +44,7 @@
                 type: 'get',
                 success: function (response) {
                     let dom = document.getElementById('svg-div');
-                    let myChart = echarts.init(dom, 'light');
+                    let myChart = echarts.init(dom, 'default');
                     // myChart.hideLoading();
 
                     let graph = response.data;
