@@ -67,7 +67,7 @@
             layui.use('form', function () {
                 let form = layui.form;
                 // 测试连接
-                form.on('submit(datasource-test)', function (data) {
+                form.on('submit(datasource-test)', function () {
                     $.ajax({
                         url: BASE.uri.datasource.test_api,
                         contentType: "application/json; charset=utf-8",

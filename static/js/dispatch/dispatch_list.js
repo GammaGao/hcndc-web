@@ -459,18 +459,16 @@
                                                     $(".layui-laypage-btn").click();
                                                     layer.close(index);
                                                 },
-                                                cancel: function (index) {
-                                                    // 刷新页面
-                                                    $(".layui-laypage-btn").click();
+                                                end: function (index) {
                                                     layer.close(index);
                                                 }
                                             });
                                         } else {
-                                            layer.alert(sprintf('删除项目: [%s]', result.msg), {
+                                            layer.open(sprintf('删除项目: [%s]', result.msg), {
                                                 icon: 5,
                                                 shift: 6,
-                                                end: function () {
-                                                    $(".layui-laypage-btn").click();
+                                                end: function (index) {
+                                                    layer.close(index);
                                                 }
                                             });
                                         }

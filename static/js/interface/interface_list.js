@@ -384,8 +384,8 @@
                                                 layer.alert(sprintf('删除失败: [%s]', result.msg), {
                                                     icon: 5,
                                                     shift: 6,
-                                                    end: function () {
-                                                        $(".layui-laypage-btn").click();
+                                                    end: function (index) {
+                                                        layer.close(index);
                                                     }
                                                 });
                                             }
@@ -396,8 +396,8 @@
                                             layer.msg(sprintf('删除失败[%s]', result.msg), {
                                                 icon: 5,
                                                 shift: 6,
-                                                end: function () {
-                                                    $(".layui-laypage-btn").click();
+                                                end: function (index) {
+                                                    layer.close(index);
                                                 }
                                             });
                                         }
