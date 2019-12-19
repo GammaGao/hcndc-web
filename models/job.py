@@ -246,7 +246,7 @@ class JobModel(object):
         """获取任务参数"""
         command = '''
         SELECT param_type, param_value, source_type, auth_type, source_host,
-        source_port, source_database, source_user, source_password
+        source_port, source_database, source_user, FROM_BASE64(source_password) AS source_password
         FROM tb_job_param AS a
         LEFT JOIN tb_param_config AS b ON a.param_id = b.param_id AND b.is_deleted = 0
         LEFT JOIN tb_datasource AS c ON b.source_id = c.source_id AND c.is_deleted = 0

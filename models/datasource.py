@@ -44,7 +44,7 @@ class DataSourceModel(object):
         source_database, source_user, source_password, source_desc, insert_time, update_time, creator_id,
         updater_id)
         VALUES(:source_name, :source_type, :auth_type, :source_host, :source_port, :source_database,
-        :source_user, :source_password, :source_desc, :insert_time, :update_time, :creator_id, :updater_id)
+        :source_user, TO_BASE64(:source_password), :source_desc, :insert_time, :update_time, :creator_id, :updater_id)
         '''
         result = cursor.insert(command, {
             'source_name': source_name,
@@ -83,8 +83,8 @@ class DataSourceModel(object):
         """获取数据源详情"""
         command = '''
         SELECT source_id, source_name, source_type, auth_type, source_host, source_port,
-        source_database, source_user, source_password, source_desc, last_ping_time, process_status,
-        insert_time, update_time, is_deleted
+        source_database, source_user, FROM_BASE64(source_password) AS source_password, source_desc, last_ping_time,
+        process_status, insert_time, update_time, is_deleted
         FROM tb_datasource
         WHERE source_id = :source_id
         '''
@@ -102,7 +102,7 @@ class DataSourceModel(object):
         SET source_name = :source_name, source_type = :source_type, auth_type = :auth_type,
         source_host = :source_host, source_port = :source_port,
         source_database = :source_database, source_user = :source_user,
-        source_password = :source_password, source_desc = :source_desc,
+        source_password = TO_BASE64(:source_password), source_desc = :source_desc,
         is_deleted = :is_deleted, update_time = :update_time, updater_id = :user_id
         WHERE source_id = :source_id
         '''
@@ -140,7 +140,7 @@ class DataSourceModel(object):
         """根据id获取数据源"""
         command = '''
         SELECT source_id, source_name, source_type, auth_type, source_host, source_port, source_database,
-        source_user, source_password, last_ping_time, process_status
+        source_user, FROM_BASE64(source_password) AS source_password, last_ping_time, process_status
         FROM tb_datasource
         WHERE is_deleted = 0 AND source_id = :source_id
         '''

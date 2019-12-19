@@ -38,7 +38,8 @@ class DataSourceOperation(object):
     def test_datasource_link(source_id):
         """测试数据源连接"""
         detail = DataSourceModel.get_datasource_detail(db.etl_db, source_id)
-
+        if isinstance(detail['source_password'], bytes):
+            detail['source_password'] = detail['source_password'].decode('utf-8', 'ignore')
         data = test_db_conn(detail['source_type'], detail['auth_type'], detail['source_host'], detail['source_port'],
                             detail['source_database'], detail['source_user'], detail['source_password'])
         if data['tag']:
@@ -72,6 +73,8 @@ class DataSourceOperation(object):
     def get_datasource_detail(source_id):
         """获取数据源详情"""
         result = DataSourceModel.get_datasource_detail(db.etl_db, source_id)
+        if isinstance(result['source_password'], bytes):
+            result['source_password'] = result['source_password'].decode('utf-8', 'ignore')
         return Response(result=result)
 
     @staticmethod

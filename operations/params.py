@@ -100,6 +100,8 @@ class ParamsOperation(object):
         item = DataSourceModel.get_datasource_by_id(db.etl_db, source_id)
         if not item:
             abort(400, **make_result(status=400, msg='该数据源id不存在'))
+        if isinstance(item['source_password'], bytes):
+            item['source_password'] = item['source_password'].decode('utf-8', 'ignore')
         # 获取数据源数据
         result_data = get_db_data_one(item['source_type'], item['source_host'], item['source_port'],
                                       item['source_user'], item['source_password'], item['source_database'],

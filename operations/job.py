@@ -287,6 +287,8 @@ class JobOperation(object):
         job_params = JobModel.get_job_params_by_job_id(db.etl_db, job_id)
         params = []
         for item in job_params:
+            if isinstance(item['source_password'], bytes):
+                item['source_password'] = item['source_password'].decode('utf-8', 'ignore')
             # 静态参数
             if item['param_type'] == 0:
                 params.append(item['param_value'])

@@ -68,12 +68,11 @@
                 let form = layui.form;
                 // 测试连接
                 form.on('submit(datasource-test)', function (data) {
-                    data = data.field;
                     $.ajax({
                         url: BASE.uri.datasource.test_api,
                         contentType: "application/json; charset=utf-8",
                         type: 'post',
-                        data: JSON.stringify(data),
+                        data: JSON.stringify({source_id: window.source_id}),
                         success: function (result) {
                             if (result.status === 200) {
                                 layer.msg('连接成功', {icon: 6});
