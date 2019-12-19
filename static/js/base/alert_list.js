@@ -313,9 +313,9 @@
                                 type: 'delete',
                                 success: function (result) {
                                     if (result.status === 200) {
-                                        layer.msg('删除成功', {icon: 6});
-                                        $(tr.find('td[data-field="operation"] div button')).addClass('layui-btn-disabled');
-                                        tr.find('td[data-field="is_deleted"] div').html('<span class="layui-badge layui-bg-gray">删除</span>');
+                                        layer.msg("删除成功", {icon: 6});
+                                        // 刷新页面
+                                        $(".layui-laypage-btn").click();
                                     } else {
                                         layer.alert(sprintf('删除失败: [%s]', result.msg), {
                                             icon: 5,

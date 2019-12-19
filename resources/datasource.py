@@ -38,7 +38,7 @@ class DataSourceList(Resource):
 class DataSourceTest(Resource):
     @staticmethod
     @datasource_test_request
-    @DataSourceFilter.filter_test_data(tag=bool, msg=str)
+    @DataSourceFilter.filter_test_data(status=int, msg=str)
     @DataSourceOperation.test_datasource_link(source_id=int)
     @DataSourceVerify.verify_test_datasource_link(source_id=int)
     def post():

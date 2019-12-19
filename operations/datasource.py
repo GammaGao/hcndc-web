@@ -44,9 +44,10 @@ class DataSourceOperation(object):
                             detail['source_database'], detail['source_user'], detail['source_password'])
         if data['tag']:
             DataSourceModel.update_datasource_status(db.etl_db, source_id, 0)
+            return Response(status=200, msg=data['msg'])
         else:
             DataSourceModel.update_datasource_status(db.etl_db, source_id, 1)
-        return Response(tag=data['tag'], msg=data['msg'])
+            return Response(status=400, msg=data['msg'])
 
     @staticmethod
     @make_decorator

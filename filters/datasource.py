@@ -17,12 +17,9 @@ class DataSourceFilter(object):
 
     @staticmethod
     @make_decorator
-    def filter_test_data(tag, msg):
+    def filter_test_data(status, msg):
         """测试数据源连接"""
-        if tag:
-            return {'status': 200, 'msg': msg, 'data': {}}, 200
-        else:
-            return {'status': 400, 'msg': msg, 'data': {}}, 200
+        return {'status': status, 'msg': msg, 'data': {}}, 200
 
     @staticmethod
     @make_decorator

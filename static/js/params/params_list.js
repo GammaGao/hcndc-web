@@ -394,15 +394,9 @@
                                         type: 'delete',
                                         success: function (result) {
                                             if (result.status === 200) {
-                                                layer.open({
-                                                    title: '删除成功',
-                                                    content: '删除成功',
-                                                    yes: function (index) {
-                                                        // 刷新页面
-                                                        $(".layui-laypage-btn").click();
-                                                        layer.close(index);
-                                                    }
-                                                })
+                                                layer.msg("删除成功", {icon: 6});
+                                                // 刷新页面
+                                                $(".layui-laypage-btn").click();
                                             } else {
                                                 layer.alert(sprintf('删除失败: [%s]', result.msg), {
                                                     icon: 5,

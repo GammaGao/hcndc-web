@@ -361,23 +361,23 @@
                                             });
                                         } else {
                                             layer.alert(sprintf('暂停调度失败: [%s]', result.msg), {
-    icon: 5,
-    shift: 6,
-    end: function () {
-        $(".layui-laypage-btn").click();
-    }
-});
+                                                icon: 5,
+                                                shift: 6,
+                                                end: function () {
+                                                    $(".layui-laypage-btn").click();
+                                                }
+                                            });
                                         }
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
                                         layer.msg(sprintf('暂停调度失败[%s]', result.msg), {
-    icon: 5,
-    shift: 6,
-    end: function () {
-        $(".layui-laypage-btn").click();
-    }
-});
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -415,23 +415,23 @@
                                             });
                                         } else {
                                             layer.alert(sprintf('恢复调度失败: [%s]', result.msg), {
-    icon: 5,
-    shift: 6,
-    end: function () {
-        $(".layui-laypage-btn").click();
-    }
-});
+                                                icon: 5,
+                                                shift: 6,
+                                                end: function () {
+                                                    $(".layui-laypage-btn").click();
+                                                }
+                                            });
                                         }
                                     },
                                     error: function (error) {
                                         let result = error.responseJSON;
                                         layer.msg(sprintf('恢复调度失败[%s]', result.msg), {
-    icon: 5,
-    shift: 6,
-    end: function () {
-        $(".layui-laypage-btn").click();
-    }
-});
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        });
                                     }
                                 });
                             }
@@ -450,19 +450,9 @@
                                     type: 'delete',
                                     success: function (result) {
                                         if (result.status === 200) {
-                                            layer.open({
-                                                id: 'dispatch_delete_succeed',
-                                                title: '删除调度成功',
-                                                content: '删除调度成功',
-                                                yes: function (index) {
-                                                    // 刷新页面
-                                                    $(".layui-laypage-btn").click();
-                                                    layer.close(index);
-                                                },
-                                                end: function (index) {
-                                                    layer.close(index);
-                                                }
-                                            });
+                                            layer.msg("删除成功", {icon: 6});
+                                            // 刷新页面
+                                            $(".layui-laypage-btn").click();
                                         } else {
                                             layer.open(sprintf('删除项目: [%s]', result.msg), {
                                                 icon: 5,
@@ -629,21 +619,9 @@
                                     type: 'delete',
                                     success: function (result) {
                                         if (result.status === 200) {
-                                            layer.open({
-                                                id: 'dispatch_delete_succeed',
-                                                title: '删除调度成功',
-                                                content: '删除调度id: ' + data.dispatch_id + '成功',
-                                                yes: function (index) {
-                                                    // 刷新页面
-                                                    $(".layui-laypage-btn").click();
-                                                    layer.close(index);
-                                                },
-                                                cancel: function (index) {
-                                                    // 刷新页面
-                                                    $(".layui-laypage-btn").click();
-                                                    layer.close(index);
-                                                }
-                                            });
+                                            layer.msg("删除成功", {icon: 6});
+                                            // 刷新页面
+                                            $(".layui-laypage-btn").click();
                                         } else {
                                             layer.alert(sprintf('删除失败: [%s]', result.msg), {
                                                 icon: 5,

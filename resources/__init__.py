@@ -11,3 +11,4 @@ from resources.execute import ns
 from resources.base import ns
 from resources.datasource import ns
 from resources.apscheduler import ns
+from resources.ftp import ns

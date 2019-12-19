@@ -25,5 +25,4 @@ ENTRYPOINT ["python", "server.py"]
 # --network=host \
 # 项目文件挂载
 # -v /opt/docker/hcndc-web:/app \
-# -v /etc/localtime:/etc:ro \
 # hcndc-web
