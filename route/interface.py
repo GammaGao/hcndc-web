@@ -47,12 +47,6 @@ def InterfaceAdd():
     return redirect('/login/')
 
 
-@app.route('/test/')
-def AllJobShow():
-    """所有任务展示"""
-    return render_template('test.html')
-
-
 @app.route('/interface/download/', methods=['GET', 'POST'])
 def InterfaceDownload():
     """下载任务流模板文件"""

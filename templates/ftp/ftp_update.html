@@ -1,10 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    {% include "util/style.html" %}
+    <title>修改FTP配置</title>
 </head>
 <body>
-
+<div class="layui-layout layui-layout-admin">
+    <!-- 内容主体区域 -->
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>修改FTP配置</legend>
+    </fieldset>
+    <form class="layui-form" lay-filter="ftp_detail">
+        <div class="layui-form-item">
+            <label class="layui-form-label">FTP名称<span style="color:red">*</span></label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="ftp_name" lay-verify="required" placeholder="FTP名称">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">描述</label>
+            <div class="layui-input-block">
+                <input type="text" class="layui-input" name="ftp_desc" placeholder="描述">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">FTP类型<span style="color:red">*</span></label>
+            <div class="layui-input-inline">
+                <label>
+                    <select name="ftp_type" lay-filter="ftp_type" lay-verify="required">
+                        <option value="1">FTP</option>
+                        <option value="2">SFTP</option>
+                    </select>
+                </label>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">FTP域名<span style="color:red">*</span></label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="ftp_host" lay-verify="required" placeholder="FTP域名">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">FTP端口<span style="color:red">*</span></label>
+            <div class="layui-input-inline">
+                <input type="number" class="layui-input" name="ftp_port" lay-verify="required" placeholder="FTP端口">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">用户名</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="ftp_user" placeholder="用户名">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">密码</label>
+            <div class="layui-input-inline">
+                <input type="password" class="layui-input" name="ftp_passwd" placeholder="密码">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">是否失效</label>
+            <div class="layui-input-block">
+                <input type="checkbox" name="is_deleted" lay-skin="switch" placeholder="是否失效" lay-text="是|否" value="1">
+            </div>
+        </div>
+        <div class="layui-input-block">
+            <div class="layui-input-inline">
+                <button lay-submit class="layui-btn layui-btn-normal" lay-filter="ftp-test" type="button">测试</button>
+                <button lay-submit class="layui-btn" lay-filter="ftp-update" type="button">保存</button>
+                <button type="reset" class="layui-btn layui-btn-primary">清空</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    window.ftp_id = {{ ftp_id }};
+</script>
+<script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/ftp/ftp_update.js"></script>
 </body>
 </html>

@@ -17,7 +17,14 @@ datasource_list_request = api.doc(params={
 
 # 测试数据源连接请求
 datasource_test_request = api.doc(body=api.model('datasource_test_request', {
-    'source_id': fields.String(description='数据源id')
+    'source_id': fields.String(description='数据源id'),
+    'source_type': fields.String(description='数据库类型: 1.mysql, 2.mongo, 3.mssql, 4.hive, 5.impala'),
+    'auth_type': fields.Integer(description='认证方式(仅hive和impala使用):0.无,1.NOSASL,2.PLAIN,3.GSSAPI,4.LDAP'),
+    'source_host': fields.String(description='数据库ip或域名'),
+    'source_port': fields.Integer(description='数据库端口'),
+    'source_database': fields.String(description='数据库库名'),
+    'source_user': fields.String(description='用户名'),
+    'source_password': fields.String(description='密码'),
 }, description='测试数据源连接请求'))
 
 # 新增数据源详情请求
@@ -32,3 +39,18 @@ datasource_add_detail_request = api.doc(body=api.model('datasource_add_detail_re
     'source_password': fields.String(description='密码'),
     'source_desc': fields.String(description='数据源描述')
 }, description='新增数据源详情请求'))
+
+# 修改数据源详情请求
+datasource_update_detail_request = api.doc(body=api.model('datasource_update_detail_request', {
+    'source_id': fields.Integer(description='数据源id'),
+    'source_name': fields.String(description='数据源名称'),
+    'source_type': fields.String(description='数据库类型: 1.mysql, 2.mongo, 3.mssql, 4.hive, 5.impala'),
+    'auth_type': fields.Integer(description='认证方式(仅hive和impala使用):0.无,1.NOSASL,2.PLAIN,3.GSSAPI,4.LDAP'),
+    'source_host': fields.String(description='数据库ip或域名'),
+    'source_port': fields.Integer(description='数据库端口'),
+    'source_database': fields.String(description='数据库库名'),
+    'source_user': fields.String(description='用户名'),
+    'source_password': fields.String(description='密码'),
+    'source_desc': fields.String(description='数据源描述'),
+    'is_deleted': fields.Integer(description='是否失效: 0.正常, 1.失效')
+}, description='修改数据源详情请求'))

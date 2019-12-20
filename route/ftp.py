@@ -14,7 +14,7 @@ def Ftp():
     return redirect('/login/')
 
 
-@app.route('/ftp/update')
+@app.route('/ftp/update/<int:ftp_id>/')
 def FtpUpdate(ftp_id):
     """FTP配置修改"""
     if session.get('login'):

@@ -9,7 +9,7 @@
     Controller.prototype = {
         init: function () {
             // 菜单样式加载
-            menu_init('基础配置', '数据源配置');
+            menu_init('基础配置', 'FTP配置');
             // 侧边栏样式切换
             this.tree_toggle();
             // 用户数据渲染
@@ -130,7 +130,7 @@
             let that = this;
             layui.use('form', function () {
                 let form = layui.form;
-                form.on('submit(datasource-search)', function (data) {
+                form.on('submit(ftp-search)', function (data) {
                     that.table_data_load(data.field);
                 });
             });
@@ -142,61 +142,52 @@
             // 自定义左侧工具栏
             let toolbar_div = [
                 '<div class="layui-table-tool-temp">',
-                '<div class="layui-inline" lay-event="add" title="添加数据源"><i class="layui-icon layui-icon-add-1"></i></div>',
-                '<div class="layui-inline" lay-event="update" title="修改数据源"><i class="layui-icon layui-icon-edit"></i></div>',
+                '<div class="layui-inline" lay-event="add" title="添加FTP配置"><i class="layui-icon layui-icon-add-1"></i></div>',
+                '<div class="layui-inline" lay-event="update" title="修改FTP配置"><i class="layui-icon layui-icon-edit"></i></div>',
                 '</div>'
             ].join('');
             // 表格渲染
             layui.use('table', function () {
                 let table = layui.table;
                 table.render({
-                    elem: "#datasource-list",
+                    elem: "#ftp-list",
                     page: true,
                     toolbar: toolbar_div,
                     limits: [10, 20, 30, 40, 50],
-                    title: '数据源列表',
-                    url: BASE.uri.datasource.list_api,
+                    title: 'FTP配置列表',
+                    url: BASE.uri.ftp.list_api,
                     where: data,
                     cols: [[{
                         type: 'radio'
                     }, {
-                        field: "source_id",
-                        title: "数据源id",
+                        field: "ftp_id",
+                        title: "FTP配置id",
                         width: "6%",
                         sort: true
                     }, {
-                        field: "source_name",
-                        title: "数据源名称"
+                        field: "ftp_name",
+                        title: "FTP名称"
                     }, {
-                        field: "source_type",
-                        title: "数据库类型",
+                        field: "ftp_type",
+                        title: "FTP类型",
                         templet: function (data) {
-                            if (data.source_type === 1) {
-                                return 'mysql'
-                            } else if (data.source_type === 2) {
-                                return 'mongo'
-                            } else if (data.source_type === 3) {
-                                return 'mssql'
-                            } else if (data.source_type === 4) {
-                                return 'hive'
-                            } else if (data.source_type === 5) {
-                                return 'impala'
+                            if (data.ftp_type === 1) {
+                                return 'FTP'
+                            } else if (data.ftp_type === 2) {
+                                return 'SFTP'
                             } else {
                                 return '-'
                             }
                         }
                     }, {
-                        field: "source_host",
-                        title: "数据库ip或域名"
+                        field: "ftp_host",
+                        title: "FTP域名"
                     }, {
-                        field: "source_port",
-                        title: "数据库端口",
+                        field: "ftp_port",
+                        title: "FTP端口",
                         width: "6%"
                     }, {
-                        field: "source_database",
-                        title: "数据库库名"
-                    }, {
-                        field: "source_desc",
+                        field: "ftp_desc",
                         title: "描述"
                     }, {
                         field: "last_ping_time",
@@ -263,7 +254,7 @@
             // 工具栏事件注册
             layui.use('table', function () {
                 let table = layui.table;
-                table.on('toolbar(datasource-list)', function (obj) {
+                table.on('toolbar(ftp-list)', function (obj) {
                     // 工具栏事件监听
                     let check_status = table.checkStatus(obj.config.id);
                     let check_data = check_status.data;
@@ -272,10 +263,10 @@
                             layer.open({
                                 type: 2,
                                 anim: 5,
-                                title: '新增数据源',
+                                title: '新增FTP配置',
                                 maxmin: true,
                                 area: ['60%', '80%'],
-                                content: BASE.uri.datasource.add,
+                                content: BASE.uri.ftp.add,
                                 end: function (index) {
                                     $(".layui-laypage-btn").click();
                                     layer.close(index);
@@ -294,7 +285,7 @@
                                     title: '修改数据源',
                                     maxmin: true,
                                     area: ['60%', '80%'],
-                                    content: BASE.uri.datasource.update + check_data[0].source_id + '/',
+                                    content: BASE.uri.ftp.update + check_data[0].ftp_id + '/',
                                     end: function (index) {
                                         $(".layui-laypage-btn").click();
                                         layer.close(index);
@@ -310,7 +301,7 @@
         table_data_event: function () {
             layui.use('table', function () {
                 let table = layui.table;
-                table.on('tool(datasource-list)', function (obj) {
+                table.on('tool(ftp-list)', function (obj) {
                     let data = obj.data;
                     let event = obj.event;
                     let tr = obj.tr;
@@ -320,10 +311,10 @@
                             layer.open({
                                 type: 2,
                                 anim: 5,
-                                title: '修改数据源',
+                                title: '修改FTP配置',
                                 maxmin: true,
                                 area: ['60%', '80%'],
-                                content: BASE.uri.datasource.update + data.source_id + '/',
+                                content: BASE.uri.ftp.update + data.ftp_id + '/',
                                 end: function (index) {
                                     $(".layui-laypage-btn").click();
                                     layer.close(index);
@@ -336,7 +327,7 @@
                                 // 关闭弹窗
                                 layer.close(index);
                                 $.ajax({
-                                    url: BASE.uri.datasource.detail_api + data.source_id + '/',
+                                    url: BASE.uri.ftp.detail_api + data.ftp_id + '/',
                                     type: 'delete',
                                     success: function (result) {
                                         if (result.status === 200) {
@@ -367,14 +358,14 @@
                             break;
                         // 检测
                         case 'test':
-                            layer.confirm('确定检测数据库状态?', function (index) {
+                            layer.confirm('确定检测FTP配置状态?', function (index) {
                                 // 关闭弹窗
                                 layer.close(index);
                                 $.ajax({
-                                    url: BASE.uri.datasource.test_api,
+                                    url: BASE.uri.ftp.test_api,
                                     contentType: "application/json; charset=utf-8",
                                     type: 'post',
-                                    data: JSON.stringify({'source_id': data.source_id}),
+                                    data: JSON.stringify({'ftp_id': data.ftp_id}),
                                     success: function (result) {
                                         if (result.status === 200) {
                                             layer.msg('连接成功', {icon: 6});

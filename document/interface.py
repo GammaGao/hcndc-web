@@ -25,7 +25,7 @@ interface_list_response_success = api.response(200, '成功', api.model('interfa
         'user_name': fields.String(description='创建者'),
         'interface_name': fields.String(description='任务流名称'),
         'interface_desc': fields.String(description='任务流描述'),
-        'is_deleted': fields.Integer(description='是否删除: 0否, 1是'),
+        'is_deleted': fields.Integer(description='是否失效: 0.正常, 1.失效'),
     }), description='任务流列表返回值')
 }))
 
@@ -43,7 +43,7 @@ interface_update_request = api.doc(body=api.model('interface_update_request', {
     'parent_interface': fields.String(description='前置任务流'),
     'run_time': fields.String(description='数据日期: %Y-%m-%d'),
     'retry': fields.Integer(description='重试次数'),
-    'is_deleted': fields.Integer(description='是否失效: 0否, 1是')
+    'is_deleted': fields.Integer(description='是否失效: 0.正常, 1.失效')
 }, description='任务流修改请求参数'))
 
 # 新增任务流请求

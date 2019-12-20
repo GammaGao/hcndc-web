@@ -136,6 +136,16 @@ let BASE = {
             'detail_api': '/datasource/detail/api/',
             'id_list_api': '/datasource/list/all/api/'
         },
+        ftp: {
+            'list': '/ftp/',
+            'list_api': '/ftp/list/api/',
+            'test_api': '/ftp/test/api/',
+            'add': '/ftp/add/',
+            'add_api': '/ftp/add/api/',
+            'update': '/ftp/update/',
+            'detail_api': '/ftp/detail/api/',
+            'id_list_api': '/ftp/list/all/api/'
+        },
         params: {
             'list': '/params/',
             'list_api': '/params/list/api/',

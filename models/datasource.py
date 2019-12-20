@@ -64,7 +64,7 @@ class DataSourceModel(object):
         return result
 
     @staticmethod
-    def delete_datasource_detail(cursor, source_id, user_id):
+    def delete_datasource_detail(cursor, source_id):
         """删除数据源"""
         command = '''
         DELETE FROM tb_datasource
@@ -72,9 +72,7 @@ class DataSourceModel(object):
         '''
 
         result = cursor.update(command, {
-            'source_id': source_id,
-            'user_id': user_id,
-            'update_time': int(time.time())
+            'source_id': source_id
         })
         return result
 

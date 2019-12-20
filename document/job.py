@@ -28,7 +28,7 @@ job_list_response_success = api.response(200, '成功', api.model('job_list_resp
         'server_user': fields.String(description='服务器用户'),
         'server_dir': fields.String(description='服务器目录'),
         'server_script': fields.String(description='脚本命令'),
-        'is_deleted': fields.Integer(description='是否失效'),
+        'is_deleted': fields.Integer(description='是否失效: 0.正常, 1.失效'),
         'retry': fields.Integer(description='重试次数'),
         'update_time': fields.String(description='修改时间')
     }), description='任务列表返回值')
@@ -48,7 +48,7 @@ job_update_request = api.doc(body=api.model('job_update_request', {
     'job_prep': fields.String(description='依赖任务'),
     'old_params': fields.String(description='原任务参数'),
     'job_params': fields.String(description='任务参数'),
-    'is_deleted': fields.Integer(description='是否删除: 0否, 1是')
+    'is_deleted': fields.Integer(description='是否失效: 0.正常, 1.失效')
 }, description='任务修改请求参数'))
 
 # 任务新增请求

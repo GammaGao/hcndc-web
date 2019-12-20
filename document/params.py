@@ -35,7 +35,7 @@ params_update_request = api.doc(body=api.model('params_update_request', {
     'source_id': fields.Integer(description='数据源id'),
     'param_value': fields.String(description='参数值: 静态值或SQL查询'),
     'param_desc': fields.String(description='描述'),
-    'is_deleted': fields.Integer(description='是否删除: 0.正常, 1.删除')
+    'is_deleted': fields.Integer(description='是否失效: 0.正常, 1.失效')
 }, description='参数修改请求'))
 
 # 参数测试请求

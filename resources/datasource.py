@@ -39,13 +39,24 @@ class DataSourceTest(Resource):
     @staticmethod
     @datasource_test_request
     @DataSourceFilter.filter_test_data(status=int, msg=str)
-    @DataSourceOperation.test_datasource_link(source_id=int)
-    @DataSourceVerify.verify_test_datasource_link(source_id=int)
+    @DataSourceOperation.test_datasource_link(source_id=int, source_type=int, auth_type=int, source_host=str,
+                                              source_port=int, source_database=str, source_user=str,
+                                              source_password=str)
+    @DataSourceVerify.verify_test_datasource_link(source_id=int, source_type=int, auth_type=int, source_host=str,
+                                                  source_port=int, source_database=str, source_user=str,
+                                                  source_password=str)
     def post():
         """测试数据源连接"""
         payload = get_payload()
         params = Response(
-            source_id=int(payload.get('source_id', 0))
+            source_id=int(payload.get('source_id', 0)),
+            source_type=int(payload.get('source_type', 0)),
+            auth_type=int(payload.get('auth_type', 0)),
+            source_host=payload.get('source_host', ''),
+            source_port=int(payload.get('source_port', 0)),
+            source_database=payload.get('source_database', ''),
+            source_user=payload.get('source_user', ''),
+            source_password=payload.get('source_password', ''),
         )
         log.info('测试数据源连接[params: %s]' % str(params))
         return params
@@ -85,7 +96,7 @@ class DataSourceAdd(Resource):
 class DataSourceDetail(Resource):
     @staticmethod
     @DataSourceFilter.filter_delete_data(source_id=int)
-    @DataSourceOperation.delete_datasource_detail(source_id=int, user_id=int)
+    @DataSourceOperation.delete_datasource_detail(source_id=int)
     @DataSourceVerify.verify_delete_datasource(source_id=int, user_id=int)
     @PermissionVerify.verify_write_permission(source_id=int)
     def delete(source_id):
@@ -105,6 +116,7 @@ class DataSourceDetail(Resource):
         return params
 
     @staticmethod
+    @datasource_update_detail_request
     @DataSourceFilter.filter_update_data(source_id=int)
     @DataSourceOperation.update_datasource_detail(source_id=int, source_name=str, source_type=int, auth_type=int,
                                                   source_host=str, source_port=int, source_database=str,

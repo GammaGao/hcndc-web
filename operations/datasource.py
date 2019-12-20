@@ -35,19 +35,29 @@ class DataSourceOperation(object):
 
     @staticmethod
     @make_decorator
-    def test_datasource_link(source_id):
+    def test_datasource_link(source_id, source_type, auth_type, source_host, source_port,
+                             source_database, source_user, source_password):
         """测试数据源连接"""
-        detail = DataSourceModel.get_datasource_detail(db.etl_db, source_id)
-        if isinstance(detail['source_password'], bytes):
-            detail['source_password'] = detail['source_password'].decode('utf-8', 'ignore')
-        data = test_db_conn(detail['source_type'], detail['auth_type'], detail['source_host'], detail['source_port'],
-                            detail['source_database'], detail['source_user'], detail['source_password'])
-        if data['tag']:
-            DataSourceModel.update_datasource_status(db.etl_db, source_id, 0)
-            return Response(status=200, msg=data['msg'])
+        if source_id:
+            detail = DataSourceModel.get_datasource_detail(db.etl_db, source_id)
+            if isinstance(detail['source_password'], bytes):
+                detail['source_password'] = detail['source_password'].decode('utf-8', 'ignore')
+            data = test_db_conn(detail['source_type'], detail['auth_type'], detail['source_host'],
+                                detail['source_port'],
+                                detail['source_database'], detail['source_user'], detail['source_password'])
+            if data['tag']:
+                DataSourceModel.update_datasource_status(db.etl_db, source_id, 0)
+                return Response(status=200, msg=data['msg'])
+            else:
+                DataSourceModel.update_datasource_status(db.etl_db, source_id, 1)
+                return Response(status=400, msg=data['msg'])
         else:
-            DataSourceModel.update_datasource_status(db.etl_db, source_id, 1)
-            return Response(status=400, msg=data['msg'])
+            data = test_db_conn(source_type, auth_type, source_host, source_port, source_database, source_user,
+                                source_password)
+            if data['tag']:
+                return Response(status=200, msg=data['msg'])
+            else:
+                return Response(status=400, msg=data['msg'])
 
     @staticmethod
     @make_decorator
@@ -61,12 +71,12 @@ class DataSourceOperation(object):
 
     @staticmethod
     @make_decorator
-    def delete_datasource_detail(source_id, user_id):
+    def delete_datasource_detail(source_id):
         """删除数据源"""
         prep_count = ParamsModel.get_param_by_source_id(db.etl_db, source_id)
         if prep_count:
             abort(400, **make_result(status=400, msg='数据源在任务参数表中存在%s个依赖, 不可删除' % prep_count))
-        DataSourceModel.delete_datasource_detail(db.etl_db, source_id, user_id)
+        DataSourceModel.delete_datasource_detail(db.etl_db, source_id)
         return Response(source_id=source_id)
 
     @staticmethod

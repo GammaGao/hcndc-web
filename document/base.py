@@ -53,7 +53,7 @@ alert_conf_detail_response_success = api.response(200, '成功', api.model('aler
         'param_host': fields.String(description='邮箱域名'),
         'param_config': fields.String(description='邮箱/api: 1.邮件: 发件人邮箱, 2.顶顶: 钉钉机器人api'),
         'param_pass': fields.String(description='发件人邮箱密码'),
-        'is_deleted': fields.Integer(description='是否失效: 0.正常,1.删除')
+        'is_deleted': fields.Integer(description='是否失效: 0.正常, 1.失效')
     }), description='任务列表返回值')
 }))
 
@@ -65,7 +65,7 @@ alert_conf_detail_update_request = api.doc(body=api.model('alert_conf_detail_upd
     'param_host': fields.String(description='邮箱域名: eg: smtp.exmail.qq.com'),
     'param_port': fields.Integer(description='邮箱端口: eg: 465'),
     'param_pass': fields.String(description='发件人邮箱密码'),
-    'is_deleted': fields.Integer(description='是否失效: 0正常, 1失效')
+    'is_deleted': fields.Integer(description='是否失效: 0.正常, 1.失效')
 }, description='执行服务器修改请求'))
 
 # 预警配置新增请求

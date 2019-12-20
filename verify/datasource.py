@@ -22,11 +22,12 @@ class DataSourceVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_test_datasource_link(source_id):
+    def verify_test_datasource_link(source_id, source_type, auth_type, source_host, source_port,
+                                    source_database, source_user, source_password):
         """测试数据源连接"""
-        if not source_id:
-            abort(400, **make_result(status=400, msg='数据源id不存在'))
-        return Response(source_id=source_id)
+        return Response(source_id=source_id, source_type=source_type, auth_type=auth_type, source_host=source_host,
+                        source_port=source_port, source_database=source_database, source_user=source_user,
+                        source_password=source_password)
 
     @staticmethod
     @make_decorator
