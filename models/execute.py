@@ -189,7 +189,7 @@ class ExecuteModel(object):
         LEFT JOIN tb_execute AS d ON c.exec_id = d.exec_id
         WHERE a.is_deleted = 0 %s
         -- 自定义排序: 失败, 中断, 就绪, 运行中, 成功, NULL
-        ORDER BY FIELD(IF(ISNULL(d.`status`), -999, d.`status`), -1, 2, 3, 1, 0, -999)
+        ORDER BY FIELD(IF(ISNULL(d.`status`), -999, d.`status`), -1, 2, 3, 1, 0, -999), a.interface_id
         LIMIT :limit OFFSET :offset
         '''
 

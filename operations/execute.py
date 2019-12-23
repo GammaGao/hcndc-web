@@ -538,14 +538,15 @@ class ExecuteOperation(object):
                         client = Connection(execute['server_host'], config.exec.port)
                         client.rpc.stop(exec_id=item, job_id=execute['job_id'], pid=execute['pid'])
                         client.disconnect()
-                        # 修改数据库, 分布式锁
-                        with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
-                            # 修改执行详情表为[失败]
-                            ScheduleModel.update_exec_job_status(db.etl_db, item, execute['interface_id'],
-                                                                 execute['job_id'], 'failed')
-                            # 修改执行任务流状态[中断]
-                            ExecuteModel.update_exec_interface_status(db.etl_db, item, execute['interface_id'], 2)
                         log.info('rpc分发-停止任务: 执行id: %s, 任务id: %s' % (item, execute['job_id']))
+                    # 修改数据库, 分布式锁
+                    with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
+                        # 修改执行详情表为[失败]
+                        ScheduleModel.update_exec_job_status(db.etl_db, item, execute['interface_id'],
+                                                             execute['job_id'], 'failed')
+                        # 修改执行任务流状态[中断]
+                        ExecuteModel.update_exec_interface_status(db.etl_db, item, execute['interface_id'], 2)
+                        log.info('修改执行详情表为[失败]: [%s, %s, %s]' % (item, execute['interface_id'], execute['job_id']))
                 except:
                     err_msg = 'rpc分发-停止任务异常: host: %s, port: %s, 执行id: %s, 任务id: %s' % (
                         execute['server_host'],
