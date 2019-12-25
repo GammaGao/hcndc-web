@@ -5,6 +5,11 @@ from configs import scheduler
 from scheduler.distribute_scheduler import get_dispatch_job
 
 
+def test(ftp_event_id):
+    """测试任务"""
+    print('测试任务: %s' % ftp_event_id)
+
+
 class SchedulerHandler(object):
     """调度操作"""
 
@@ -21,6 +26,18 @@ class SchedulerHandler(object):
             day=day,
             month=month,
             week=week
+        )
+
+    @staticmethod
+    def add_event(run_id, ftp_event_id, minute, hour):
+        """新增事件"""
+        scheduler.add_job(
+            id=run_id,
+            func=test,
+            args=(ftp_event_id,),
+            trigger='cron',
+            minute=minute,
+            hour=hour,
         )
 
     @staticmethod
@@ -47,6 +64,18 @@ class SchedulerHandler(object):
             day=day,
             month=month,
             week=week
+        )
+
+    @staticmethod
+    def modify_event(run_id, ftp_event_id, minute, hour):
+        """修改事件"""
+        scheduler.modify_job(
+            id=run_id,
+            jobstore='default',
+            func=test,
+            args=(ftp_event_id,),
+            minute=minute,
+            hour=hour
         )
 
     @staticmethod

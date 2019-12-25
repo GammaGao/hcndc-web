@@ -75,11 +75,11 @@ class DispatchDetail(Resource):
         payload = get_payload()
         params = Response(
             dispatch_id=dispatch_id,
-            interface_id=int(payload.get('interface_id', '')),
+            interface_id=int(payload.get('interface_id', 0)),
             dispatch_name=payload.get('dispatch_name', ''),
             dispatch_desc=payload.get('dispatch_desc', ''),
             minute=payload.get('minute', ''),
-            hour=payload.get('hour', 0),
+            hour=payload.get('hour', ''),
             day=payload.get('day', ''),
             month=payload.get('month', ''),
             week=payload.get('week', ''),

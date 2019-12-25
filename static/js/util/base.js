@@ -146,6 +146,20 @@ let BASE = {
             'detail_api': '/ftp/detail/api/',
             'id_list_api': '/ftp/list/all/api/'
         },
+        ftp_event: {
+            'list': '/ftp_event/',
+            'list_api': '/ftp_event/list/api/',
+            'detail': '/ftp_event/detail/',
+            'detail_api': '/ftp_event/detail/api/',
+            'action_api': '/ftp_event/action/api/',
+            'update': '/ftp/event/update/',
+            'add': '/ftp/event/add/',
+            'add_api': '/ftp_event/add/api/',
+            'alert_add_api': '/ftp_event/alert/add/api/',
+            'alert_detail_api': '/ftp_event/alert/detail/api/',
+            'run_api': '/ftp_event/run/api/',
+            'run': '/ftp_event/run/'
+        },
         params: {
             'list': '/params/',
             'list_api': '/params/list/api/',

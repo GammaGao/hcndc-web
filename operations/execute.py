@@ -578,14 +578,14 @@ class ExecuteOperation(object):
                 # 修改调度表状态为[运行中]
                 ExecuteModel.update_execute_status(db.etl_db, item, 1)
                 # 获取任务流参数
-                interface_dict = get_interface_dag_by_exec_id(exec_id)
+                interface_dict = get_interface_dag_by_exec_id(item)
             # 获取调度信息
             dispatch = ExecuteModel.get_exec_dispatch_id(db.etl_db, item)
             # 中断/失败任务流
             error_interface = [_ for _, item in interface_dict.items() if item['status'] in (2, -1)]
             # 如果没有中断/失败任务流, 找到满足依赖的就绪任务流
             if not error_interface:
-                error_interface = continue_execute_interface(exec_id, exec_type=dispatch['exec_type'],
+                error_interface = continue_execute_interface(item, exec_type=dispatch['exec_type'],
                                                              run_date=dispatch['run_date']).keys()
             # 获取调度任务流详情
             for interface_id in set(error_interface):
@@ -598,7 +598,7 @@ class ExecuteOperation(object):
                 job_list = {item['id']: item for item in generate_job_dag_by_interface(interface_id)}
                 # 重置失败任务参数
                 for job_id in set(failed_nodes):
-                    log.info('重置失败任务参数: 执行id: %s, 任务流id: %s, 任务id: %s' % (item, interface_id, job_id))
+                    log.info('重置任务参数: 执行id: %s, 任务流id: %s, 任务id: %s' % (item, interface_id, job_id))
                     job = job_list[job_id]
                     # 修改数据库, 分布式锁
                     with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
@@ -610,8 +610,8 @@ class ExecuteOperation(object):
                 # 修改数据库, 分布式锁
                 with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
                     # 修改执行任务流参数, 状态[运行中]
-                    log.info('重置失败任务流参数: 执行id: %s, 任务流id: %s' % (item, interface_id))
-                    ScheduleModel.update_exec_interface_reset(db.etl_db, exec_id, interface['id'], 1, interface)
+                    log.info('重置任务流参数: 执行id: %s, 任务流id: %s' % (item, interface_id))
+                    ScheduleModel.update_exec_interface_reset(db.etl_db, item, interface['id'], 1, interface)
             # 重新获取调度详情
             interface_list = get_interface_dag_by_exec_id(item)
             # 找到[运行中]任务流
@@ -671,12 +671,12 @@ class ExecuteOperation(object):
                 jobs = generate_job_dag_by_interface(interface['id'])
                 job_nodes[interface['id']] = jobs
             # 添加执行表
-            ExecuteModel.add_execute_by_id(db.etl_db, exec_id, dispatch['exec_type'], dispatch['dispatch_id'],
+            ExecuteModel.add_execute_by_id(db.etl_db, item, dispatch['exec_type'], dispatch['dispatch_id'],
                                            dispatch['run_date'], dispatch['is_after'])
             interface_arr = []
             for _, val in interface_nodes.items():
                 interface_arr.append({
-                    'exec_id': exec_id,
+                    'exec_id': item,
                     'interface_id': val['id'],
                     'in_degree': ','.join(val['in']) if val['in'] else '',
                     'out_degree': ','.join(val['out']) if val['out'] else '',
@@ -690,7 +690,7 @@ class ExecuteOperation(object):
             for _, val in job_nodes.items():
                 for job in val:
                     data.append({
-                        'exec_id': exec_id,
+                        'exec_id': item,
                         'interface_id': _,
                         'job_id': job['id'],
                         'in_degree': ','.join(str(j) for j in job['in']) if job['in'] else '',

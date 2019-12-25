@@ -12,3 +12,5 @@ from resources.base import ns
 from resources.datasource import ns
 from resources.apscheduler import ns
 from resources.ftp import ns
+from resources.ftp_event import ns
+from resources.test import ns

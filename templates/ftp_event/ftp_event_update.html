@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include "util/style.html" %}
+    <title>修改文件事件</title>
+    <link rel="stylesheet" href="/static/css/layui-formSelects.css">
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+    <!-- 内容主体区域 -->
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>修改文件事件</legend>
+    </fieldset>
+    <!-- 事件 -->
+    <form class="layui-form" lay-filter="ftp_event_detail">
+        <div class="layui-form-item">
+            <label class="layui-form-label">事件名称<span style="color:red">*</span></label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="event_name" placeholder="事件名称" autocomplete="off"
+                       lay-verify="required">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">事件描述</label>
+            <div class="layui-input-block">
+                <textarea class="layui-textarea" placeholder="事件描述" name="event_desc"></textarea>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">FTP服务器<span style="color:red">*</span></label>
+            <div class="layui-input-inline">
+                <select name="ftp_id" lay-verify="required" lay-search></select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">文件路径<span style="color:red">*</span></label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="data_path" placeholder="文件路径" autocomplete="off"
+                       lay-verify="required">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">文件名称<i id="sub" class="layui-icon layui-icon-about"></i><span
+                    style="color:red">*</span>
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="file_name" placeholder="文件名称" autocomplete="off"
+                       lay-verify="required">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">开始时间(小时)<span style="color:red">*</span></label>
+            <div class="layui-input-inline">
+                <select name="start_time" lay-verify="required">
+                    {% for item in range(24) %}
+                        <option value="{{ item }}">{{ item }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">结束时间(小时)<span style="color:red">*</span></label>
+            <div class="layui-input-inline">
+                <select name="end_time" lay-verify="required">
+                    {% for item in range(1, 25) %}
+                        <option value="{{ item }}">{{ item }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">数据日期</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="date_time" placeholder="数据日期" autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">间隔值<span style="color:red">*</span></label>
+            <div class="layui-input-inline">
+                <input type="number" class="layui-input" name="interval_value" placeholder="间隔值: 单位(分钟)"
+                       autocomplete="off" lay-verify="required|number">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">任务流ID<span style="color:red">*</span></label>
+            <div class="layui-input-inline">
+                <select name="interface_id" xm-select="interface_id" xm-select-search=""
+                        xm-select-height="36px"></select>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">调度状态<span style="color:red">*</span></label>
+            <div class="layui-input-inline">
+                <select name="status" lay-verify="required">
+                    <option value="0">失效</option>
+                    <option value="1">运行</option>
+                    <option value="2">暂停</option>
+                </select>
+            </div>
+        </div>
+        <div class="layui-input-block">
+            <div class="layui-input-inline">
+                <button lay-submit class="layui-btn" lay-filter="ftp-event-update" type="button">保存</button>
+                <button type="reset" class="layui-btn layui-btn-primary">清空</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    window.ftp_event_id = {{ ftp_event_id }};
+</script>
+<script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/layui-formSelects.js"></script>
+<script type="text/javascript" src="/static/js/ftp_event/ftp_event_update.js"></script>
+</body>
+</html>

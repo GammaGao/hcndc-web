@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include "util/style.html" %}
+    <title>文件事件列表</title>
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <!-- 水平导航 -->
+    {% include "util/navbar.html" %}
+    <!-- 侧边栏 -->
+    {% include "util/tree.html" %}
+    <!-- 内容主体区域 -->
+    <div class="layui-body">
+        <fieldset class="layui-elem-field layui-field-title">
+            <legend>文件事件列表</legend>
+        </fieldset>
+        <fieldset class="layui-elem-field layui-field-title">
+        </fieldset>
+        <form class="layui-form">
+            <div class="layui-inline">
+                <label class="layui-form-label">事件名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" class="layui-input" name="event_name" placeholder="事件名称" autocomplete="off">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">运行状态</label>
+                <div class="layui-input-inline">
+                    <label>
+                        <select name="status" lay-verify="required">
+                            <option value="0">全部</option>
+                            <option value="1">删除</option>
+                            <option value="2">运行中</option>
+                            <option value="3">暂停</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+            <div class="layui-inline">
+                <div class="layui-input-inline">
+                    <button lay-submit class="layui-btn" lay-filter="dispatch-search" type="button">
+                        <i class="layui-icon layui-icon-search icon-size">搜索</i>
+                    </button>
+                    <button type="reset" class="layui-btn layui-btn-primary">清空</button>
+                </div>
+            </div>
+        </form>
+        <!-- 文件事件列表 -->
+        <div id="file-event-list" lay-filter="file-event-list"></div>
+    </div>
+</div>
+
+<script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/ftp_event/ftp_event_list.js"></script>
+</body>
+</html>
