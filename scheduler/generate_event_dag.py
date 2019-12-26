@@ -2,19 +2,19 @@
 # -*- coding: utf-8 -*-
 
 from models.schedule import ScheduleModel
-from models.execute import ExecuteModel
+from models.event import EventModel
 from models.interface import InterfaceModel
 from configs import db
 from operations.job import JobOperation
 
 
-def generate_interface_tree_by_dispatch(dispatch_id):
+def generate_interface_tree_by_event(detail):
     """
     生成执行任务流树形关系
     0.预处理: 任务流详情和全部依赖关系, id统一为字符串
     1.构造节点: 节点递归子节点
     2.计算节点层级: 找出开始节点(无入度), 入度和当前节点最大层级+1为当前节点层级, 队列中添加出度
-    :param dispatch_id: 调度id
+    :param detail: 任务流详情
     :return: 任务流树形关系
     """
 
@@ -37,8 +37,6 @@ def generate_interface_tree_by_dispatch(dispatch_id):
                 # 递归节点
                 get_child_node(node_item['interface_id'])
 
-    # 任务流详情
-    detail = InterfaceModel.get_interface_detail_by_dispatch_id(db.etl_db, dispatch_id)
     # 所有任务流前后置依赖
     parent = InterfaceModel.get_interface_parent_all(db.etl_db)
     child = InterfaceModel.get_interface_child_all(db.etl_db)
@@ -88,13 +86,13 @@ def generate_interface_tree_by_dispatch(dispatch_id):
     return nodes
 
 
-def generate_interface_dag_by_dispatch(dispatch_id, is_after=1):
+def generate_interface_dag_by_event(detail, is_after=1):
     """
     生成执行任务流前后依赖关系
     0.预处理: 任务流详情和全部依赖关系, id统一为字符串
     1.构造节点: 节点获取一层父节点, 递归子节点
     2.计算节点层级: 找出开始节点(无入度), 入度和当前节点最大层级+1为当前节点层级, 队列中添加出度
-    :param dispatch_id: 调度id
+    :param detail: 任务流详情
     :param is_after: 是否触发后置任务流
     :return: 任务流依赖关系
     """
@@ -115,7 +113,8 @@ def generate_interface_dag_by_dispatch(dispatch_id, is_after=1):
                         'name': node_item['interface_name'],
                         'in': set(),
                         'out': {node_id},
-                        'level': 0
+                        'level': 0,
+                        'is_tree': 0
                     }
         # 子节点
         if after:
@@ -129,13 +128,12 @@ def generate_interface_dag_by_dispatch(dispatch_id, is_after=1):
                         'name': node_item['interface_name'],
                         'in': {node_id},
                         'out': set(),
-                        'level': 0
+                        'level': 0,
+                        'is_tree': 0
                     }
                     # 递归节点
                     get_context_node(node_item['interface_id'])
 
-    # 任务流详情
-    detail = InterfaceModel.get_interface_detail_by_dispatch_id(db.etl_db, dispatch_id)
     # 所有任务流前后置依赖
     parent = InterfaceModel.get_interface_parent_all(db.etl_db)
     child = InterfaceModel.get_interface_child_all(db.etl_db)
@@ -270,28 +268,9 @@ def generate_job_dag_by_interface(interface_id):
     return [job for _, job in nodes.items()]
 
 
-def get_job_dag_by_exec_id(exec_id, interface_id):
-    """获取可执行任务数据结构"""
-    # 获取执行任务(执行状态为运行中,失败[执行中存在错误],就绪)
-    source = ExecuteModel.get_execute_jobs(db.etl_db, exec_id, interface_id)
-    for job in source:
-        # 入度
-        if not job['in_degree']:
-            job['in_degree'] = []
-        else:
-            job['in_degree'] = [int(i) for i in job['in_degree'].split(',')]
-        # 出度
-        if not job['out_degree']:
-            job['out_degree'] = []
-        else:
-            job['out_degree'] = [int(i) for i in job['out_degree'].split(',')]
-    nodes = {job['job_id']: job for job in source}
-    return nodes
-
-
-def get_interface_dag_by_exec_id(exec_id):
-    """获取可执行任务流数据结构"""
-    source = ExecuteModel.get_exec_interface_by_exec_id(db.etl_db, exec_id)
+def get_event_interface_dag_by_exec_id(exec_id):
+    """获取事件可执行任务流数据结构"""
+    source = EventModel.get_event_exec_interface_by_exec_id(db.etl_db, exec_id)
     for item in source:
         # 入度
         if not item['in_degree']:
@@ -307,10 +286,10 @@ def get_interface_dag_by_exec_id(exec_id):
     return nodes
 
 
-def get_all_jobs_dag_by_exec_id(exec_id, interface_id):
-    """获取所有执行任务数据结构"""
-    # 获取执行所有任务
-    source = ExecuteModel.get_execute_jobs_all(db.etl_db, exec_id, interface_id)
+def get_event_job_dag_by_exec_id(exec_id, interface_id):
+    """获取事件可执行任务数据结构"""
+    # 获取执行任务(执行状态为运行中,失败[执行中存在错误],就绪)
+    source = EventModel.get_event_execute_jobs(db.etl_db, exec_id, interface_id)
     for job in source:
         # 入度
         if not job['in_degree']:
@@ -322,9 +301,47 @@ def get_all_jobs_dag_by_exec_id(exec_id, interface_id):
             job['out_degree'] = []
         else:
             job['out_degree'] = [int(i) for i in job['out_degree'].split(',')]
-    # 按层级排序
-    source.sort(key=lambda x: x['level'])
-    nodes = {}
-    for job in source:
-        nodes[job['job_id']] = job
-    return {'nodes': nodes, 'source': source}
+    nodes = {job['job_id']: job for job in source}
+    return nodes
+
+#
+#
+# def get_interface_dag_by_exec_id(exec_id):
+#     """获取可执行任务流数据结构"""
+#     source = ExecuteModel.get_exec_interface_by_exec_id(db.etl_db, exec_id)
+#     for item in source:
+#         # 入度
+#         if not item['in_degree']:
+#             item['in_degree'] = []
+#         else:
+#             item['in_degree'] = [int(i) for i in item['in_degree'].split(',')]
+#         # 出度
+#         if not item['out_degree']:
+#             item['out_degree'] = []
+#         else:
+#             item['out_degree'] = [int(i) for i in item['out_degree'].split(',')]
+#     nodes = {item['interface_id']: item for item in source}
+#     return nodes
+#
+#
+# def get_all_jobs_dag_by_exec_id(exec_id, interface_id):
+#     """获取所有执行任务数据结构"""
+#     # 获取执行所有任务
+#     source = ExecuteModel.get_execute_jobs_all(db.etl_db, exec_id, interface_id)
+#     for job in source:
+#         # 入度
+#         if not job['in_degree']:
+#             job['in_degree'] = []
+#         else:
+#             job['in_degree'] = [int(i) for i in job['in_degree'].split(',')]
+#         # 出度
+#         if not job['out_degree']:
+#             job['out_degree'] = []
+#         else:
+#             job['out_degree'] = [int(i) for i in job['out_degree'].split(',')]
+#     # 按层级排序
+#     source.sort(key=lambda x: x['level'])
+#     nodes = {}
+#     for job in source:
+#         nodes[job['job_id']] = job
+#     return {'nodes': nodes, 'source': source}

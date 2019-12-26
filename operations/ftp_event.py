@@ -4,7 +4,7 @@
 from configs import db, log
 from models.ftp_event import FtpEventModel
 from models.ftp import FtpModel
-from scheduler.handler import SchedulerHandler
+from scheduler.event_handler import EventHandler
 from server.decorators import make_decorator, Response
 from ftp_server.ftp import FtpLink
 from ftp_server.sftp import SftpLink
@@ -68,22 +68,22 @@ class FtpEventOperation(object):
             pass
         # 新增 or 先新增后暂停
         elif old_status == 0 and new_status == 1 or old_status == 0 and new_status == 2:
-            SchedulerHandler.add_event(run_id, ftp_event_id, minute, hour)
+            EventHandler.add_event(run_id, ftp_event_id, minute, hour)
         # 修改
         else:
-            SchedulerHandler.modify_event(run_id, ftp_event_id, minute, hour)
+            EventHandler.modify_event(run_id, ftp_event_id, minute, hour)
         # 先新增后暂停
         if old_status == 0 and new_status == 2:
-            SchedulerHandler.pause_job(run_id)
+            EventHandler.pause_job(run_id)
         # 暂停
         elif old_status == 1 and new_status == 2:
-            SchedulerHandler.pause_job(run_id)
+            EventHandler.pause_job(run_id)
         # 失效
         elif old_status == 1 and new_status == 0 or old_status == 2 and new_status == 0:
-            SchedulerHandler.remove_job(run_id)
+            EventHandler.remove_job(run_id)
         # 恢复
         elif old_status == 2 and new_status == 1:
-            SchedulerHandler.resume_job(run_id)
+            EventHandler.resume_job(run_id)
         return Response(ftp_event_id=ftp_event_id)
 
     @staticmethod
@@ -99,7 +99,7 @@ class FtpEventOperation(object):
         run_id = 'ftp_event_%s' % ftp_event_id
         minute = '*/%s' % interval_value
         hour = '%d-%d' % (start_time, end_time)
-        SchedulerHandler.add_event(run_id, ftp_event_id, minute, hour)
+        EventHandler.add_event(run_id, ftp_event_id, minute, hour)
         # 新增任务流依赖
         interface_id = interface_id.split(',')
         insert_data = []

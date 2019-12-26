@@ -74,7 +74,7 @@ class ExecuteModel(object):
 
     @staticmethod
     def update_interface_run_time(cursor, interface_id, run_time):
-        """修改调度执行表账期-"""
+        """修改调度执行表账期"""
         command = '''
         UPDATE tb_interface
         SET run_time = :run_time, update_time = :update_time

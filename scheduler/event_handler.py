@@ -2,41 +2,33 @@
 # -*- coding: utf-8 -*-
 
 from configs import scheduler
-from scheduler.distribute_scheduler import get_dispatch_job
+from scheduler.event_scheduler import get_event_job
 
 
-class SchedulerHandler(object):
-    """调度操作"""
-
+class EventHandler(object):
     @staticmethod
-    def add_job(run_id, dispatch_id, minute, hour, day, month, week):
-        """添加任务"""
+    def add_event(run_id, ftp_event_id, minute, hour):
+        """新增事件"""
         scheduler.add_job(
             id=run_id,
-            func=get_dispatch_job,
-            args=(dispatch_id,),
+            func=get_event_job,
+            args=(ftp_event_id,),
             trigger='cron',
             minute=minute,
             hour=hour,
-            day=day,
-            month=month,
-            week=week
         )
 
     @staticmethod
-    def modify_job(run_id, dispatch_id, minute, hour, day, month, week):
-        """修改任务"""
+    def modify_event(run_id, ftp_event_id, minute, hour):
+        """修改事件"""
         scheduler.modify_job(
             id=run_id,
             jobstore='default',
-            func=get_dispatch_job,
-            args=(dispatch_id,),
+            func=get_event_job,
+            args=(ftp_event_id,),
             trigger='cron',
             minute=minute,
-            hour=hour,
-            day=day,
-            month=month,
-            week=week
+            hour=hour
         )
 
     @staticmethod
@@ -58,4 +50,3 @@ class SchedulerHandler(object):
     def remove_job(run_id):
         """删除任务"""
         scheduler.remove_job(id=run_id, jobstore='default')
-

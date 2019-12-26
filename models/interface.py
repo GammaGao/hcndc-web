@@ -347,4 +347,3 @@ class InterfaceModel(object):
             'dispatch_id': dispatch_id
         })
         return result if result else {}
-
