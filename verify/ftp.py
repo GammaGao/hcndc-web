@@ -24,6 +24,8 @@ class FtpVerify(object):
     @make_decorator
     def verify_test_ftp_link(ftp_id, ftp_type, ftp_host, ftp_port, ftp_user, ftp_passwd):
         """测试FTP连接"""
+        if not ftp_id and (not ftp_type and not ftp_host and not ftp_port):
+            abort(400, **make_result(status=400, msg='FTP配置项缺失'))
         return Response(ftp_id=ftp_id, ftp_type=ftp_type, ftp_host=ftp_host, ftp_port=ftp_port, ftp_user=ftp_user,
                         ftp_passwd=ftp_passwd)
 

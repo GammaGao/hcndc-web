@@ -233,20 +233,11 @@ class DispatchAlertDetail(Resource):
         return params
 
 
-class DispatchTest(Resource):
-    @staticmethod
-    @DispatchAlertOperation.test(dispatch_id=int)
-    def get(dispatch_id):
-        params = Response(dispatch_id=dispatch_id)
-        return params
-
-
 ns = api.namespace('dispatch', description='调度')
 ns.add_resource(CrontabSearch, '/search/')
 ns.add_resource(DispatchList, '/list/api/')
 ns.add_resource(DispatchDetail, '/detail/api/<int:dispatch_id>/')
 ns.add_resource(DispatchAction, '/action/api/')
 ns.add_resource(DispatchAdd, '/add/api/')
-ns.add_resource(DispatchTest, '/test/<int:dispatch_id>/')
 ns.add_resource(DispatchAlertAdd, '/alert/add/api/')
 ns.add_resource(DispatchAlertDetail, '/alert/detail/api/<int:dispatch_id>/')

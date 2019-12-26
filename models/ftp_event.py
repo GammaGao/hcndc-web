@@ -10,7 +10,7 @@ class FtpEventModel(object):
         """获取文件事件列表"""
         command = '''
         SELECT ftp_event_id, event_name, data_path, file_name, start_time, end_time, interval_value, date_time,
-        `status`, b.next_run_time, c.ftp_name
+        `status`, b.next_run_time, a.ftp_id, c.ftp_name
         FROM tb_file_event AS a
         LEFT JOIN tb_scheduler AS b ON CONCAT('ftp_event_', a.ftp_event_id) = b.id
         LEFT JOIN tb_ftp_config AS c ON a.ftp_id = c.ftp_id AND c.is_deleted = 0

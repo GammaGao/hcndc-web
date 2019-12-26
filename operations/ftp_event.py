@@ -1,14 +1,13 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask_restful import abort
-
 from configs import db, log
 from models.ftp_event import FtpEventModel
+from models.ftp import FtpModel
 from scheduler.handler import SchedulerHandler
-from scheduler.distribute_scheduler import get_dispatch_job
 from server.decorators import make_decorator, Response
-from server.status import make_result
+from ftp_server.ftp import FtpLink
+from ftp_server.sftp import SftpLink
 
 
 class FtpEventOperation(object):
@@ -111,3 +110,59 @@ class FtpEventOperation(object):
             })
         FtpEventModel.add_file_event_interface(db.etl_db, insert_data)
         return Response(ftp_event_id=ftp_event_id)
+
+    @staticmethod
+    @make_decorator
+    def test_ftp_event_link(ftp_id, ftp_type, ftp_host, ftp_port, ftp_user, ftp_passwd, data_path):
+        """测试FTP文件目录是否存在"""
+        if ftp_id:
+            detail = FtpModel.get_ftp_detail(db.etl_db, ftp_id)
+            if isinstance(detail['ftp_passwd'], bytes):
+                detail['ftp_passwd'] = detail['ftp_passwd'].decode('utf-8', 'ignore')
+            try:
+                if detail['ftp_type'] == 1:
+                    ftp = FtpLink(detail['ftp_host'], detail['ftp_port'], detail['ftp_user'], detail['ftp_passwd'])
+                    FtpModel.update_ftp_status(db.etl_db, ftp_id, 0)
+                    result = ftp.test_dir(data_path)
+                    ftp.close()
+                    if result:
+                        return Response(status=200, msg='FTP文件目录存在')
+                    else:
+                        return Response(status=400, msg='FTP文件目录不存在')
+                elif detail['ftp_type'] == 2:
+                    ftp = SftpLink(detail['ftp_host'], detail['ftp_port'], detail['ftp_user'], detail['ftp_passwd'])
+                    FtpModel.update_ftp_status(db.etl_db, ftp_id, 0)
+                    result = ftp.test_dir(data_path)
+                    ftp.close()
+                    if result:
+                        return Response(status=200, msg='FTP文件目录存在')
+                    else:
+                        return Response(status=400, msg='FTP文件目录不存在')
+                else:
+                    FtpModel.update_ftp_status(db.etl_db, ftp_id, 1)
+                    return Response(status=400, msg='FTP服务器类型未知')
+            except:
+                FtpModel.update_ftp_status(db.etl_db, ftp_id, 1)
+                return Response(status=400, msg='FTP连接异常')
+        else:
+            try:
+                if ftp_type == 1:
+                    ftp = FtpLink(ftp_host, ftp_port, ftp_user, ftp_passwd)
+                    result = ftp.test_dir(data_path)
+                    ftp.close()
+                    if result:
+                        return Response(status=200, msg='FTP文件目录存在')
+                    else:
+                        return Response(status=400, msg='FTP文件目录不存在')
+                elif ftp_type == 2:
+                    ftp = SftpLink(ftp_host, ftp_port, ftp_user, ftp_passwd)
+                    result = ftp.test_dir(data_path)
+                    ftp.close()
+                    if result:
+                        return Response(status=200, msg='FTP文件目录存在')
+                    else:
+                        return Response(status=400, msg='FTP文件目录不存在')
+                else:
+                    return Response(status=400, msg='FTP服务器类型未知')
+            except:
+                return Response(status=400, msg='FTP连接异常')

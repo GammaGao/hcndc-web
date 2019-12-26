@@ -149,6 +149,7 @@ let BASE = {
         ftp_event: {
             'list': '/ftp_event/',
             'list_api': '/ftp_event/list/api/',
+            'test_api': '/ftp_event/test/api/',
             'detail': '/ftp_event/detail/',
             'detail_api': '/ftp_event/detail/api/',
             'action_api': '/ftp_event/action/api/',

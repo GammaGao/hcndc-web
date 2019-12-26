@@ -41,3 +41,14 @@ ftp_event_add_request = api.doc(body=api.model('ftp_event_add_request', {
     'end_time': fields.String(description='结束时间: 默认23:59'),
     'interval_value': fields.Integer(description='间隔值: 单位(分钟)'),
 }, description='调度修改请求参数'))
+
+# 测试FTP文件目录是否存在
+ftp_event_test_request = api.doc(body=api.model('ftp_event_test_request', {
+    'ftp_id': fields.String(description='FTP配置id'),
+    'ftp_type': fields.Integer(description='ftp类型: 1.ftp, 2.sftp'),
+    'ftp_host': fields.String(description='ftp域名'),
+    'ftp_port': fields.Integer(description='ftp端口'),
+    'ftp_user': fields.String(description='ftp用户名'),
+    'ftp_passwd': fields.String(description='ftp密码'),
+    'data_path': fields.String(description='文件路径')
+}, description='测试FTP文件目录是否存在'))

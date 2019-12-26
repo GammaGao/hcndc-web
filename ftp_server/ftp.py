@@ -17,3 +17,7 @@ class FtpLink(object):
             return True
         except ftplib.error_perm:
             return False
+
+    def close(self):
+        """关闭连接"""
+        self.ftp.close()

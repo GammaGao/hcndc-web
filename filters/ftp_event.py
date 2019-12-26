@@ -35,3 +35,9 @@ class FtpEventFilter(object):
     def filter_add_dispatch(ftp_event_id):
         """修改文件事件详情"""
         return {'status': 200, 'msg': '成功', 'data': {'id': ftp_event_id}}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_test_data(status, msg):
+        """测试FTP文件目录是否存在"""
+        return {'status': status, 'msg': msg, 'data': {}}, 200

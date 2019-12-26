@@ -102,3 +102,14 @@ class FtpEventVerify(object):
         return Response(event_name=event_name, event_desc=event_desc, ftp_id=ftp_id, data_path=data_path,
                         file_name=file_name, interface_id=interface_id, interval_value=interval_value,
                         start_time=start_time, end_time=end_time, date_time=date_time, user_id=user_id)
+
+    @staticmethod
+    @make_decorator
+    def verify_test_ftp_event_link(ftp_id, ftp_type, ftp_host, ftp_port, ftp_user, ftp_passwd, data_path):
+        """测试FTP文件目录是否存在"""
+        if not data_path:
+            abort(400, **make_result(status=400, msg='文件路径不得为空'))
+        if not ftp_id and (not ftp_type and not ftp_host and not ftp_port):
+            abort(400, **make_result(status=400, msg='FTP配置项缺失'))
+        return Response(ftp_id=ftp_id, ftp_type=ftp_type, ftp_host=ftp_host, ftp_port=ftp_port, ftp_user=ftp_user,
+                        ftp_passwd=ftp_passwd, data_path=data_path)

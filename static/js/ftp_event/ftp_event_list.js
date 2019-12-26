@@ -179,9 +179,11 @@
                     }, {
                         field: "data_path",
                         title: "文件路径",
+                        width: '9%'
                     }, {
                         field: "file_name",
                         title: "文件名称",
+                        width: '9%'
                     }, {
                         field: "interval_value",
                         title: "间隔时间",
@@ -192,7 +194,7 @@
                     }, {
                         field: "next_run_time",
                         title: "下次运行时间",
-                        width: '9%'
+                        width: '10%'
                     }, {
                         field: "status",
                         title: "运行状态",
@@ -214,6 +216,7 @@
                             html.push('<div class="layui-btn-group">');
                             // 失效
                             if (data.status === 0) {
+                                html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">检测目录</button>');
                                 html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">立即执行</button>');
                                 html.push('<button class="layui-btn layui-btn-disabled layui-btn-sm" disabled="disabled">暂停</button>');
                                 html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
@@ -221,6 +224,7 @@
                             }
                             // 运行中
                             else if (data.status === 1) {
+                                html.push('<button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="test">检测目录</button>');
                                 html.push('<button class="layui-btn layui-btn-sm" lay-event="run">立即执行</button>');
                                 html.push('<button class="layui-btn PREPARING layui-btn-sm" lay-event="pause">暂停</button>');
                                 html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
@@ -228,6 +232,7 @@
                             }
                             // 暂停中
                             else if (data.status === 2) {
+                                html.push('<button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="test">检测目录</button>');
                                 html.push('<button class="layui-btn layui-btn-sm" lay-event="run">立即执行</button>');
                                 html.push('<button class="layui-btn layui-btn-normal layui-btn-sm" lay-event="resume">恢复</button>');
                                 html.push('<button class="layui-btn layui-btn-warm layui-btn-sm" lay-event="update">修改</button>');
@@ -475,6 +480,46 @@
                     let data = obj.data;
                     let event = obj.event;
                     switch (event) {
+                        // 检测目录
+                        case 'test':
+                            layer.confirm('确定检测目录是否存在?', function (index) {
+                                // 关闭弹窗
+                                layer.close(index);
+                                $.ajax({
+                                    url: BASE.uri.ftp_event.test_api,
+                                    contentType: "application/json; charset=utf-8",
+                                    type: 'post',
+                                    data: JSON.stringify({'ftp_id': data.ftp_id, 'data_path': data.data_path}),
+                                    success: function (result) {
+                                        if (result.status === 200) {
+                                            layer.msg('连接成功', {icon: 6});
+                                            // 刷新页面
+                                            $(".layui-laypage-btn").click();
+                                        } else {
+                                            layer.open({
+                                                title: '连接失败',
+                                                content: result.msg.replace(/\n/g, '<br>'),
+                                                icon: 5,
+                                                end: function () {
+                                                    $(".layui-laypage-btn").click();
+                                                }
+                                            });
+                                        }
+                                    },
+                                    error: function (error) {
+                                        let result = error.responseJSON;
+                                        layer.open({
+                                            title: '连接失败',
+                                            content: result.msg.replace(/\n/g, '<br>'),
+                                            icon: 5,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        });
+                                    }
+                                });
+                            })
+                            break;
                         // 立即执行
                         case 'run':
                             layer.open({

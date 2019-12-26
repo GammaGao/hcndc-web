@@ -111,24 +111,24 @@ class FtpEventAdd(Resource):
         return params
 
 
-# class DispatchAction(Resource):
-#     @staticmethod
-#     @dispatch_run_request
-#     @DispatchFilter.filter_run_dispatch(dispatch_id=list)
-#     @DispatchOperation.run_dispatch(dispatch_id=list, run_date=str, date_format=str, is_after=int)
-#     @FtpVerify.verify_run_dispatch(dispatch_id=list, run_date=str, date_format=str, is_after=int)
-#     @PermissionVerify.verify_execute_permission(dispatch_id=list, run_date=str, date_format=str, is_after=int)
-#     def post():
-#         """立即执行调度任务"""
-#         payload = get_payload()
-#         params = Response(
-#             dispatch_id=payload.get('dispatch_id', []),
-#             run_date=payload.get('run_date', ''),
-#             date_format=payload.get('date_format', ''),
-#             is_after=int(payload.get('is_after', 1))
-#         )
-#         log.info('立即执行调度任务[params: %s]' % str(params))
-#         return params
+# class FtpEventAction(Resource):
+# @staticmethod
+# @ftp_event_run_request
+# @DispatchFilter.filter_run_dispatch(dispatch_id=list)
+# @DispatchOperation.run_dispatch(dispatch_id=list, run_date=str, date_format=str, is_after=int)
+# @FtpVerify.verify_run_dispatch(dispatch_id=list, run_date=str, date_format=str, is_after=int)
+# @PermissionVerify.verify_execute_permission(dispatch_id=list, run_date=str, date_format=str, is_after=int)
+# def post():
+#     """立即执行调度任务"""
+#     payload = get_payload()
+#     params = Response(
+#         dispatch_id=payload.get('dispatch_id', []),
+#         run_date=payload.get('run_date', ''),
+#         date_format=payload.get('date_format', ''),
+#         is_after=int(payload.get('is_after', 1))
+#     )
+#     log.info('立即执行调度任务[params: %s]' % str(params))
+#     return params
 #
 #     @staticmethod
 #     @dispatch_action_request
@@ -161,81 +161,28 @@ class FtpEventAdd(Resource):
 #
 #
 
-#
-#
-# class DispatchAlertAdd(Resource):
-#     @staticmethod
-#     @dispatch_alert_add_request
-#     @DispatchAlertFilter.filter_add_dispatch_alert(dispatch_id=int)
-#     @DispatchAlertOperation.add_dispatch_alert(dispatch_id=int, alert_s=int, alert_f=int, conf_id_s=int, conf_id_f=int,
-#                                                user_id=int, send_mail_s=str, send_mail_f=str)
-#     @FtpVerify.verify_add_dispatch_alert(dispatch_id=int, alert_s=int, alert_f=int, conf_id_s=int,
-#                                                    conf_id_f=int, user_id=int, send_mail_s=str, send_mail_f=str)
-#     @PermissionVerify.verify_schedule_permission(dispatch_id=int, alert_s=int, alert_f=int, conf_id_s=int,
-#                                                  conf_id_f=int, send_mail_s=str, send_mail_f=str)
-#     def post():
-#         """新增调度预警"""
-#         payload = get_payload()
-#         params = Response(
-#             dispatch_id=int(payload.get('dispatch_id', 0)),
-#             alert_s=int(payload.get('alert_s', 0)),
-#             alert_f=int(payload.get('alert_f', 0)),
-#             conf_id_s=int(payload.get('conf_id_s', 0)),
-#             conf_id_f=int(payload.get('conf_id_f', 0)),
-#             send_mail_s=payload.get('send_mail_s', ''),
-#             send_mail_f=payload.get('send_mail_f', '')
-#         )
-#         log.info('新增执行流预警[params: %s]' % str(params))
-#         return params
-#
-#
-# class DispatchAlertDetail(Resource):
-#     @staticmethod
-#     @DispatchAlertFilter.filter_get_dispatch_alert_detail(result=list)
-#     @DispatchAlertOperation.get_dispatch_alert_detail(dispatch_id=int)
-#     @FtpVerify.verify_get_dispatch_alert_detail(dispatch_id=int)
-#     def get(dispatch_id):
-#         """获取调度预警详情"""
-#         params = Response(dispatch_id=dispatch_id)
-#         log.info('获取调度预警详情[params: %s]' % str(params))
-#         return params
-#
-#     @staticmethod
-#     @dispatch_alert_update_request
-#     @DispatchAlertFilter.filter_update_dispatch_alert(dispatch_id=int)
-#     @DispatchAlertOperation.update_dispatch_alert_detail(dispatch_id=int, alert_s=int, alert_f=int, conf_id_s=int,
-#                                                          alert_id_s=int, alert_id_f=int, conf_id_f=int, user_id=int,
-#                                                          send_mail_s=str, send_mail_f=str)
-#     @FtpVerify.verify_update_dispatch_alert_detail(dispatch_id=int, alert_s=int, alert_f=int, conf_id_s=int,
-#                                                              alert_id_s=int, alert_id_f=int, conf_id_f=int, user_id=int,
-#                                                              send_mail_s=str, send_mail_f=str)
-#     @PermissionVerify.verify_schedule_permission(dispatch_id=int, alert_s=int, alert_f=int, conf_id_s=int,
-#                                                  alert_id_s=int, alert_id_f=int, conf_id_f=int, send_mail_s=str,
-#                                                  send_mail_f=str)
-#     def put(dispatch_id):
-#         """修改调度预警详情"""
-#         payload = get_payload()
-#         params = Response(
-#             dispatch_id=dispatch_id,
-#             alert_s=int(payload.get('alert_s', 0)),
-#             alert_f=int(payload.get('alert_f', 0)),
-#             alert_id_s=int(payload.get('alert_id_s', -1)),
-#             alert_id_f=int(payload.get('alert_id_f', -1)),
-#             conf_id_s=int(payload.get('conf_id_s', 0)),
-#             conf_id_f=int(payload.get('conf_id_f', 0)),
-#             send_mail_s=payload.get('send_mail_s', ''),
-#             send_mail_f=payload.get('send_mail_f', '')
-#         )
-#         log.info('修改调度预警详情[params: %s]' % str(params))
-#         return params
-#
-#
-# class DispatchTest(Resource):
-#     @staticmethod
-#     @DispatchAlertOperation.test(dispatch_id=int)
-#     def get(dispatch_id):
-#         params = Response(dispatch_id=dispatch_id)
-#         return params
+class FtpTest(Resource):
+    @staticmethod
+    @ftp_event_test_request
+    @FtpEventFilter.filter_test_data(status=int, msg=str)
+    @FtpEventOperation.test_ftp_event_link(ftp_id=int, ftp_type=int, ftp_host=str, ftp_port=int, ftp_user=str,
+                                           ftp_passwd=str, data_path=str)
+    @FtpEventVerify.verify_test_ftp_event_link(ftp_id=int, ftp_type=int, ftp_host=str, ftp_port=int, ftp_user=str,
+                                               ftp_passwd=str, data_path=str)
+    def post():
+        """测试FTP文件目录是否存在"""
+        payload = get_payload()
+        params = Response(
+            ftp_id=int(payload.get('ftp_id', 0)),
+            ftp_type=int(payload.get('ftp_type', 0)),
+            ftp_host=payload.get('ftp_host', ''),
+            ftp_port=int(payload.get('ftp_port', 0)),
+            ftp_user=payload.get('ftp_user', ''),
+            ftp_passwd=payload.get('ftp_passwd', ''),
+            data_path=payload.get('data_path', '')
+        )
+        log.info('测试FTP文件目录是否存在[params: %s]' % str(params))
+        return params
 
 
 ns = api.namespace('ftp_event', description='文件事件')
@@ -243,6 +190,6 @@ ns.add_resource(FtpEventList, '/list/api/')
 ns.add_resource(FtpEventDetail, '/detail/api/<int:ftp_event_id>/')
 # ns.add_resource(DispatchAction, '/action/api/')
 ns.add_resource(FtpEventAdd, '/add/api/')
-# ns.add_resource(DispatchTest, '/test/<int:dispatch_id>/')
+ns.add_resource(FtpTest, '/test/api/')
 # ns.add_resource(DispatchAlertAdd, '/alert/add/api/')
 # ns.add_resource(DispatchAlertDetail, '/alert/detail/api/<int:dispatch_id>/')

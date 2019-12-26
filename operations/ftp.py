@@ -1,12 +1,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
-from flask_restful import abort
-from datetime import date, timedelta
-
 from server.decorators import make_decorator, Response
-from server.status import make_result
 from models.ftp import FtpModel
 from configs import db
 from ftp_server.ftp import FtpLink
@@ -46,10 +41,12 @@ class FtpOperation(object):
                 detail['ftp_passwd'] = detail['ftp_passwd'].decode('utf-8', 'ignore')
             try:
                 if detail['ftp_type'] == 1:
-                    FtpLink(detail['ftp_host'], detail['ftp_port'], detail['ftp_user'], detail['ftp_passwd'])
+                    ftp = FtpLink(detail['ftp_host'], detail['ftp_port'], detail['ftp_user'], detail['ftp_passwd'])
+                    ftp.close()
                     FtpModel.update_ftp_status(db.etl_db, ftp_id, 0)
                 elif detail['ftp_type'] == 2:
-                    SftpLink(detail['ftp_host'], detail['ftp_port'], detail['ftp_user'], detail['ftp_passwd'])
+                    ftp = SftpLink(detail['ftp_host'], detail['ftp_port'], detail['ftp_user'], detail['ftp_passwd'])
+                    ftp.close()
                     FtpModel.update_ftp_status(db.etl_db, ftp_id, 0)
                 else:
                     FtpModel.update_ftp_status(db.etl_db, ftp_id, 1)
@@ -61,9 +58,11 @@ class FtpOperation(object):
         else:
             try:
                 if ftp_type == 1:
-                    FtpLink(ftp_host, ftp_port, ftp_user, ftp_passwd)
+                    ftp = FtpLink(ftp_host, ftp_port, ftp_user, ftp_passwd)
+                    ftp.close()
                 elif ftp_type == 2:
-                    SftpLink(ftp_host, ftp_port, ftp_user, ftp_passwd)
+                    ftp = SftpLink(ftp_host, ftp_port, ftp_user, ftp_passwd)
+                    ftp.close()
                 else:
                     return Response(status=400, msg='FTP服务器类型未知')
             except:
