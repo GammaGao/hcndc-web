@@ -424,7 +424,7 @@ class ExecuteModel(object):
         SELECT interface_id AS id, interface_name AS name, in_degree, out_degree, `level`, `status`
         FROM tb_execute_interface
         LEFT JOIN tb_interface AS b USING(interface_id)
-        WHERE exec_id = :exec_id
+        WHERE exec_id = :exec_id AND is_tree = 1
             '''
         result = cursor.query(command, {
             'exec_id': exec_id
@@ -499,8 +499,8 @@ class ExecuteModel(object):
         """添加执行任务流依赖表"""
         command = '''
         INSERT INTO tb_execute_interface(exec_id, interface_id, in_degree, out_degree,
-        `level`, `status`, insert_time, update_time)
-        VALUES (:exec_id, :interface_id, :in_degree, :out_degree, :level, :status, :insert_time, :update_time)
+        `level`, is_tree, `status`, insert_time, update_time)
+        VALUES (:exec_id, :interface_id, :in_degree, :out_degree, :level, :is_tree, :status, :insert_time, :update_time)
         '''
         result = cursor.insert(command, args=data)
         return result
@@ -511,7 +511,7 @@ class ExecuteModel(object):
         command = '''
         SELECT interface_id, in_degree, out_degree, `level`, `status`
         FROM tb_execute_interface
-        WHERE exec_id = :exec_id
+        WHERE exec_id = :exec_id AND is_tree = 1
         '''
         result = cursor.query(command, {
             'exec_id': exec_id

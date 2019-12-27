@@ -214,6 +214,8 @@ def execute_nodes_graph(result, data_type):
     for item in result:
         # 有依赖关系
         in_degree = item['in_degree'].split(',') if item['in_degree'] else []
+        # 树形结构节点过滤
+        in_degree = [i for i in in_degree if i in nodes.keys()]
         for source_node in in_degree:
             links.append({'source': source_node, 'target': item['id']})
             # 不相邻层级

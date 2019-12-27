@@ -3,7 +3,7 @@
 
 import time
 
-from scheduler.generate_dag import generate_job_dag_by_interface, generate_interface_dag_by_dispatch
+from scheduler.generate_dag import generate_job_dag_by_interface, generate_interface_dag_by_dispatch, generate_interface_tree_by_dispatch
 from models.execute import ExecuteModel
 from models.schedule import ScheduleModel
 from configs import db
@@ -35,18 +35,23 @@ def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='%Y%m%d'
     else:
         run_time = time.strftime(date_format, time.localtime())
     # 获取执行任务流前后依赖关系
-    interface_nodes = generate_interface_dag_by_dispatch(dispatch_id, is_after)
-    if not interface_nodes:
+    interface_dag_nodes = generate_interface_dag_by_dispatch(dispatch_id, is_after)
+    interface_tree_nodes = generate_interface_tree_by_dispatch(dispatch_id)
+    tree_nodes = [_ for _ in interface_tree_nodes.keys()]
+    # 填充树形节点
+    for key in set(tree_nodes):
+        interface_dag_nodes[key]['is_tree'] = 1
+    if not interface_dag_nodes:
         return
     # 获取所有任务流的任务详情
     job_nodes = {}
-    for _, item in interface_nodes.items():
+    for _, item in interface_tree_nodes.items():
         jobs = generate_job_dag_by_interface(item['id'])
         job_nodes[item['id']] = jobs
     # 添加执行主表, 任务流表, 任务表至数据库
-    exec_id = add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type, run_time, is_after, date_format)
+    exec_id = add_exec_record(dispatch_id, interface_dag_nodes, job_nodes, exec_type, run_time, is_after, date_format)
     # 初始任务流
-    start_interface = [_ for _, item in interface_nodes.items() if item['level'] == 0]
+    start_interface = [_ for _, item in interface_tree_nodes.items() if item['level'] == 0]
     # 开始执行初始任务流中的任务
     flag = False
     for curr_interface in start_interface:
@@ -104,7 +109,8 @@ def add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type=1, run_da
             'in_degree': ','.join(item['in']) if item['in'] else '',
             'out_degree': ','.join(item['out']) if item['out'] else '',
             'level': item['level'],
-            'status': 3,
+            'is_tree': item.get('is_tree', 0),
+            'status': 0 if item.get('is_tree', 0) == 0 else 3,
             'insert_time': int(time.time()),
             'update_time': int(time.time())
         })

@@ -3,7 +3,7 @@
 
 from server.decorators import make_decorator, Response
 from scheduler.generate_dag import get_job_dag_by_exec_id, get_all_jobs_dag_by_exec_id, get_interface_dag_by_exec_id, \
-    generate_job_dag_by_interface, generate_interface_dag_by_dispatch
+    generate_job_dag_by_interface, generate_interface_dag_by_dispatch, generate_interface_tree_by_dispatch
 from rpc.rpc_client import Connection
 from configs import config, log, db
 from models.execute import ExecuteModel
@@ -662,26 +662,32 @@ class ExecuteOperation(object):
             ExecuteModel.delete_exec_interface(db.etl_db, item)
             ExecuteModel.delete_exec_detail(db.etl_db, item)
             # 获取执行任务流前后依赖关系
-            interface_nodes = generate_interface_dag_by_dispatch(dispatch['dispatch_id'], dispatch['is_after'])
-            if not interface_nodes:
+            interface_dag_nodes = generate_interface_dag_by_dispatch(dispatch['dispatch_id'], dispatch['is_after'])
+            interface_tree_nodes = generate_interface_tree_by_dispatch(dispatch['dispatch_id'])
+            tree_nodes = [_ for _ in interface_tree_nodes.keys()]
+            # 填充树形节点
+            for key in set(tree_nodes):
+                interface_dag_nodes[key]['is_tree'] = 1
+            if not interface_dag_nodes:
                 continue
             # 获取所有任务流的任务详情
             job_nodes = {}
-            for _, interface in interface_nodes.items():
+            for _, interface in interface_tree_nodes.items():
                 jobs = generate_job_dag_by_interface(interface['id'])
                 job_nodes[interface['id']] = jobs
             # 添加执行表
             ExecuteModel.add_execute_by_id(db.etl_db, item, dispatch['exec_type'], dispatch['dispatch_id'],
                                            dispatch['run_date'], dispatch['is_after'])
             interface_arr = []
-            for _, val in interface_nodes.items():
+            for _, val in interface_dag_nodes.items():
                 interface_arr.append({
                     'exec_id': item,
                     'interface_id': val['id'],
                     'in_degree': ','.join(val['in']) if val['in'] else '',
                     'out_degree': ','.join(val['out']) if val['out'] else '',
                     'level': val['level'],
-                    'status': 3,
+                    'is_tree': val.get('is_tree', 0),
+                    'status': 0 if val.get('is_tree', 0) == 0 else 3,
                     'insert_time': int(time.time()),
                     'update_time': int(time.time())
                 })

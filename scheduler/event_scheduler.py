@@ -5,7 +5,8 @@ import time
 from copy import deepcopy
 from datetime import date, timedelta
 
-from scheduler.generate_event_dag import generate_interface_dag_by_event, generate_interface_tree_by_event, generate_job_dag_by_interface
+from scheduler.generate_event_dag import generate_interface_dag_by_event, generate_interface_tree_by_event, \
+    generate_job_dag_by_interface
 from models.event import EventModel
 from models.ftp_event import FtpEventModel
 from configs import db
@@ -43,7 +44,7 @@ def rpc_push_job(exec_id, interface_id, job_id, server_host, port, params_value,
         else:
             run_time = run_date
         params = params_value.split(',') if params_value else []
-        client.rpc.execute(
+        client.rpc.event_execute(
             exec_id=exec_id,
             interface_id=interface_id,
             job_id=job_id,
@@ -61,7 +62,7 @@ def rpc_push_job(exec_id, interface_id, job_id, server_host, port, params_value,
         EventModel.add_event_exec_detail_job(db.etl_db, exec_id, interface_id, job_id, 'ERROR', server_dir,
                                              server_script, err_msg, 3)
         # 修改数据库, 分布式锁
-        with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+        with MysqlLock(config.mysql.etl, 'event_lock_%s' % exec_id):
             # 修改执行详情表状态[失败]
             EventModel.update_event_exec_job_status(db.etl_db, exec_id, interface_id, job_id, 'failed')
             # 修改执行任务流状态[失败]
@@ -96,14 +97,14 @@ def continue_event_execute_interface(exec_id, result=None, exec_type=1, run_date
     next_interface = []
     # {可执行任务流id: {'job_id': [可执行任务id], 'nodes': {'job_id': {任务详情}}}}
     # 推进流程
-    with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+    with MysqlLock(config.mysql.etl, 'event_lock_%s' % exec_id):
         interface_dict = get_event_interface_dag_by_exec_id(exec_id)
     # 已完成任务流
     complete_interface = [_ for _, item in interface_dict.items() if item['status'] == 0]
     # 所有任务流都完成
     if len(complete_interface) == len(interface_dict):
         # 修改执行主表状态[成功]
-        with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+        with MysqlLock(config.mysql.etl, 'event_lock_%s' % exec_id):
             EventModel.update_event_execute_status(db.etl_db, exec_id, 0)
         return
     # 遍历所有节点
@@ -111,13 +112,13 @@ def continue_event_execute_interface(exec_id, result=None, exec_type=1, run_date
         # 自动调度下, 检查出度的入度数据日期和状态是否成功
         if exec_type == 1:
             # 出度任务流的执行详情
-            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+            with MysqlLock(config.mysql.etl, 'event_lock_%s' % exec_id):
                 current_detail = EventModel.get_event_interface_detail_last_execute(db.etl_db, interface_id)
             for out_id in interface_dict[interface_id]['out_degree']:
                 flag = True
                 for in_id in interface_dict[out_id]['in_degree']:
                     # 获取出度的入度任务流详情
-                    with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                    with MysqlLock(config.mysql.etl, 'event_lock_%s' % exec_id):
                         in_detail = EventModel.get_event_interface_detail_last_execute(db.etl_db, in_id)
                     # 1.出度的入度本次执行状态不成功, 2.如果存在出度的上一次执行记录, 上一次执行记录不成功
                     if in_detail['status'] != 0 \
@@ -132,7 +133,7 @@ def continue_event_execute_interface(exec_id, result=None, exec_type=1, run_date
                 flag = True
                 for in_id in interface_dict[out_id]['in_degree']:
                     # 获取出度的入度详情
-                    with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                    with MysqlLock(config.mysql.etl, 'event_lock_%s' % exec_id):
                         in_detail = EventModel.get_event_interface_detail_last_execute(db.etl_db, in_id)
                     # 1.出度的入度本次执行状态不成功
                     if in_detail['status'] != 0:
@@ -159,20 +160,17 @@ def continue_event_execute_interface(exec_id, result=None, exec_type=1, run_date
             flag = True
             result.pop(interface_id)
             log.info('任务流中任务为空: 执行id: %s, 任务流id: %s' % (exec_id, interface_id))
-            # 数据日期改成当天日期, 手动调度时可以再优化
-            new_date = time.strftime('%Y-%m-%d', time.localtime())
-            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+            with MysqlLock(config.mysql.etl, 'event_lock_%s' % exec_id):
                 EventModel.update_event_exec_interface_status(db.etl_db, exec_id, interface_id, 0)
         # 修改执行任务流状态[运行中]
         else:
-            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+            with MysqlLock(config.mysql.etl, 'event_lock_%s' % exec_id):
                 EventModel.update_event_exec_interface_status(db.etl_db, exec_id, interface_id, 1)
     # 存在空任务流
     if flag:
         return continue_event_execute_interface(exec_id, result, exec_type, run_date)
     else:
         return result
-
 
 
 def get_event_job(event_id, exec_type=1, run_date='', date_format='%Y%m%d', is_after=1):
@@ -197,71 +195,76 @@ def get_event_job(event_id, exec_type=1, run_date='', date_format='%Y%m%d', is_a
 
     # 任务流详情
     detail_list = EventModel.get_interface_detail_by_ftp_event_id(db.etl_db, event_id)
+    interface_dag_nodes = {}
+    # 遍历多个任务流
     for detail in detail_list:
         # 生成执行任务流前后依赖关系
-        interface_dag_nodes = generate_interface_dag_by_event(detail)
+        dag = generate_interface_dag_by_event(detail)
         # 生成执行任务流树形关系
-        interface_tree_nodes = generate_interface_tree_by_event(detail)
-        tree_nodes = [_ for _ in interface_tree_nodes.keys()]
+        tree = generate_interface_tree_by_event(detail)
+        tree_nodes = [_ for _ in tree.keys()]
         # 填充树形节点
         for key in set(tree_nodes):
-            interface_dag_nodes[key]['is_tree'] = 1
-        if not interface_dag_nodes:
-            return
-        # 获取所有任务流的任务详情
-        job_nodes = {}
-        for _, item in interface_tree_nodes.items():
-            jobs = generate_job_dag_by_interface(item['id'])
-            job_nodes[item['id']] = jobs
-        # 添加执行主表, 任务流表, 任务表至数据库
-        exec_id = add_exec_record(event_id, interface_dag_nodes, job_nodes, exec_type, run_time, is_after, date_format)
-        # 初始任务流
-        start_interface = [_ for _, item in interface_tree_nodes.items() if item['level'] == 0]
-        # 开始执行初始任务流中的任务
-        flag = False
-        for curr_interface in start_interface:
-            start_jobs = job_nodes[curr_interface]
-            # 任务流中任务为空, 则视调度已完成
-            if not start_jobs:
-                flag = True
-                # 数据日期改成当天日期, 手动调度时可以再优化
-                new_date = time.strftime('%Y-%m-%d', time.localtime())
-                with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
-                    EventModel.update_file_event_run_time(db.etl_db, event_id, new_date)
-                log.info('任务流中任务为空: 事件id: %s, 执行id: %s, 任务流id: %s' % (event_id, exec_id, curr_interface))
-                # 修改执行任务流[成功]
-                with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
-                    EventModel.update_event_exec_interface_status(db.etl_db, exec_id, curr_interface, 0)
-            else:
-                # 修改执行任务流[运行中]
-                with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
-                    EventModel.update_event_exec_interface_status(db.etl_db, exec_id, curr_interface, 1)
-                # rpc分发任务
-                for job in start_jobs:
-                    if job['level'] == 0:
-                        # 修改执行详情表状态[运行中]
-                        with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
-                            EventModel.update_event_exec_job_status(db.etl_db, exec_id, curr_interface, job['id'], 'running')
-                        log.info('分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (exec_id, curr_interface, job['id']))
-                        rpc_push_job(exec_id, curr_interface, job['id'], job['server_host'], config.exec.port,
-                                     ','.join(job['params_value']), job['server_dir'], job['server_script'],
-                                     job['return_code'], job['status'], run_date=run_time)
-        # 继续下一个任务流
-        if flag:
-            next_jobs = continue_event_execute_interface(exec_id, exec_type=exec_type, run_date=run_time)
-            for interface_id, item in next_jobs.items():
-                for job_id in set(item['job_id']):
-                    log.info('分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (exec_id, interface_id, job_id))
-                    nodes = item['nodes']
-                    rpc_push_job(exec_id, interface_id, job_id, nodes[job_id]['server_host'],
-                                 config.exec.port, nodes[job_id]['params_value'],
-                                 nodes[job_id]['server_dir'], nodes[job_id]['server_script'],
-                                 nodes[job_id]['return_code'], nodes[job_id]['status'], run_date=run_time)
+            dag[key]['is_tree'] = 1
+        # 合并
+        interface_dag_nodes.update(dag)
+
+    if not interface_dag_nodes:
+        return
+    # 需执行任务流
+    interface_tree_nodes = {key: value for key, value in interface_dag_nodes.items() if value['is_tree'] == 1}
+    # 获取所有任务流的任务详情
+    job_nodes = {}
+    for _, item in interface_tree_nodes.items():
+        jobs = generate_job_dag_by_interface(item['id'])
+        job_nodes[item['id']] = jobs
+    # 添加执行主表, 任务流表, 任务表至数据库
+    exec_id = add_event_exec_record(event_id, interface_dag_nodes, job_nodes, exec_type, run_time, is_after,
+                                    date_format)
+    # 初始任务流
+    start_interface = [_ for _, item in interface_tree_nodes.items() if item['level'] == 0]
+    # 开始执行初始任务流中的任务
+    flag = False
+    for curr_interface in start_interface:
+        start_jobs = job_nodes[curr_interface]
+        # 任务流中任务为空, 则视调度已完成
+        if not start_jobs:
+            flag = True
+            log.info('事件任务流中任务为空: 事件id: %s, 执行id: %s, 任务流id: %s' % (event_id, exec_id, curr_interface))
+            # 修改执行任务流[成功]
+            with MysqlLock(config.mysql.etl, 'event_lock_%s' % exec_id):
+                EventModel.update_event_exec_interface_status(db.etl_db, exec_id, curr_interface, 0)
+        else:
+            # 修改执行任务流[运行中]
+            with MysqlLock(config.mysql.etl, 'event_lock_%s' % exec_id):
+                EventModel.update_event_exec_interface_status(db.etl_db, exec_id, curr_interface, 1)
+            # rpc分发任务
+            for job in start_jobs:
+                if job['level'] == 0:
+                    # 修改执行详情表状态[运行中]
+                    with MysqlLock(config.mysql.etl, 'event_lock_%s' % exec_id):
+                        EventModel.update_event_exec_job_status(db.etl_db, exec_id, curr_interface, job['id'],
+                                                                'running')
+                    log.info('事件分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (exec_id, curr_interface, job['id']))
+                    rpc_push_job(exec_id, curr_interface, job['id'], job['server_host'], config.exec.port,
+                                 ','.join(job['params_value']), job['server_dir'], job['server_script'],
+                                 job['return_code'], job['status'], run_date=run_time)
+    # 继续下一个任务流
+    if flag:
+        next_jobs = continue_event_execute_interface(exec_id, exec_type=exec_type, run_date=run_time)
+        for interface_id, item in next_jobs.items():
+            for job_id in set(item['job_id']):
+                log.info('分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (exec_id, interface_id, job_id))
+                nodes = item['nodes']
+                rpc_push_job(exec_id, interface_id, job_id, nodes[job_id]['server_host'],
+                             config.exec.port, nodes[job_id]['params_value'],
+                             nodes[job_id]['server_dir'], nodes[job_id]['server_script'],
+                             nodes[job_id]['return_code'], nodes[job_id]['status'], run_date=run_time)
 
 
-def add_exec_record(event_id, interface_nodes, job_nodes, exec_type=1, run_date='', is_after=1,
-                    date_format='%Y%m%d'):
-    """添加执行表和执行详情表"""
+def add_event_exec_record(event_id, interface_nodes, job_nodes, exec_type=1, run_date='', is_after=1,
+                          date_format='%Y%m%d'):
+    """添加事件执行表和执行详情表"""
     # 添加执行表
     if not run_date:
         run_date = time.strftime(date_format, time.localtime())
@@ -274,8 +277,8 @@ def add_exec_record(event_id, interface_nodes, job_nodes, exec_type=1, run_date=
             'in_degree': ','.join(item['in']) if item['in'] else '',
             'out_degree': ','.join(item['out']) if item['out'] else '',
             'level': item['level'],
-            'is_tree': item['is_tree'],
-            'status': 3,
+            'is_tree': item.get('is_tree', 0),
+            'status': 0 if item.get('is_tree', 0) == 0 else 3,
             'insert_time': int(time.time()),
             'update_time': int(time.time())
         })
