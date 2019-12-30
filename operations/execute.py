@@ -397,7 +397,8 @@ class ExecuteOperation(object):
         """获取任务流历史日志"""
         condition = []
         if run_date:
-            condition.append("STR_TO_DATE(a.run_date, a.date_format) = STR_TO_DATE('%s', '%%%%Y-%%%%m-%%%%d')" % run_date)
+            condition.append(
+                "STR_TO_DATE(a.run_date, a.date_format) = STR_TO_DATE('%s', '%%%%Y-%%%%m-%%%%d')" % run_date)
         if run_status:
             # 成功
             if run_status == 1:
@@ -586,13 +587,17 @@ class ExecuteOperation(object):
             # 如果没有中断/失败任务流, 找到满足依赖的就绪任务流
             if not error_interface:
                 error_interface = continue_execute_interface(item, exec_type=dispatch['exec_type'],
-                                                             run_date=dispatch['run_date']).keys()
+                                                             run_date=dispatch['run_date'])
+                if not error_interface:
+                    error_interface = {}
+                else:
+                    error_interface = error_interface.keys()
             # 获取调度任务流详情
             for interface_id in set(error_interface):
                 # 获取所有执行任务
                 result = get_all_jobs_dag_by_exec_id(item, interface_id)
                 nodes = result['nodes']
-                # 找出失败任务
+                # 找出[失败]任务
                 failed_nodes = {job_id: item for job_id, item in nodes.items() if item['status'] == 'failed'}
                 # 生成任务流下所有任务详情
                 job_list = {item['id']: item for item in generate_job_dag_by_interface(interface_id)}
