@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import time
+from datetime import date, timedelta
 
 from scheduler.generate_dag import generate_job_dag_by_interface, generate_interface_dag_by_dispatch, generate_interface_tree_by_dispatch
 from models.execute import ExecuteModel
@@ -32,8 +33,9 @@ def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='%Y%m%d'
     # 传入日期
     if run_date and date_format:
         run_time = time.strftime(date_format, time.strptime(run_date, '%Y-%m-%d'))
+    # 默认值为前一天
     else:
-        run_time = time.strftime(date_format, time.localtime())
+        run_time = (date.today() + timedelta(days=-1)).strftime(date_format)
     # 获取执行任务流前后依赖关系
     interface_dag_nodes = generate_interface_dag_by_dispatch(dispatch_id, is_after)
     interface_tree_nodes = generate_interface_tree_by_dispatch(dispatch_id)
