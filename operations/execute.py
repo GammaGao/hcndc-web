@@ -230,7 +230,7 @@ class ExecuteOperation(object):
     def get_execute_job(exec_id, interface_id, job_id, status):
         """
         执行服务任务回调
-        1.修改详情表回调任务执行状态[成功/失败], 如果单独执行任务, # 修改执行主表状态[成功/失败], 返回
+        1.修改详情表回调任务执行状态[成功/失败], 如果单独执行任务, 修改执行主表状态[成功/失败], 返回
         2.如果执行任务状态成功, 获取当前任务流下一批执行任务(初始节点状态为'preparing'或'ready', 出度的入度==succeeded)
           如果执行任务状态失败, 修改执行任务流状态[失败], 执行主表状态[失败]
         3.RPC分发当前任务流中可执行的任务, 替换参数变量$date为T-1日期, 修改执行详情表状态[运行中];
@@ -303,18 +303,18 @@ class ExecuteOperation(object):
         # 运行中
         else:
             exec_status = 1
-        # 查询执行任务流状态
-        with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
-            status_list = ExecuteModel.get_execute_interface_status(db.etl_db, exec_id)
-        # 存在失败
-        if -1 in status_list:
-            interface_status = -1
-        # 全部成功
-        elif set(status_list) == {0}:
-            interface_status = 0
-        # 运行中
-        else:
-            interface_status = 1
+        # # 查询执行任务流状态
+        # with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+        #     status_list = ExecuteModel.get_execute_interface_status(db.etl_db, exec_id)
+        # # 存在失败
+        # if -1 in status_list:
+        #     interface_status = -1
+        # # 全部成功
+        # elif set(status_list) == {0}:
+        #     interface_status = 0
+        # # 运行中
+        # else:
+        #     interface_status = 1
         # 查询执行主表当前状态
         with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
             master_status = ExecuteModel.get_execute_status(db.etl_db, exec_id)
@@ -324,8 +324,12 @@ class ExecuteOperation(object):
             with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
                 # 修改执行任务流状态[成功/失败/运行]
                 ExecuteModel.update_exec_interface_status(db.etl_db, exec_id, interface_id, exec_status)
-                # 修改执行主表状态[成功/失败/运行]
-                ExecuteModel.update_execute_status(db.etl_db, exec_id, interface_status)
+            # TODO 调度的任务流成功时修改主表状态
+            if execute_detail['interface_id'] == interface_id:
+                # 修改数据库, 分布式锁
+                with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                    # 修改执行主表状态[成功/失败/运行]
+                    ExecuteModel.update_execute_status(db.etl_db, exec_id, exec_status)
         # 当前任务流成功时修改账期, 运行后置任务流
         if exec_status == 0:
             # 数据日期改成当天日期, 手动调度时可以再优化
@@ -365,7 +369,7 @@ class ExecuteOperation(object):
         if interface_index:
             condition.append('a.interface_index IN (%s)' % ','.join('"%s"' % item for item in interface_index))
         if run_date:
-            condition.append('a.run_time = "%s"' % run_date)
+            condition.append('d.run_date = "%s"' % run_date.replace('-', ''))
         if run_status:
             # 成功
             if run_status == 1:
@@ -386,8 +390,6 @@ class ExecuteOperation(object):
         condition = ' AND ' + ' AND '.join(condition) if condition else ''
 
         result = ExecuteModel.get_execute_flow(db.etl_db, condition, page, limit)
-        for item in result:
-            item['run_time'] = item['run_time'].strftime('%Y-%m-%d') if item['run_time'] else None
         total = ExecuteModel.get_execute_flow_count(db.etl_db, condition)
         return Response(result=result, total=total)
 

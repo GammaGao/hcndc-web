@@ -15,6 +15,7 @@ class FtpEventModel(object):
         LEFT JOIN tb_scheduler AS b ON CONCAT('ftp_event_', a.ftp_event_id) = b.id
         LEFT JOIN tb_ftp_config AS c ON a.ftp_id = c.ftp_id AND c.is_deleted = 0
         %s
+        ORDER BY ftp_event_id
         LIMIT :limit OFFSET :offset
         '''
         command = command % condition
@@ -137,5 +138,34 @@ class FtpEventModel(object):
             'date_time': date_time,
             'user_id': user_id,
             'data_time': int(time.time())
+        })
+        return result
+
+    @staticmethod
+    def update_ftp_event_status(cursor, ftp_event_id, status, user_id):
+        """修改/暂停调度事件"""
+        command = '''
+        UPDATE tb_file_event
+        SET `status` = :status, updater_id = :user_id, update_time = :update_time
+        WHERE ftp_event_id = :ftp_event_id
+        '''
+
+        result = cursor.update(command, {
+            'ftp_event_id': ftp_event_id,
+            'status': status,
+            'user_id': user_id,
+            'update_time': int(time.time())
+        })
+        return result
+
+    @staticmethod
+    def delete_ftp_event_detail(cursor, ftp_event_id):
+        """删除调度任务"""
+        command = '''
+        DELETE FROM tb_file_event
+        WHERE ftp_event_id = :ftp_event_id
+        '''
+        result = cursor.update(command, {
+            'ftp_event_id': ftp_event_id
         })
         return result

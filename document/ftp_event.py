@@ -52,3 +52,21 @@ ftp_event_test_request = api.doc(body=api.model('ftp_event_test_request', {
     'ftp_passwd': fields.String(description='ftp密码'),
     'data_path': fields.String(description='文件路径')
 }, description='测试FTP文件目录是否存在'))
+
+# 立即执行调度事件请求
+ftp_event_run_request = api.doc(body=api.model('ftp_event_run_request', {
+    'ftp_event_id': fields.List(fields.Integer, description='文件事件id列表'),
+    'run_date': fields.String(description='数据日期'),
+    'date_format': fields.String(description='数据日期格式')
+}, description='立即执行调度请求'))
+
+# 调度事件暂停/恢复请求
+ftp_event_action_request = api.doc(body=api.model('ftp_event_action_request', {
+    'ftp_event_id': fields.List(fields.Integer, description='文件事件id列表'),
+    'action': fields.Integer(description='1.暂停, 2.恢复')
+}, description='调度事件暂停/恢复请求参数'))
+
+# 删除调度详情请求
+ftp_event_delete_request = api.doc(body=api.model('ftp_event_delete_request', {
+    'ftp_event_id': fields.List(fields.Integer, description='文件事件id列表')
+}, description='删除调度详情请求'))

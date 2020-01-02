@@ -227,12 +227,12 @@
                             }
                         }
                     }, {
-                        field: "run_time",
+                        field: "run_date",
                         title: "数据日期",
                         width: '6%',
                         templet: function (data) {
-                            if (data.run_time) {
-                                return data.run_time
+                            if (data.run_date) {
+                                return data.run_date
                             } else {
                                 return '-'
                             }

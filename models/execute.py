@@ -176,7 +176,7 @@ class ExecuteModel(object):
     def get_execute_flow(cursor, condition, page=1, limit=10):
         """获取任务流最新日志"""
         command = '''
-        SELECT a.interface_id, a.interface_name, a.interface_index, a.run_time, b.dispatch_id,
+        SELECT a.interface_id, a.interface_name, a.interface_index, d.run_date, b.dispatch_id,
         d.`status`, d.insert_time, d.update_time, d.update_time - d.insert_time AS timedelta, d.exec_id
         FROM tb_interface AS a
         LEFT JOIN tb_dispatch AS b ON a.interface_id = b.interface_id
@@ -485,8 +485,9 @@ class ExecuteModel(object):
     def get_exec_dispatch_id(cursor, exec_id):
         """获取执行表中调度id"""
         command = '''
-        SELECT exec_type, dispatch_id, run_date, is_after, date_format
+        SELECT exec_type, dispatch_id, interface_id, run_date, is_after, date_format
         FROM tb_execute AS a
+        LEFT JOIN tb_dispatch AS b USING(dispatch_id)
         WHERE a.exec_id = :exec_id
         '''
         result = cursor.query_one(command, {

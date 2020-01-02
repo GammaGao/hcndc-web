@@ -93,7 +93,8 @@
                 let form = layui.form;
                 form.on('submit(ftp-event-update)', function (data) {
                     data = data.field;
-                    console.log(data);
+                    data.old_status = window.old_status;
+                    data.new_status = Number(data.status);
                     $.ajax({
                         url: BASE.uri.ftp_event.detail_api + window.ftp_event_id + '/',
                         contentType: "application/json; charset=utf-8",
@@ -146,6 +147,8 @@
                 type: 'get',
                 success: function (result) {
                     let data = result.data;
+                    // 详情填充
+                    window.old_status = data.status;
                     layui.use(['form', 'laydate'], function () {
                         // 详情参数初始化
                         let form = layui.form;

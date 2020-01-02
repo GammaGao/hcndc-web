@@ -51,7 +51,8 @@ class SchedulerConfig(object):
     # 调度任务实例数
     SCHEDULER_JOB_DEFAULTS = {
         'coalesce': True,
-        'max_instances': config.schedule.max_instances
+        'max_instances': config.schedule.max_instances,
+        'misfire_grace_time': config.schedule.misfire_grace_time
     }
     # 时区
     SCHEDULER_TIMEZONE = 'Asia/Shanghai'

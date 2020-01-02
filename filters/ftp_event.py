@@ -41,3 +41,21 @@ class FtpEventFilter(object):
     def filter_test_data(status, msg):
         """测试FTP文件目录是否存在"""
         return {'status': status, 'msg': msg, 'data': {}}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_action_ftp_event(ftp_event_id):
+        """暂停/恢复调度事件"""
+        return {'status': 200, 'msg': '成功', 'data': {'id': ftp_event_id}}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_delete_ftp_event_detail(ftp_event_id):
+        """删除调度详情"""
+        return {'status': 200, 'msg': '成功', 'data': {'id': ftp_event_id}}, 200
+
+    @staticmethod
+    @make_decorator
+    def filter_run_ftp_event(ftp_event_id):
+        """立即执行调度任务"""
+        return {'status': 200, 'msg': '成功', 'data': {'id': ftp_event_id}}, 200

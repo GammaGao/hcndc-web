@@ -113,3 +113,29 @@ class FtpEventVerify(object):
             abort(400, **make_result(status=400, msg='FTP配置项缺失'))
         return Response(ftp_id=ftp_id, ftp_type=ftp_type, ftp_host=ftp_host, ftp_port=ftp_port, ftp_user=ftp_user,
                         ftp_passwd=ftp_passwd, data_path=data_path)
+
+    @staticmethod
+    @make_decorator
+    def verify_action_ftp_event(ftp_event_id, action, user_id):
+        """暂停/恢复调度事件"""
+        if not ftp_event_id:
+            abort(400, **make_result(status=400, msg='调度事件id不存在'))
+        if action < 1 or action > 2:
+            abort(400, **make_result(status=400, msg='请求参数错误'))
+        return Response(ftp_event_id=ftp_event_id, action=action, user_id=user_id)
+
+    @staticmethod
+    @make_decorator
+    def verify_delete_ftp_event(ftp_event_id, user_id):
+        """删除调度详情"""
+        if not ftp_event_id:
+            abort(400, **make_result(status=400, msg='调度事件id不存在'))
+        return Response(ftp_event_id=ftp_event_id, user_id=user_id)
+
+    @staticmethod
+    @make_decorator
+    def verify_run_ftp_event(ftp_event_id, run_date, date_format):
+        """立即执行调度事件"""
+        if not ftp_event_id:
+            abort(400, **make_result(status=400, msg='调度id不存在'))
+        return Response(ftp_event_id=ftp_event_id, run_date=run_date, date_format=date_format)

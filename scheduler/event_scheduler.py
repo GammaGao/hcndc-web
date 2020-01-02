@@ -173,7 +173,7 @@ def continue_event_execute_interface(exec_id, result=None, exec_type=1, run_date
         return result
 
 
-def get_event_job(event_id, exec_type=1, run_date='', date_format='%Y%m%d', is_after=1):
+def get_event_job(event_id, exec_type=1, run_date='', date_format='%Y%m%d'):
     """
     事件执行开始方法
     :param event_id: 事件id
@@ -219,8 +219,7 @@ def get_event_job(event_id, exec_type=1, run_date='', date_format='%Y%m%d', is_a
         jobs = generate_job_dag_by_interface(item['id'])
         job_nodes[item['id']] = jobs
     # 添加执行主表, 任务流表, 任务表至数据库
-    exec_id = add_event_exec_record(event_id, interface_dag_nodes, job_nodes, exec_type, run_time, is_after,
-                                    date_format)
+    exec_id = add_event_exec_record(event_id, interface_dag_nodes, job_nodes, exec_type, run_time, date_format)
     # 初始任务流
     start_interface = [_ for _, item in interface_tree_nodes.items() if item['level'] == 0]
     # 开始执行初始任务流中的任务
@@ -262,13 +261,12 @@ def get_event_job(event_id, exec_type=1, run_date='', date_format='%Y%m%d', is_a
                              nodes[job_id]['return_code'], nodes[job_id]['status'], run_date=run_time)
 
 
-def add_event_exec_record(event_id, interface_nodes, job_nodes, exec_type=1, run_date='', is_after=1,
-                          date_format='%Y%m%d'):
+def add_event_exec_record(event_id, interface_nodes, job_nodes, exec_type=1, run_date='', date_format='%Y%m%d'):
     """添加事件执行表和执行详情表"""
     # 添加执行表
     if not run_date:
         run_date = time.strftime(date_format, time.localtime())
-    exec_id = EventModel.add_event_execute(db.etl_db, exec_type, event_id, run_date, is_after, date_format)
+    exec_id = EventModel.add_event_execute(db.etl_db, exec_type, event_id, run_date, date_format)
     interface_arr = []
     for _, item in interface_nodes.items():
         interface_arr.append({

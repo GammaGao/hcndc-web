@@ -123,7 +123,7 @@ class DispatchModel(object):
         return result
 
     @staticmethod
-    def delete_dispatch_status(cursor, dispatch_id):
+    def delete_dispatch_detail(cursor, dispatch_id):
         """删除调度任务"""
         command = '''
         DELETE FROM tb_dispatch

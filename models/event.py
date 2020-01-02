@@ -21,17 +21,16 @@ class EventModel(object):
         return result if result else []
 
     @staticmethod
-    def add_event_execute(cursor, exec_type, event_id, run_date, is_after, date_format):
+    def add_event_execute(cursor, exec_type, event_id, run_date, date_format):
         """添加事件执行表"""
         command = '''
         INSERT INTO tb_event_execute(exec_type, event_id, `status`, run_date, date_format,
-        is_after, insert_time, update_time)
-        VALUES (:exec_type, :event_id, 1, :run_date, :date_format, :is_after, :insert_time, :update_time)
+        insert_time, update_time)
+        VALUES (:exec_type, :event_id, 1, :run_date, :date_format, :insert_time, :update_time)
         '''
         result = cursor.insert(command, {
             'exec_type': exec_type,
             'event_id': event_id,
-            'is_after': is_after,
             'run_date': run_date,
             'date_format': date_format,
             'insert_time': int(time.time()),

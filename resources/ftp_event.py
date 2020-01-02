@@ -128,55 +128,53 @@ class FtpEventAdd(Resource):
         return params
 
 
-# class FtpEventAction(Resource):
-# @staticmethod
-# @ftp_event_run_request
-# @DispatchFilter.filter_run_dispatch(dispatch_id=list)
-# @DispatchOperation.run_dispatch(dispatch_id=list, run_date=str, date_format=str, is_after=int)
-# @FtpVerify.verify_run_dispatch(dispatch_id=list, run_date=str, date_format=str, is_after=int)
-# @PermissionVerify.verify_execute_permission(dispatch_id=list, run_date=str, date_format=str, is_after=int)
-# def post():
-#     """立即执行调度任务"""
-#     payload = get_payload()
-#     params = Response(
-#         dispatch_id=payload.get('dispatch_id', []),
-#         run_date=payload.get('run_date', ''),
-#         date_format=payload.get('date_format', ''),
-#         is_after=int(payload.get('is_after', 1))
-#     )
-#     log.info('立即执行调度任务[params: %s]' % str(params))
-#     return params
+class FtpEventAction(Resource):
+    @staticmethod
+    @ftp_event_run_request
+    @FtpEventFilter.filter_run_ftp_event(ftp_event_id=list)
+    @FtpEventOperation.run_ftp_event(ftp_event_id=list, run_date=str, date_format=str)
+    @FtpEventVerify.verify_run_ftp_event(ftp_event_id=list, run_date=str, date_format=str)
+    @PermissionVerify.verify_execute_permission(ftp_event_id=list, run_date=str, date_format=str)
+    def post():
+        """立即执行调度事件"""
+        payload = get_payload()
+        params = Response(
+            ftp_event_id=payload.get('ftp_event_id', []),
+            run_date=payload.get('run_date', ''),
+            date_format=payload.get('date_format', '')
+        )
+        log.info('立即执行调度任务[params: %s]' % str(params))
+        return params
 #
-#     @staticmethod
-#     @dispatch_action_request
-#     @DispatchFilter.filter_action_dispatch(dispatch_id=list)
-#     @DispatchOperation.action_dispatch(dispatch_id=list, action=int, user_id=int)
-#     @FtpVerify.verify_action_dispatch(dispatch_id=list, action=int, user_id=int)
-#     @PermissionVerify.verify_execute_permission(dispatch_id=list, action=int)
-#     def patch():
-#         """暂停/恢复调度任务"""
-#         payload = get_payload()
-#         params = Response(
-#             dispatch_id=payload.get('dispatch_id', []),
-#             action=int(payload.get('action', 0))
-#         )
-#         log.info('暂停/恢复调度任务[params: %s]' % str(params))
-#         return params
-#
-#     @staticmethod
-#     @dispatch_delete_request
-#     @DispatchFilter.filter_delete_dispatch_detail(dispatch_id=list)
-#     @DispatchOperation.delete_dispatch_detail(dispatch_id=list)
-#     @FtpVerify.verify_delete_dispatch_detail(dispatch_id=list, user_id=int)
-#     @PermissionVerify.verify_execute_permission(dispatch_id=list)
-#     def delete():
-#         """删除调度详情"""
-#         payload = get_payload()
-#         params = Response(dispatch_id=payload.get('dispatch_id', []))
-#         log.info('删除调度详情[params: %s]' % str(params))
-#         return params
-#
-#
+    @staticmethod
+    @ftp_event_action_request
+    @FtpEventFilter.filter_action_ftp_event(ftp_event_id=list)
+    @FtpEventOperation.action_ftp_event(ftp_event_id=list, action=int, user_id=int)
+    @FtpEventVerify.verify_action_ftp_event(ftp_event_id=list, action=int, user_id=int)
+    @PermissionVerify.verify_execute_permission(ftp_event_id=list, action=int)
+    def patch():
+        """暂停/恢复调度事件"""
+        payload = get_payload()
+        params = Response(
+            ftp_event_id=payload.get('ftp_event_id', []),
+            action=int(payload.get('action', 0))
+        )
+        log.info('暂停/恢复调度事件[params: %s]' % str(params))
+        return params
+
+    @staticmethod
+    @ftp_event_delete_request
+    @FtpEventFilter.filter_delete_ftp_event_detail(ftp_event_id=list)
+    @FtpEventOperation.delete_ftp_event(ftp_event_id=list)
+    @FtpEventVerify.verify_delete_ftp_event(ftp_event_id=list, user_id=int)
+    @PermissionVerify.verify_execute_permission(ftp_event_id=list)
+    def delete():
+        """删除调度详情"""
+        payload = get_payload()
+        params = Response(ftp_event_id=payload.get('ftp_event_id', []))
+        log.info('删除调度详情[params: %s]' % str(params))
+        return params
+
 
 class FtpTest(Resource):
     @staticmethod
@@ -205,8 +203,6 @@ class FtpTest(Resource):
 ns = api.namespace('ftp_event', description='文件事件')
 ns.add_resource(FtpEventList, '/list/api/')
 ns.add_resource(FtpEventDetail, '/detail/api/<int:ftp_event_id>/')
-# ns.add_resource(DispatchAction, '/action/api/')
+ns.add_resource(FtpEventAction, '/action/api/')
 ns.add_resource(FtpEventAdd, '/add/api/')
 ns.add_resource(FtpTest, '/test/api/')
-# ns.add_resource(DispatchAlertAdd, '/alert/add/api/')
-# ns.add_resource(DispatchAlertDetail, '/alert/detail/api/<int:dispatch_id>/')
