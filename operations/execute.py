@@ -96,8 +96,8 @@ def continue_execute_interface(exec_id, result=None, exec_type=1, run_date=''):
                         in_detail = InterfaceModel.get_interface_detail_last_execute(db.etl_db, in_id)
                     # 1.出度的入度本次执行状态不成功, 2.出度的入度没有数据日期, 3.出度的入度数据日期小于出度的数据日期, 4.如果存在出度的上一次执行记录, 上一次执行记录不成功
                     if in_detail['status'] != 0 or not in_detail['run_time'] \
-                            or in_detail['run_time'] < current_detail['run_time'] \
-                            or (current_detail['last_status'] and current_detail['last_status'] != 0):
+                            or in_detail['run_time'] < current_detail['run_time']:
+                            # or (current_detail['last_status'] and current_detail['last_status'] != 0):
                         flag = False
                         break
                 if flag and interface_dict[out_id]['status'] == 3:

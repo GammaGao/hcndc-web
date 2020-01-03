@@ -3,7 +3,9 @@
 
 from configs import scheduler
 from scheduler.distribute_scheduler import get_dispatch_job
+from server.super_config import SuperConf
 
+config = SuperConf(path='superconf.json')
 
 class SchedulerHandler(object):
     """调度操作"""
@@ -20,7 +22,10 @@ class SchedulerHandler(object):
             hour=hour,
             day=day,
             month=month,
-            week=week
+            week=week,
+            coalesce=True,
+            max_instances=config.schedule.max_instances,
+            misfire_grace_time=config.schedule.misfire_grace_time
         )
 
     @staticmethod
@@ -36,7 +41,10 @@ class SchedulerHandler(object):
             hour=hour,
             day=day,
             month=month,
-            week=week
+            week=week,
+            coalesce=True,
+            max_instances=config.schedule.max_instances,
+            misfire_grace_time=config.schedule.misfire_grace_time
         )
 
     @staticmethod
