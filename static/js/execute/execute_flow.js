@@ -187,6 +187,7 @@
                 '<div class="layui-inline" lay-event="restart" title="断点重跑"><i class="layui-icon layui-icon-next"></i></div>',
                 '<div class="layui-inline" lay-event="start" title="启动"><i class="layui-icon layui-icon-play"></i></div>',
                 '<div class="layui-inline" lay-event="reset" title="重置"><i class="layui-icon layui-icon-refresh"></i></div>',
+                '<div class="layui-inline" lay-event="continue" title="继续后续任务"><i class="layui-icon layui-icon-triangle-r"></i></div>',
                 '</div>'
             ].join('');
             // 表格渲染
@@ -196,7 +197,7 @@
                     elem: "#execute-flow",
                     page: true,
                     toolbar: toolbar_div,
-                    limits: [10, 20, 30, 40, 50, 100],
+                    limits: [20, 30, 40, 50, 100],
                     title: '日志列表',
                     url: BASE.uri.execute.flow_api,
                     where: data,
@@ -308,6 +309,12 @@
                             else if (data.status === 3) {
                                 html.push('<a class="layui-btn GENERAL layui-btn-sm" lay-event="start">启动</a>');
                             }
+                            else {
+                            }
+                            // 继续后续任务
+                            if (data.is_free && data.status === 0) {
+                                html.push('<a class="layui-btn SUCCEEDED layui-btn-sm" lay-event="continue">继续后置</a>');
+                            }
                             html.push('</div>');
                             return html.join('');
                         }
@@ -316,7 +323,8 @@
                         statusName: 'status',
                         statusCode: 200,
                         countName: 'total'
-                    }
+                    },
+                    limit: 20
                 });
                 // 工具栏事件监听
                 that.toolbar_data_event();
@@ -514,6 +522,52 @@
                                 });
                             }
                             break;
+                        // 继续后置任务
+                        case 'continue':
+                            let continue_status = check_data.filter(item => item.is_free == null || item.status !== 0);
+                            if (continue_status.length > 0) {
+                                layer.msg('存在[已完成]执行任务, 不能执行', {icon: 5, shift: 6});
+                                break
+                            } else {
+                                let execute_arr = [];
+                                check_data.forEach(item => execute_arr.push(item.exec_id));
+                                layer.confirm('确定继续后置任务?', function (index) {
+                                    // 关闭弹窗
+                                    layer.close(index);
+                                    $.ajax({
+                                        url: BASE.uri.execute.action_api,
+                                        contentType: "application/json; charset=utf-8",
+                                        data: JSON.stringify({exec_id: execute_arr, prepose_rely: 0}),
+                                        type: 'post',
+                                        success: function (result) {
+                                            if (result.status === 200) {
+                                                layer.msg('继续后置任务成功', {icon: 6});
+                                                // 关闭自身iframe窗口
+                                                $(".layui-laypage-btn").click();
+                                            } else {
+                                                layer.msg(sprintf('继续后置任务失败[%s]', result.msg), {
+                                                    icon: 5,
+                                                    shift: 6,
+                                                    end: function () {
+                                                        $(".layui-laypage-btn").click();
+                                                    }
+                                                });
+                                            }
+                                        },
+                                        error: function (error) {
+                                            let result = error.responseJSON;
+                                            layer.msg(sprintf('继续后置任务失败[%s]', result.msg), {
+                                                icon: 5,
+                                                shift: 6,
+                                                end: function () {
+                                                    $(".layui-laypage-btn").click();
+                                                }
+                                            });
+                                        }
+                                    });
+                                })
+                            }
+                            break;
                     }
                 })
             })
@@ -684,6 +738,44 @@
                                     }
                                 })
                             }
+                        })
+                    }
+                    // 继续后置任务
+                    else if (event === 'continue') {
+                        layer.confirm('确定继续后置任务?', function (index) {
+                            // 关闭弹窗
+                            layer.close(index);
+                            $.ajax({
+                                url: BASE.uri.execute.action_api,
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify({exec_id: [data.exec_id]}),
+                                type: 'post',
+                                success: function (result) {
+                                    if (result.status === 200) {
+                                        layer.msg('继续后置任务成功', {icon: 6});
+                                        // 刷新页面
+                                        $(".layui-laypage-btn").click();
+                                    } else {
+                                        layer.msg(sprintf('继续后置任务失败[%s]', result.msg), {
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        });
+                                    }
+                                },
+                                error: function (error) {
+                                    let result = error.responseJSON;
+                                    layer.msg(sprintf('继续后置任务失败[%s]', result.msg), {
+                                        icon: 5,
+                                        shift: 6,
+                                        end: function () {
+                                            $(".layui-laypage-btn").click();
+                                        }
+                                    });
+                                }
+                            });
                         })
                     }
                 })

@@ -148,7 +148,7 @@
                     elem: "#execute-history",
                     page: true,
                     toolbar: true,
-                    limits: [10, 20, 30, 40, 50, 100],
+                    limits: [20, 30, 40, 50, 100],
                     title: '执行历史日志列表',
                     url: BASE.uri.execute.history_api,
                     where: data,
@@ -223,7 +223,8 @@
                         statusName: 'status',
                         statusCode: 200,
                         countName: 'total'
-                    }
+                    },
+                    limit: 20
                 });
                 // 事件监听
                 that.table_data_event();

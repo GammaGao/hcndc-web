@@ -176,8 +176,9 @@ class ExecuteModel(object):
     def get_execute_flow(cursor, condition, page=1, limit=10):
         """获取任务流最新日志"""
         command = '''
-        SELECT a.interface_id, a.interface_name, a.interface_index, d.run_date, b.dispatch_id,
-        d.`status`, d.insert_time, d.update_time, d.update_time - d.insert_time AS timedelta, d.exec_id
+        SELECT a.interface_id, a.interface_name, a.interface_index,
+        IF(ISNULL(d.run_date), a.run_time, d.run_date) AS run_date, b.dispatch_id, d.`status`,
+        d.insert_time, d.update_time, d.update_time - d.insert_time AS timedelta, d.exec_id, e.is_free
         FROM tb_interface AS a
         LEFT JOIN tb_dispatch AS b ON a.interface_id = b.interface_id
         -- 调度ID对应最新的执行ID
@@ -187,6 +188,12 @@ class ExecuteModel(object):
         LEFT JOIN tb_execute AS b ON a.dispatch_id = b.dispatch_id
         GROUP BY a.dispatch_id) AS c ON b.dispatch_id = c.dispatch_id
         LEFT JOIN tb_execute AS d ON c.exec_id = d.exec_id
+        LEFT JOIN (
+        SELECT exec_id, COUNT(*) AS is_free
+        FROM tb_execute_interface
+        WHERE `status` = 3
+        GROUP BY exec_id
+        ) AS e ON d.exec_id = e.exec_id
         WHERE a.is_deleted = 0 %s
         -- 自定义排序: 失败, 中断, 就绪, 运行中, 成功, NULL
         ORDER BY FIELD(IF(ISNULL(d.`status`), -999, d.`status`), -1, 2, 3, 1, 0, -999), a.interface_id
