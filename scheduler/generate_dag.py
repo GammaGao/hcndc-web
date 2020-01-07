@@ -105,34 +105,38 @@ def generate_interface_dag_by_dispatch(dispatch_id, is_after=1):
         child_node = [i for i in parent if i['parent_id'] == node_id]
         # 父节点(局部拓扑情况下, 所有节点的父节点无需递归, 初始节点不添加父节点)
         if before:
-            for node_item in parent_node:
+            for parent_item in parent_node:
                 # 添加入度
-                nodes[node_id]['in'].add(node_item['interface_id'])
-                if node_item['interface_id'] not in nodes:
+                nodes[node_id]['in'].add(parent_item['interface_id'])
+                if parent_item['interface_id'] not in nodes:
                     # 添加节点
-                    nodes[node_item['interface_id']] = {
-                        'id': node_item['interface_id'],
-                        'name': node_item['interface_name'],
+                    nodes[parent_item['interface_id']] = {
+                        'id': parent_item['interface_id'],
+                        'name': parent_item['interface_name'],
                         'in': set(),
                         'out': {node_id},
                         'level': 0
                     }
+                else:
+                    nodes[parent_item['interface_id']]['out'].add(node_id)
         # 子节点
         if after:
-            for node_item in child_node:
+            for child_item in child_node:
                 # 添加出度
-                nodes[node_id]['out'].add(node_item['interface_id'])
-                if node_item['interface_id'] not in nodes:
+                nodes[node_id]['out'].add(child_item['interface_id'])
+                if child_item['interface_id'] not in nodes:
                     # 添加节点
-                    nodes[node_item['interface_id']] = {
-                        'id': node_item['interface_id'],
-                        'name': node_item['interface_name'],
+                    nodes[child_item['interface_id']] = {
+                        'id': child_item['interface_id'],
+                        'name': child_item['interface_name'],
                         'in': {node_id},
                         'out': set(),
                         'level': 0
                     }
-                    # 递归节点
-                    get_context_node(node_item['interface_id'])
+                else:
+                    nodes[child_item['interface_id']]['in'].add(node_id)
+                # 递归节点
+                get_context_node(child_item['interface_id'])
 
     # 任务流详情
     detail = InterfaceModel.get_interface_detail_by_dispatch_id(db.etl_db, dispatch_id)
