@@ -116,6 +116,8 @@ def generate_interface_dag_by_event(detail, is_after=1):
                         'level': 0,
                         'is_tree': 0
                     }
+                else:
+                    nodes[node_item['interface_id']]['out'].add(node_id)
         # 子节点
         if after:
             for node_item in child_node:
@@ -131,8 +133,10 @@ def generate_interface_dag_by_event(detail, is_after=1):
                         'level': 0,
                         'is_tree': 0
                     }
-                    # 递归节点
-                    get_context_node(node_item['interface_id'])
+                else:
+                    nodes[node_item['interface_id']]['in'].add(node_id)
+                # 递归节点
+                get_context_node(node_item['interface_id'])
 
     # 所有任务流前后置依赖
     parent = InterfaceModel.get_interface_parent_all(db.etl_db)

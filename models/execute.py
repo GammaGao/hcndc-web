@@ -287,6 +287,8 @@ class ExecuteModel(object):
         LEFT JOIN tb_exec_host AS d USING(server_id)
         LEFT JOIN tb_execute_detail AS e ON b.exec_id = e.exec_id AND b.job_id = e.job_id
         %s
+        -- 自定义排序: 失败, 等待依赖任务完成, 待运行, 运行中, 成功, NULL
+        ORDER BY FIELD(IF(ISNULL(e.`status`), 'null', e.`status`), 'failed', 'ready', 'preparing', 'running', 'succeeded', 'null'), a.job_id
         LIMIT :limit OFFSET :offset
         '''
         command = command % condition

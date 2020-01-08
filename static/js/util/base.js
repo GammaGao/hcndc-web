@@ -159,7 +159,7 @@ let BASE = {
             'alert_add_api': '/ftp_event/alert/add/api/',
             'alert_detail_api': '/ftp_event/alert/detail/api/',
             'run_api': '/ftp_event/run/api/',
-            'run': '/ftp_event/run/'
+            'run': '/ftp/event/run/'
         },
         params: {
             'list': '/params/',

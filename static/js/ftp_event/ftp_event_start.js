@@ -41,9 +41,8 @@
         form_init: function () {
             layui.use('form', function () {
                 let form = layui.form;
-                form.val('dispatch_start', {
-                    'date_format': '%Y%m%d',
-                    'is_after': 1
+                form.val('ftp_event_start', {
+                    'date_format': '%Y%m%d'
                 });
             })
         },
@@ -53,13 +52,12 @@
                 let form = layui.form;
                 form.on('submit(start-save)', function (data) {
                     data = data.field;
-                    data.dispatch_id = window.dispatch_id.split(',').map(item => Number(item));
-                    data.is_after = data.is_after || 0;
+                    data.ftp_event_id = window.ftp_event_id.split(',').map(item => Number(item));
                     layer.confirm('确定运行?', function (index) {
                         // 关闭弹窗
                         layer.close(index);
                         $.ajax({
-                            url: BASE.uri.dispatch.action_api,
+                            url: BASE.uri.ftp_event.action_api,
                             contentType: "application/json; charset=utf-8",
                             type: 'post',
                             data: JSON.stringify(data),
@@ -105,74 +103,3 @@
     };
     new Controller();
 })();
-
-// layer.confirm('确定立即执行?', function (index) {
-//     layer.close(index);
-//     $.ajax({
-//         url: BASE.uri.dispatch.action_api,
-//         data: JSON.stringify({dispatch_id: dispatch_id_arr}),
-//         contentType: "application/json; charset=utf-8",
-//         type: 'post',
-//         success: function (result) {
-//             if (result.status === 200) {
-//                 layer.open({
-//                     id: 'dispatch_run_success',
-//                     btn: ['跳转', '留在本页'],
-//                     title: '立即执行调度成功',
-//                     content: '是否跳转至执行日志?',
-//                     yes: function (index) {
-//                         layer.close(index);
-//                         window.location.href = BASE.uri.execute.flow;
-//                     },
-//                     btn2: function (index) {
-//                         layer.close(index);
-//                         // 刷新页面
-//                         window.location.reload();
-//                     }
-//                 });
-//             } else {
-//                 layer.alert(sprintf('立即执行调度失败: [%s]', result.msg), {icon: 5});
-//             }
-//         },
-//         error: function (error) {
-//             let result = error.responseJSON;
-//             layer.msg(sprintf('立即执行调度失败[%s]', result.msg), {icon: 5});
-//         }
-//     });
-// });
-
-
-// layer.confirm('确定立即执行?', function (index) {
-//     layer.close(index);
-//     $.ajax({
-//         url: BASE.uri.dispatch.action_api,
-//         contentType: "application/json; charset=utf-8",
-//         type: 'post',
-//         data: JSON.stringify({dispatch_id: [data.dispatch_id]}),
-//         success: function (result) {
-//             if (result.status === 200) {
-//                 layer.open({
-//                     id: 'dispatch_run_success',
-//                     btn: ['跳转', '留在本页'],
-//                     title: '立即执行调度成功',
-//                     content: '是否跳转至执行日志?',
-//                     yes: function (index) {
-//                         layer.close(index);
-//                         window.location.href = BASE.uri.execute.flow;
-//                     },
-//                     btn2: function (index) {
-//                         layer.close(index);
-//                         // 刷新页面
-//                         window.location.reload();
-//                     }
-//                 });
-//             } else {
-//                 layer.alert(sprintf('立即执行调度失败: [%s]', result.msg), {icon: 5});
-//             }
-//         },
-//         error: function (error) {
-//             let result = error.responseJSON;
-//             layer.msg(sprintf('立即执行调度失败[%s]', result.msg), {icon: 5});
-//         }
-//     });
-// });

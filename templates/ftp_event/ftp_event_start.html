@@ -11,7 +11,7 @@
     <fieldset class="layui-elem-field layui-field-title">
         <legend>参数配置</legend>
     </fieldset>
-    <form class="layui-form" lay-filter="dispatch_start">
+    <form class="layui-form" lay-filter="ftp_event_start">
         <div class="layui-form-item">
             <label class="layui-form-label" style="width: 180px;text-align: left;">数据日期</label>
             <div class="layui-input-inline">
@@ -26,12 +26,6 @@
                 <input type="text" class="layui-input" name="date_format" placeholder="日期格式" autocomplete="off">
             </div>
         </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label" style="width: 180px;text-align: left;">是否触发后置任务流</label>
-            <div class="layui-input-inline">
-                <input type="checkbox" name="is_after" lay-skin="switch" lay-text="是|否" value="1">
-            </div>
-        </div>
         <div class="layui-input-block">
             <div class="layui-input-inline">
                 <button lay-submit class="layui-btn" lay-filter="start-save" type="button">提交</button>
@@ -41,10 +35,10 @@
     </form>
 </div>
 <script>
-    window.dispatch_id = '{{ dispatch_id }}';
+    window.ftp_event_id = '{{ ftp_event_id }}';
 </script>
 <script type="text/javascript" src="/static/layui/layui.all.js"></script>
 <script type="text/javascript" src="/static/js/layui-formSelects.js"></script>
-<script type="text/javascript" src="/static/js/dispatch/dispatch_start.js"></script>
+<script type="text/javascript" src="/static/js/ftp_event/ftp_event_start.js"></script>
 </body>
 </html>

@@ -180,7 +180,6 @@ def get_event_job(event_id, exec_type=1, run_date='', date_format='%Y%m%d'):
     :param exec_type: 执行类型: 1.自动, 2.手动
     :param run_date: 手动传入$date日期
     :param date_format: $date日期格式
-    :param is_after: 是否触发后置任务流
     :return: None
     """
     # 传入日期
@@ -251,6 +250,8 @@ def get_event_job(event_id, exec_type=1, run_date='', date_format='%Y%m%d'):
     # 继续下一个任务流
     if flag:
         next_jobs = continue_event_execute_interface(exec_id, exec_type=exec_type, run_date=run_time)
+        if not next_jobs:
+            return
         for interface_id, item in next_jobs.items():
             for job_id in set(item['job_id']):
                 log.info('分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (exec_id, interface_id, job_id))

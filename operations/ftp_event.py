@@ -218,4 +218,4 @@ class FtpEventOperation(object):
             except Exception as e:
                 log.error('立即执行调度异常 [ERROR: %s]' % e, exc_info=True)
                 abort(400, **make_result(status=400, msg='立即执行调度异常'))
-        return Response(dispatch_id=ftp_event_id)
+        return Response(ftp_event_id=ftp_event_id)
