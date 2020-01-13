@@ -292,6 +292,8 @@
                     done: function (res) {
                         // 成功上传
                         if (res.status && res.status === 200) {
+                            // 刷新当前页面
+                            $(".layui-laypage-btn").click();
                             layer.msg("成功", {icon: 6});
                         }
                         // 上传参数错误

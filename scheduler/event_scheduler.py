@@ -191,9 +191,22 @@ def get_event_job(event_id, exec_type=1, run_date='', date_format='%Y%m%d'):
             run_time = event_detail['date_time']
         else:
             run_time = time.strftime(date_format, time.localtime())
-
     # 任务流详情
     detail_list = EventModel.get_interface_detail_by_ftp_event_id(db.etl_db, event_id)
+    # TODO 检测是否执行
+    """
+    1.传入事件id(ftp_event_id)
+    2.获取事件详情(任务流id, 任务流名称, 数据日期)列表
+    3.获取FTP服务器配置(传入ftp_event_id)
+    4.FTP服务器不存在抛出异常
+    5.检测FTP服务器连接, 将数据日期替换文件名, 查询文件是否存在
+    6.不存在退出
+    7.条件一: 文件存在; 条件二: 未存在当前数据日期的成功执行记录(调度id查询), 执行任务流
+    8.构造任务流, for任务流列表, return任务流依赖数据结构, 每个dict遍历一遍, 是否存在未for的key,
+    如果存在(该任务流在之前任务流的数据结构中), 跳过该任务流, 写入数据库, 执行部分同调度触发, 执行成功时修改数据日期到当天
+    """
+    # 获取
+    ftp_detail = FtpEventModel.get_ftp_detail_by_event_id(db.etl_db, event_id)
     interface_dag_nodes = {}
     # 遍历多个任务流
     for detail in detail_list:
