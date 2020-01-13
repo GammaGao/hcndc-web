@@ -47,7 +47,7 @@ def continue_execute_job(exec_id, interface_id):
     return next_job, nodes
 
 
-def continue_execute_interface(exec_id, result=None, exec_type=1, run_date=''):
+def continue_execute_interface_all(exec_id, result=None, exec_type=1, run_date=''):
     """
     获取可执行任务流
     1.如果所有执行任务流都完成, 修改执行主表状态[成功]
@@ -97,7 +97,7 @@ def continue_execute_interface(exec_id, result=None, exec_type=1, run_date=''):
                     # 1.出度的入度本次执行状态不成功, 2.出度的入度没有数据日期, 3.出度的入度数据日期小于出度的数据日期, 4.如果存在出度的上一次执行记录, 上一次执行记录不成功
                     if in_detail['status'] != 0 or not in_detail['run_time'] \
                             or in_detail['run_time'] < current_detail['run_time']:
-                            # or (current_detail['last_status'] and current_detail['last_status'] != 0):
+                        # or (current_detail['last_status'] and current_detail['last_status'] != 0):
                         flag = False
                         break
                 if flag and interface_dict[out_id]['status'] == 3:
@@ -146,24 +146,117 @@ def continue_execute_interface(exec_id, result=None, exec_type=1, run_date=''):
                 ExecuteModel.update_exec_interface_status(db.etl_db, exec_id, interface_id, 1)
     # 存在空任务流
     if flag:
-        return continue_execute_interface(exec_id, result, exec_type, run_date)
+        return continue_execute_interface_all(exec_id, result, exec_type, run_date)
     else:
         return result
-    # # 如果没有可执行任务流
-    # if not result:
-    #     # 查询执行任务流状态
-    #     status_list = ExecuteModel.get_execute_interface_status(db.etl_db, exec_id)
-    #     # 存在失败
-    #     if -1 in status_list:
-    #         interface_status = -1
-    #     # 全部成功
-    #     elif set(status_list) == {0}:
-    #         interface_status = 0
-    #     # 运行中
-    #     else:
-    #         interface_status = 1
-    #     # 修改执行主表状态[成功/失败]
-    #     ExecuteModel.update_execute_status(db.etl_db, exec_id, interface_status)
+
+
+def continue_execute_interface(exec_id, current_interface, result=None, exec_type=1, run_date=''):
+    """
+    获取可执行任务流
+    1.如果所有执行任务流都完成, 修改执行主表状态[成功]
+    2.所有任务流都完成, 修改执行主表状态[成功], 返回退出
+    3.获取当前执行id下的任务流, 遍历任务流
+    3.自动调度下(exec_type=1)当前节点出度的所有入度成功, 出度的所有入度数据日期>=出度的数据日期, 节点出度的状态为待运行;
+      手动调度下(exec_type=2)默认所有出度成功.
+    4.获取可执行任务流下初始任务, 存在空任务流, 修改执行任务流状态[成功], 修改任务流数据日期, 递归本方法
+    5.否则修改执行任务流状态[运行中], 返回结果集
+    :param result: 结果集
+    :param exec_id: 执行id
+    :param current_interface: 当前任务流id
+    :param exec_type: 执行类型: 1.自动, 2.手动
+    :param run_date: 数据日期
+    :return:
+    """
+    if not run_date:
+        run_date = time.strftime('%Y-%m-%d', time.localtime())
+    # 可执行任务流id
+    if result is None:
+        result = {}
+    next_interface = []
+    # {可执行任务流id: {'job_id': [可执行任务id], 'nodes': {'job_id': {任务详情}}}}
+    # 推进流程
+    with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+        interface_dict = get_interface_dag_by_exec_id(exec_id)
+    # 当前任务流
+    current_interface_dict = interface_dict[int(current_interface)]
+    # 已完成任务流
+    complete_interface = [_ for _, item in interface_dict.items() if item['status'] == 0]
+    # 所有任务流都完成
+    if len(complete_interface) == len(interface_dict):
+        # 修改执行主表状态[成功]
+        with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+            ExecuteModel.update_execute_status(db.etl_db, exec_id, 0)
+        return
+    # 遍历当前任务流出度
+    for out_id in current_interface_dict['out_degree']:
+        # 自动调度下, 检查出度的入度数据日期和状态是否成功
+        if exec_type == 1:
+            # 出度任务流的执行详情
+            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                current_detail = InterfaceModel.get_interface_detail_last_execute(db.etl_db, out_id)
+            flag = True
+            for in_id in interface_dict[out_id]['in_degree']:
+                # 获取出度的入度任务流详情
+                with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                    in_detail = InterfaceModel.get_interface_detail_last_execute(db.etl_db, in_id)
+                # 1.出度的入度本次执行状态不成功, 2.出度的入度没有数据日期, 3.出度的入度数据日期小于出度的数据日期, 4.如果存在出度的上一次执行记录, 上一次执行记录不成功
+                if in_detail['status'] != 0 or not in_detail['run_time'] \
+                        or in_detail['run_time'] < current_detail['run_time']:
+                    # or (current_detail['last_status'] and current_detail['last_status'] != 0):
+                    flag = False
+                    break
+            if flag and interface_dict[out_id]['status'] == 3:
+                next_interface.append(out_id)
+        # 手动调度下, 直接通过
+        else:
+            flag = True
+            for in_id in interface_dict[out_id]['in_degree']:
+                # 获取出度的入度详情
+                with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                    in_detail = InterfaceModel.get_interface_detail_last_execute(db.etl_db, in_id)
+                # 1.出度的入度本次执行状态不成功
+                if in_detail['status'] != 0:
+                    flag = False
+                    break
+            if flag and interface_dict[out_id]['status'] == 3:
+                next_interface.append(out_id)
+        # 获取所有层级可执行任务
+        for next_interface_id in set(next_interface):
+            nodes = get_job_dag_by_exec_id(exec_id, next_interface_id)
+            # 可执行任务流设置默认可执行任务
+            result.setdefault(next_interface_id, {'nodes': nodes, 'job_id': []})
+            # 遍历所有节点
+            for job_id in nodes:
+                # 初始节点
+                if nodes[job_id]['level'] == 0 and nodes[job_id]['status'] in ('preparing', 'ready'):
+                    result[next_interface_id]['job_id'].append(job_id)
+    # 出度任务流中符合条件的任务为空, 寻找下一个可执行任务流
+    flag = False
+    result_deep = deepcopy(result)
+    null_interface = []
+    for interface_id, item in result_deep.items():
+        # 修改执行任务流状态[成功]
+        if not item['job_id']:
+            flag = True
+            result.pop(interface_id)
+            null_interface.append(interface_id)
+            log.info('任务流中任务为空: 执行id: %s, 任务流id: %s' % (exec_id, interface_id))
+            # 数据日期改成当天日期, 手动调度时可以再优化
+            new_date = time.strftime('%Y-%m-%d', time.localtime())
+            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                ExecuteModel.update_interface_run_time(db.etl_db, interface_id, new_date)
+                ExecuteModel.update_exec_interface_status(db.etl_db, exec_id, interface_id, 0)
+        # 修改执行任务流状态[运行中]
+        else:
+            with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
+                ExecuteModel.update_exec_interface_status(db.etl_db, exec_id, interface_id, 1)
+    # 存在空任务流
+    if flag:
+        for item in null_interface:
+            return continue_execute_interface(exec_id, item, result, exec_type, run_date)
+    else:
+        return result
 
 
 def rpc_push_job(exec_id, interface_id, job_id, server_host, port, params_value, server_dir, server_script, return_code,
@@ -337,7 +430,7 @@ class ExecuteOperation(object):
             with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
                 ExecuteModel.update_interface_run_time(db.etl_db, interface_id, new_date)
             # 获取可执行任务流
-            next_jobs = continue_execute_interface(exec_id, exec_type=execute_detail['exec_type'],
+            next_jobs = continue_execute_interface(exec_id, interface_id, exec_type=execute_detail['exec_type'],
                                                    run_date=execute_detail['run_date'])
             if not next_jobs:
                 return Response(msg='成功')
@@ -588,8 +681,8 @@ class ExecuteOperation(object):
             error_interface = [_ for _, item in interface_dict.items() if item['status'] in (2, -1)]
             # 如果没有中断/失败任务流, 找到满足依赖的就绪任务流
             if not error_interface:
-                error_interface = continue_execute_interface(item, exec_type=dispatch['exec_type'],
-                                                             run_date=dispatch['run_date'])
+                error_interface = continue_execute_interface_all(item, exec_type=dispatch['exec_type'],
+                                                                 run_date=dispatch['run_date'])
                 if not error_interface:
                     error_interface = {}
                 else:
@@ -755,11 +848,13 @@ class ExecuteOperation(object):
                 job_nodes[interface_id] = jobs['source']
             # 开始执行初始任务流中的任务
             flag = False
+            null_interface = []
             for curr_interface in start_interface:
                 start_jobs = job_nodes[curr_interface]
                 # 任务流中任务为空, 则视调度已完成
                 if not start_jobs:
                     flag = True
+                    null_interface.append(curr_interface)
                     # 数据日期改成当天日期, 手动调度时可以再优化
                     new_date = time.strftime('%Y-%m-%d', time.localtime())
                     with MysqlLock(config.mysql.etl, 'exec_lock_%s' % item):
@@ -786,16 +881,17 @@ class ExecuteOperation(object):
                                          job['return_code'], job['status'], run_date=dispatch['run_date'])
             # 继续下一个任务流
             if flag:
-                next_jobs = continue_execute_interface(item, exec_type=dispatch['exec_type'],
-                                                       run_date=dispatch['run_date'])
-                for interface_id, val in next_jobs.items():
-                    for job_id in set(val['job_id']):
-                        log.info('分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (item, interface_id, job_id))
-                        nodes = val['nodes']
-                        rpc_push_job(item, interface_id, job_id, nodes[job_id]['server_host'],
-                                     config.exec.port, nodes[job_id]['params_value'], nodes[job_id]['server_dir'],
-                                     nodes[job_id]['server_script'], nodes[job_id]['return_code'],
-                                     nodes[job_id]['status'], run_date=dispatch['run_date'])
+                for interface_item in null_interface:
+                    next_jobs = continue_execute_interface(item, interface_item, exec_type=dispatch['exec_type'],
+                                                           run_date=dispatch['run_date'])
+                    for interface_id, val in next_jobs.items():
+                        for job_id in set(val['job_id']):
+                            log.info('分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (item, interface_id, job_id))
+                            nodes = val['nodes']
+                            rpc_push_job(item, interface_id, job_id, nodes[job_id]['server_host'],
+                                         config.exec.port, nodes[job_id]['params_value'], nodes[job_id]['server_dir'],
+                                         nodes[job_id]['server_script'], nodes[job_id]['return_code'],
+                                         nodes[job_id]['status'], run_date=dispatch['run_date'])
         return Response(exec_id=exec_id)
 
     @staticmethod

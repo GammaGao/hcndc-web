@@ -53,14 +53,16 @@ def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='%Y%m%d'
     # 添加执行主表, 任务流表, 任务表至数据库
     exec_id = add_exec_record(dispatch_id, interface_dag_nodes, job_nodes, exec_type, run_time, is_after, date_format)
     # 初始任务流
-    start_interface = [_ for _, item in interface_tree_nodes.items() if item['level'] == 0]
+    start_interface = [_ for _, item in interface_dag_nodes.items() if item['level'] == 0 and item['is_tree'] == 1]
     # 开始执行初始任务流中的任务
     flag = False
+    null_interface = []
     for curr_interface in start_interface:
         start_jobs = job_nodes[curr_interface]
         # 任务流中任务为空, 则视调度已完成
         if not start_jobs:
             flag = True
+            null_interface.append(curr_interface)
             # 数据日期改成当天日期, 手动调度时可以再优化
             new_date = time.strftime('%Y-%m-%d', time.localtime())
             with MysqlLock(config.mysql.etl, 'exec_lock_%s' % exec_id):
@@ -85,17 +87,18 @@ def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='%Y%m%d'
                                  job['return_code'], job['status'], run_date=run_time)
     # 继续下一个任务流
     if flag:
-        next_jobs = continue_execute_interface(exec_id, exec_type=exec_type, run_date=run_time)
-        if not next_jobs:
-            return
-        for interface_id, item in next_jobs.items():
-            for job_id in set(item['job_id']):
-                log.info('分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (exec_id, interface_id, job_id))
-                nodes = item['nodes']
-                rpc_push_job(exec_id, interface_id, job_id, nodes[job_id]['server_host'],
-                             config.exec.port, nodes[job_id]['params_value'],
-                             nodes[job_id]['server_dir'], nodes[job_id]['server_script'],
-                             nodes[job_id]['return_code'], nodes[job_id]['status'], run_date=run_time)
+        for interface_item in null_interface:
+            next_jobs = continue_execute_interface(exec_id, interface_item, exec_type=exec_type, run_date=run_time)
+            if not next_jobs:
+                return
+            for interface_id, item in next_jobs.items():
+                for job_id in set(item['job_id']):
+                    log.info('分发任务: 执行id: %s, 任务流id: %s, 任务id: %s' % (exec_id, interface_id, job_id))
+                    nodes = item['nodes']
+                    rpc_push_job(exec_id, interface_id, job_id, nodes[job_id]['server_host'],
+                                 config.exec.port, nodes[job_id]['params_value'],
+                                 nodes[job_id]['server_dir'], nodes[job_id]['server_script'],
+                                 nodes[job_id]['return_code'], nodes[job_id]['status'], run_date=run_time)
 
 
 def add_exec_record(dispatch_id, interface_nodes, job_nodes, exec_type=1, run_date='', is_after=1,
