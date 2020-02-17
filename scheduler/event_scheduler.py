@@ -9,11 +9,15 @@ from scheduler.generate_event_dag import generate_interface_dag_by_event, genera
     generate_job_dag_by_interface
 from models.event import EventModel
 from models.ftp_event import FtpEventModel
+from models.ftp import FtpModel
 from configs import db
 from configs import config, log
 from conn.mysql_lock import MysqlLock
 from scheduler.generate_event_dag import get_event_interface_dag_by_exec_id, get_event_job_dag_by_exec_id
 from rpc.rpc_client import Connection
+from ftp_server.ftp import FtpLink
+from ftp_server.sftp import SftpLink
+from server.decorators import Response
 
 
 def rpc_push_job(exec_id, interface_id, job_id, server_host, port, params_value, server_dir, server_script, return_code,
@@ -176,6 +180,15 @@ def continue_event_execute_interface(exec_id, result=None, exec_type=1, run_date
 def get_event_job(event_id, exec_type=1, run_date='', date_format='%Y%m%d'):
     """
     事件执行开始方法
+    1.传入事件id(ftp_event_id)
+    2.获取事件详情(任务流id, 任务流名称, 数据日期)
+    3.获取FTP服务器配置(传入ftp_event_id)
+    4.FTP服务器不存在抛出异常
+    5.检测FTP服务器连接, 将数据日期替换文件名, 查询文件是否存在
+    6.不存在退出
+    7.条件一: 文件存在; 条件二: 未存在当前数据日期的成功执行记录(调度id查询), 执行任务流
+    8.构造任务流, for任务流列表, return任务流依赖数据结构, 每个dict遍历一遍, 是否存在未for的key,
+    如果存在(该任务流在之前任务流的数据结构中), 跳过该任务流, 写入数据库, 执行部分同调度触发, 执行成功时修改数据日期到当天
     :param event_id: 事件id
     :param exec_type: 执行类型: 1.自动, 2.手动
     :param run_date: 手动传入$date日期
@@ -188,25 +201,48 @@ def get_event_job(event_id, exec_type=1, run_date='', date_format='%Y%m%d'):
     else:
         event_detail = FtpEventModel.get_ftp_event_detail(db.etl_db, event_id)
         if event_detail and event_detail['date_time']:
-            run_time = event_detail['date_time']
+            run_time = time.strftime(date_format, time.strptime(event_detail['date_time'], '%Y-%m-%d'))
         else:
             run_time = time.strftime(date_format, time.localtime())
     # 任务流详情
     detail_list = EventModel.get_interface_detail_by_ftp_event_id(db.etl_db, event_id)
-    # TODO 检测是否执行
-    """
-    1.传入事件id(ftp_event_id)
-    2.获取事件详情(任务流id, 任务流名称, 数据日期)列表
-    3.获取FTP服务器配置(传入ftp_event_id)
-    4.FTP服务器不存在抛出异常
-    5.检测FTP服务器连接, 将数据日期替换文件名, 查询文件是否存在
-    6.不存在退出
-    7.条件一: 文件存在; 条件二: 未存在当前数据日期的成功执行记录(调度id查询), 执行任务流
-    8.构造任务流, for任务流列表, return任务流依赖数据结构, 每个dict遍历一遍, 是否存在未for的key,
-    如果存在(该任务流在之前任务流的数据结构中), 跳过该任务流, 写入数据库, 执行部分同调度触发, 执行成功时修改数据日期到当天
-    """
-    # 获取
+    # 检测是否执行
+    # 获取FTP服务器配置
     ftp_detail = FtpEventModel.get_ftp_detail_by_event_id(db.etl_db, event_id)
+    # 检测FTP服务器文件是否存在
+    if isinstance(ftp_detail['ftp_passwd'], bytes):
+        ftp_detail['ftp_passwd'] = ftp_detail['ftp_passwd'].decode('utf-8', 'ignore')
+    try:
+        # FTP连接
+        if ftp_detail['ftp_type'] == 1:
+            ftp = FtpLink(ftp_detail['ftp_host'], ftp_detail['ftp_port'], ftp_detail['ftp_user'], ftp_detail['ftp_passwd'])
+            FtpModel.update_ftp_status(db.etl_db, ftp_detail['ftp_id'], 0)
+            # 文件名
+            file_name = time.strftime(ftp_detail['file_name'], time.strptime(ftp_detail['date_time'], '%Y-%m-%d'))
+            result = ftp.test_file(ftp_detail['data_path'], file_name)
+            ftp.close()
+        # SFTP连接
+        elif ftp_detail['ftp_type'] == 2:
+            ftp = SftpLink(ftp_detail['ftp_host'], ftp_detail['ftp_port'], ftp_detail['ftp_user'], ftp_detail['ftp_passwd'])
+            FtpModel.update_ftp_status(db.etl_db, ftp_detail['ftp_id'], 0)
+            # 文件名
+            file_name = time.strftime(ftp_detail['file_name'], time.strptime(ftp_detail['date_time'], '%Y-%m-%d'))
+            result = ftp.test_file(ftp_detail['data_path'], file_name)
+            ftp.close()
+        else:
+            FtpModel.update_ftp_status(db.etl_db, ftp_detail['ftp_id'], 1)
+            return Response(status=400, msg='FTP服务器类型未知')
+    except:
+        FtpModel.update_ftp_status(db.etl_db, ftp_detail['ftp_id'], 1)
+        return Response(status=400, msg='FTP连接异常')
+    # 当前数据日期的成功执行记录
+    success_detail = EventModel.get_event_exec_detail_success(db.etl_db, event_id, ftp_detail['date_time'])
+    # 文件存在, 未存在当前数据日期的成功执行记录(调度id查询)
+    if result and not success_detail:
+        # 执行任务流
+        pass
+    else:
+        return Response(status=400, msg='FTP文件目录不存在')
     interface_dag_nodes = {}
     # 遍历多个任务流
     for detail in detail_list:

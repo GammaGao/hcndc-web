@@ -180,7 +180,8 @@ class EventModel(object):
         return result if result else []
 
     @staticmethod
-    def add_event_exec_detail_job(cursor, exec_id, interface_id, job_id, level, server_dir, server_script, message, type):
+    def add_event_exec_detail_job(cursor, exec_id, interface_id, job_id, level, server_dir, server_script, message,
+                                  type):
         """添加执行任务详情日志"""
         command = '''
         INSERT INTO tb_event_detail_logs(exec_id, interface_id, job_id, `level`,
@@ -199,3 +200,17 @@ class EventModel(object):
             'insert_time': int(time.time())
         })
         return result
+
+    @staticmethod
+    def get_event_exec_detail_success(cursor, event_id, run_date):
+        """获取事件id某日期执行成功日志详情"""
+        command = '''
+        SELECT exec_id, exec_type, event_id, `status`, run_date, date_format
+        FROM tb_event_execute
+        WHERE STR_TO_DATE(run_date, date_format) = :run_date AND event_id = :event_id AND `status` = 0
+        '''
+        result = cursor.query_one(command, {
+            'run_date': run_date,
+            'event_id': event_id
+        })
+        return result if result else {}

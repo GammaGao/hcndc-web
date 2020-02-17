@@ -174,8 +174,8 @@ class FtpEventModel(object):
     def get_ftp_detail_by_event_id(cursor, ftp_event_id):
         """获取FTP文件详情by事件id"""
         command = '''
-        SELECT a.date_time, a.data_path, a.file_name, b.ftp_type,
-        b.ftp_host, b.ftp_port, b.ftp_user, FROM_BASE64(b.ftp_passwd)
+        SELECT a.date_time, a.data_path, a.file_name, b.ftp_type, a.ftp_id,
+        b.ftp_host, b.ftp_port, b.ftp_user, FROM_BASE64(b.ftp_passwd) AS ftp_passwd
         FROM tb_file_event AS a
         LEFT JOIN tb_ftp_config AS b ON a.ftp_id = b.ftp_id AND b.is_deleted = 0
         WHERE ftp_event_id = :ftp_event_id AND a.`status` != 0;

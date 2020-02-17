@@ -18,6 +18,13 @@ class SftpLink(object):
         except FileNotFoundError:
             return False
 
+    def test_file(self, remote_path, file_name):
+        """检测文件是否存在"""
+        try:
+            return file_name in self.sftp.listdir(remote_path)
+        except FileNotFoundError:
+            return False
+
     def close(self):
         """关闭连接"""
         self.sftp.close()
