@@ -154,6 +154,7 @@ def continue_execute_interface_all(exec_id, result=None, exec_type=1, run_date='
 def continue_execute_interface(exec_id, current_interface, result=None, exec_type=1, run_date=''):
     """
     获取可执行任务流
+    WARNING: 本方法空间复杂度很高, 遇到超过500个任务流, 计算时间超长
     1.如果所有执行任务流都完成, 修改执行主表状态[成功]
     2.所有任务流都完成, 修改执行主表状态[成功], 返回退出
     3.获取当前执行id下的任务流, 遍历任务流

@@ -143,7 +143,7 @@ class FtpEventAction(Resource):
             run_date=payload.get('run_date', ''),
             date_format=payload.get('date_format', '')
         )
-        log.info('立即执行调度任务[params: %s]' % str(params))
+        log.info('立即执行调度事件[params: %s]' % str(params))
         return params
 #
     @staticmethod

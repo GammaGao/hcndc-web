@@ -43,8 +43,8 @@ class DataSourceOperation(object):
             if isinstance(detail['source_password'], bytes):
                 detail['source_password'] = detail['source_password'].decode('utf-8', 'ignore')
             data = test_db_conn(detail['source_type'], detail['auth_type'], detail['source_host'],
-                                detail['source_port'],
-                                detail['source_database'], detail['source_user'], detail['source_password'])
+                                detail['source_port'], detail['source_database'], detail['source_user'],
+                                detail['source_password'])
             if data['tag']:
                 DataSourceModel.update_datasource_status(db.etl_db, source_id, 0)
                 return Response(status=200, msg=data['msg'])
