@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% include "util/style.html" %}
+    <script type="text/javascript" src="/static/echarts/echarts.min.js"></script>
+    <title>立即执行</title>
+</head>
+<body>
+<div class="layui-layout layui-layout-admin">
+    <!-- 内容主体区域 -->
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>参数配置</legend>
+    </fieldset>
+    <form class="layui-form" lay-filter="job_start">
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 180px;text-align: left;">数据日期</label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="run_date" placeholder="数据日期" autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label" style="width: 180px;text-align: left;">日期格式
+            <i id="sub" class="layui-icon layui-icon-about"></i>
+            </label>
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input" name="date_format" placeholder="日期格式" autocomplete="off">
+            </div>
+        </div>
+        <div class="layui-input-block">
+            <div class="layui-input-inline">
+                <button lay-submit class="layui-btn" lay-filter="start-save" type="button">提交</button>
+                <button type="reset" class="layui-btn layui-btn-primary">清空</button>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    window.job_id = '{{ job_id }}';
+</script>
+<script type="text/javascript" src="/static/layui/layui.all.js"></script>
+<script type="text/javascript" src="/static/js/layui-formSelects.js"></script>
+<script type="text/javascript" src="/static/js/job/job_start.js"></script>
+</body>
+</html>

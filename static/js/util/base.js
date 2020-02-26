@@ -74,7 +74,8 @@ let BASE = {
             'add_api': '/job/add/api/',
             'id_list_api': '/job/list/all/api/',
             'run_api': '/job/run/api/',
-            'index_api': '/job/index/api/'
+            'index_api': '/job/index/api/',
+            'run': '/job/run/'
         },
         dispatch: {
             'list': '/dispatch/',

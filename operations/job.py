@@ -237,7 +237,7 @@ class JobOperation(object):
 
     @staticmethod
     @make_decorator
-    def execute_job(job_id):
+    def execute_job(job_id, run_date, date_format='%Y%m%d'):
         """立即执行任务"""
         # 获取任务
         job = JobModel.get_job_detail(db.etl_db, job_id)
@@ -245,9 +245,15 @@ class JobOperation(object):
             abort(400, **make_result(status=400, msg='任务已删除, 不能执行'))
         # 获取任务参数
         params = JobOperation.get_job_params(db.etl_db, job_id)
+
+        # 传入日期
+        if run_date and date_format:
+            run_time = time.strftime(date_format, time.strptime(run_date, '%Y-%m-%d'))
+        # 默认值为前一天
+        else:
+            run_time = (date.today() + timedelta(days=-1)).strftime(date_format)
         # 添加执行表
-        run_date = (date.today() + timedelta(days=-1)).strftime('%Y%m%d')
-        exec_id = ExecuteModel.add_execute(db.etl_db, 2, 0, run_date, 0, '%Y%m%d')
+        exec_id = ExecuteModel.add_execute(db.etl_db, 2, 0, run_time, 0, '%Y%m%d')
         # 添加执行详情表
         data = {
             'exec_id': exec_id,
@@ -270,7 +276,7 @@ class JobOperation(object):
         # RPC分发任务
         push_msg = rpc_push_job(exec_id, 0, job_id, job['server_host'], config.exec.port,
                                 ','.join(params), job['server_dir'], job['server_script'], job['return_code'],
-                                'preparing', run_date=run_date)
+                                'preparing', run_date=run_time)
         if push_msg:
             return Response(status=False, msg=push_msg)
         else:

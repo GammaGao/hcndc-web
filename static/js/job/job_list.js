@@ -520,39 +520,13 @@
                                 layer.alert('项目已失效');
                                 return
                             }
-                            layer.confirm('确定执行任务?', function (index) {
-                                // 关闭弹窗
-                                layer.close(index);
-                                $.ajax({
-                                    url: BASE.uri.job.run_api,
-                                    contentType: "application/json; charset=utf-8",
-                                    type: 'post',
-                                    data: JSON.stringify({'job_id': data.job_id}),
-                                    success: function (result) {
-                                        if (result.status === 200) {
-                                            layer.open({
-                                                id: 'job_run_success',
-                                                btn: ['跳转', '留在本页'],
-                                                title: '立即执行任务成功',
-                                                content: '是否跳转至执行日志?',
-                                                yes: function (index) {
-                                                    layer.close(index);
-                                                    window.location.href = BASE.uri.execute.job_history + data.job_id + '/';
-                                                }
-                                            });
-                                        } else {
-                                            layer.msg(sprintf('执行失败[%s]', result.msg), {icon: 5, shift: 6});
-                                        }
-                                    },
-                                    error: function (error) {
-                                        let result = error.responseJSON;
-                                        layer.open({
-                                            id: 'job_run_error',
-                                            title: '立即执行任务失败',
-                                            content: sprintf('%s', result.msg)
-                                        })
-                                    }
-                                });
+                            layer.open({
+                                type: 2,
+                                anim: 5,
+                                title: '立即执行',
+                                maxmin: true,
+                                area: ['60%', '80%'],
+                                content: BASE.uri.job.run + '?job_id=' + data.job_id
                             });
                             break;
                     }

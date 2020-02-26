@@ -14,6 +14,7 @@ from models.interface import InterfaceModel
 from models.job import JobModel
 from models.params import ParamsModel
 from util import session as curr_session
+from server.request import get_arg
 
 
 @app.route('/job/')
@@ -54,6 +55,15 @@ def JobDownload():
     file_path = './download/新增任务模板.xlsx'
     response = send_file(file_path, as_attachment=True, attachment_filename='新增任务模板.xlsx')
     return response
+
+
+@app.route('/job/run/')
+def JobRun():
+    """立即执行参数配置页面"""
+    job_id = get_arg('job_id', '')
+    if session.get('login'):
+        return render_template('job/job_start.html', job_id=job_id)
+    return redirect('/login/')
 
 
 @app.route('/job/upload/', methods=['POST'])

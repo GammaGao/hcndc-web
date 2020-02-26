@@ -140,14 +140,16 @@ class JobExecute(Resource):
     @staticmethod
     @job_execute_request
     @JobFilter.filter_execute_job(status=bool, msg=str)
-    @JobOperation.execute_job(job_id=int)
-    @JobVerify.verify_execute_job(job_id=int, user_id=int)
-    @PermissionVerify.verify_execute_permission(job_id=int)
+    @JobOperation.execute_job(job_id=int, run_date=str, date_format=str)
+    @JobVerify.verify_execute_job(job_id=int, user_id=int, run_date=str, date_format=str)
+    @PermissionVerify.verify_execute_permission(job_id=int, run_date=str, date_format=str)
     def post():
         """立即执行任务"""
         payload = get_payload()
         params = Response(
-            job_id=int(payload.get('job_id', 0))
+            job_id=int(payload.get('job_id', 0)),
+            run_date=payload.get('run_date', ''),
+            date_format=payload.get('date_format', '')
         )
         log.info('立即执行任务[params: %s]' % str(params))
         return params

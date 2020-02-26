@@ -95,13 +95,13 @@ class JobVerify(object):
 
     @staticmethod
     @make_decorator
-    def verify_execute_job(job_id, user_id):
+    def verify_execute_job(job_id, user_id, run_date, date_format):
         """立即执行任务"""
         if not job_id:
             abort(400, **make_result(status=400, msg='任务id不存在'))
         if not user_id:
             abort(400, **make_result(status=400, msg='用户不存在'))
-        return Response(job_id=job_id, user_id=user_id)
+        return Response(job_id=job_id, user_id=user_id, run_date=run_date, date_format=date_format)
 
     @staticmethod
     @make_decorator
