@@ -211,10 +211,14 @@
                     }, {
                         field: "operation",
                         title: "操作",
-                        templet: function () {
+                        templet: function (data) {
                             let html = [];
                             html.push('<div class="layui-btn-group">');
                             html.push('<a class="layui-btn layui-btn-sm" lay-event="detail">详情日志</a>');
+                            // 运行中
+                            if (data.status === 1) {
+                                html.push('<a class="layui-btn layui-btn-sm layui-btn-warm" lay-event="stop">中止</a>');
+                            }
                             html.push('</div>');
                             return html.join('');
                         }
@@ -247,6 +251,44 @@
                             area: ['80%', '80%'],
                             content: BASE.uri.execute.detail + data.exec_id + '/'
                         });
+                    }
+                    // 中止
+                    else if (event === 'stop') {
+                        layer.confirm('确定中止?', function (index) {
+                            // 关闭弹窗
+                            layer.close(index);
+                            $.ajax({
+                                url: BASE.uri.execute.action_api,
+                                contentType: "application/json; charset=utf-8",
+                                data: JSON.stringify({exec_id: [data.exec_id]}),
+                                type: 'delete',
+                                success: function (result) {
+                                    if (result.status === 200) {
+                                        layer.msg('中止成功', {icon: 6});
+                                        // 刷新页面
+                                        $(".layui-laypage-btn").click();
+                                    } else {
+                                        layer.msg(sprintf('中止失败[%s]', result.msg), {
+                                            icon: 5,
+                                            shift: 6,
+                                            end: function () {
+                                                $(".layui-laypage-btn").click();
+                                            }
+                                        });
+                                    }
+                                },
+                                error: function (error) {
+                                    let result = error.responseJSON;
+                                    layer.alert(sprintf('中止失败: %s', result.msg), {
+                                        icon: 5,
+                                        shift: 6,
+                                        end: function () {
+                                            $(".layui-laypage-btn").click();
+                                        }
+                                    })
+                                }
+                            })
+                        })
                     }
                 })
             })
