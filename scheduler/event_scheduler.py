@@ -260,7 +260,7 @@ def get_event_job(event_id, exec_type=1, run_date='', date_format='%Y%m%d'):
     if not interface_dag_nodes:
         return
     # 需执行任务流
-    interface_tree_nodes = {key: value for key, value in interface_dag_nodes.items() if value['is_tree'] == 1}
+    interface_tree_nodes = {key: value for key, value in interface_dag_nodes.items() if value.get('is_tree', 0) == 1}
     # 获取所有任务流的任务详情
     job_nodes = {}
     for _, item in interface_tree_nodes.items():

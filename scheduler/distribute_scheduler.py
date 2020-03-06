@@ -53,7 +53,7 @@ def get_dispatch_job(dispatch_id, exec_type=1, run_date='', date_format='%Y%m%d'
     # 添加执行主表, 任务流表, 任务表至数据库
     exec_id = add_exec_record(dispatch_id, interface_dag_nodes, job_nodes, exec_type, run_time, is_after, date_format)
     # 初始任务流
-    start_interface = [_ for _, item in interface_dag_nodes.items() if item['level'] == 0 and item['is_tree'] == 1]
+    start_interface = [_ for _, item in interface_dag_nodes.items() if item['level'] == 0 and item.get('is_tree', 0) == 1]
     # 开始执行初始任务流中的任务
     flag = False
     null_interface = []
